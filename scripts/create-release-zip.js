@@ -38,6 +38,7 @@ const excludePatterns = [
     /\.vscode/,
     /\.idea/,
     /\.svn-temp/,
+    /\.wordpress-org/,     // WP.org SVN assets - not needed in plugin ZIP
     /\.editorconfig$/,
     /\.eslintrc\.js$/,
     /\.stylelintrc\.json$/,

@@ -819,10 +819,12 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
             WHERE g.goal_id IN ($placeholders)
             GROUP BY g.goal_id
         ";
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		// $sql uses $placeholders (built from array_fill with %d) and literal %s placeholders.
+		// All values are bound via $wpdb->prepare() splat below — safe from injection.
 		$query = $wpdb->prepare($sql, ...$query_params);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Already prepared via $wpdb->prepare() with splat above
+		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query is already prepared above.
 		$results = $wpdb->get_results($query, ARRAY_A);
 
 		// Check for database errors.
