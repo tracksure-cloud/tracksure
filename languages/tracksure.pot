@@ -1,0 +1,512 @@
+# Copyright (C) 2025 TrackSure
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: TrackSure 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/tracksure\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"POT-Creation-Date: 2025-12-18T12:18:59+00:00\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"X-Generator: WP-CLI 2.12.0\n"
+"X-Domain: tracksure\n"
+
+#. Plugin Name of the plugin
+#. Author of the plugin
+#: tracksure.php
+#: includes/core/admin/class-tracksure-admin-ui.php:58
+#: includes/core/admin/class-tracksure-admin-ui.php:59
+msgid "TrackSure"
+msgstr ""
+
+#. Plugin URI of the plugin
+#. Author URI of the plugin
+#: tracksure.php
+msgid "https://tracksure.io"
+msgstr ""
+
+#. Description of the plugin
+#: tracksure.php
+msgid "Complete first-party analytics and attribution platform for WordPress. Track everything, understand your visitors, grow your business—with or without ads."
+msgstr ""
+
+#: includes/core/admin/class-tracksure-admin-ui.php:98
+msgid "TrackSure admin assets not built. Run: cd admin && npm install && npm run build"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-controller.php:73
+msgid "Invalid security token. Please refresh the page and try again."
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-goals-controller.php:250
+msgid "Failed to create goal"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-goals-controller.php:267
+msgid "Goal created successfully"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-goals-controller.php:293
+msgid "Goal not found"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-goals-controller.php:322
+msgid "Failed to update goal"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-goals-controller.php:335
+msgid "Goal updated successfully"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-goals-controller.php:357
+msgid "Failed to delete goal"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-goals-controller.php:363
+msgid "Goal deleted successfully"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-goals-controller.php:445
+msgid "goal_ids parameter is required"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-query-controller.php:773
+msgid "No traffic data yet"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-query-controller.php:902
+msgid "No page data yet"
+msgstr ""
+
+#: includes/core/api/class-tracksure-rest-query-controller.php:977
+msgid "No visitors found for the selected period."
+msgstr ""
+
+#: includes/core/class-tracksure-core.php:454
+msgid "Every Minute (TrackSure)"
+msgstr ""
+
+#: includes/core/class-tracksure-core.php:460
+msgid "Every 5 Minutes (TrackSure)"
+msgstr ""
+
+#: includes/core/class-tracksure-core.php:466
+msgid "Every 15 Minutes (TrackSure)"
+msgstr ""
+
+#: includes/core/class-tracksure-core.php:472
+msgid "TrackSure Hourly Aggregation"
+msgstr ""
+
+#: includes/core/class-tracksure-core.php:478
+msgid "TrackSure Daily Aggregation"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:37
+msgid "Plugin Version"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:38
+msgid "Current installed version"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:48
+msgid "Database Version"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:49
+msgid "Current database schema version"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:59
+msgid "API Token"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:60
+msgid "Authentication token for REST API access"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:72
+msgid "Enable Tracking"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:73
+msgid "Master switch to enable/disable all tracking"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:84
+msgid "Track Administrators"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:85
+msgid "Track logged-in administrators (useful for testing)"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:96
+msgid "Session Timeout"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:97
+msgid "Session expiration time (minutes)"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:112
+msgid "Batch Size"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:113
+msgid "Number of events per batch"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:127
+msgid "Batch Timeout"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:128
+msgid "Time to wait before sending batch"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:143
+msgid "Respect Do Not Track"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:144
+msgid "Honor browser DNT header"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:155
+msgid "Anonymize IP Addresses"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:156
+msgid "Remove last octet from IP addresses"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:166
+msgid "Exclude IP Addresses"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:167
+msgid "Comma-separated list of IPs to exclude"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:178
+msgid "Consent Mode"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:179
+msgid "GDPR compliance mode"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:185
+msgid "Disabled"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:186
+msgid "Opt-in (explicit consent required)"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:187
+msgid "Opt-out (track by default, allow opt-out)"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:195
+msgid "Data Retention Period"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:196
+msgid "How long to keep raw event data in days. Aggregated reports are preserved forever."
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:197
+msgid "Recommended: 90 days for most sites. Increase to 365 days if you have low traffic or need long-term raw data analysis. Note: 100K-1M+ events may cause database bloat with longer retention."
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:211
+msgid "Attribution Window"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:212
+msgid "Conversion attribution lookback period"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:225
+msgid "Default Attribution Model"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:226
+msgid "Model used for reporting (Free: first/last touch)"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:231
+#: includes/core/services/class-tracksure-attribution-resolver.php:268
+msgid "First Touch"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:232
+#: includes/core/services/class-tracksure-attribution-resolver.php:274
+msgid "Last Touch"
+msgstr ""
+
+#. translators: %s is the setting key name
+#: includes/core/class-tracksure-settings-schema.php:360
+#, php-format
+msgid "Unknown setting: %s"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:370
+msgid "Setting is read-only"
+msgstr ""
+
+#. translators: %d is the minimum allowed value
+#: includes/core/class-tracksure-settings-schema.php:386
+#, php-format
+msgid "Value must be at least %d"
+msgstr ""
+
+#. translators: %d is the maximum allowed value
+#: includes/core/class-tracksure-settings-schema.php:393
+#, php-format
+msgid "Value must be at most %d"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:403
+msgid "Invalid option selected"
+msgstr ""
+
+#: includes/core/class-tracksure-settings-schema.php:412
+msgid "Value must be an array"
+msgstr ""
+
+#: includes/core/services/class-tracksure-action-scheduler.php:104
+msgid "Every 5 Seconds"
+msgstr ""
+
+#: includes/core/services/class-tracksure-action-scheduler.php:109
+msgid "Every 10 Seconds"
+msgstr ""
+
+#: includes/core/services/class-tracksure-attribution-resolver.php:269
+msgid "Credit goes to the first known touchpoint"
+msgstr ""
+
+#: includes/core/services/class-tracksure-attribution-resolver.php:275
+msgid "Credit goes to the last touchpoint before conversion"
+msgstr ""
+
+#. translators: %d: number of deleted log entries
+#: includes/core/services/class-tracksure-logger.php:170
+#, php-format
+msgid "Cleaned up %d old log entries"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:39
+msgid "Core Tracking"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:40
+msgid "Master tracking controls"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:53
+msgid "Privacy & Compliance"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:54
+msgid "GDPR and privacy controls"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:69
+msgid "Performance"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:70
+msgid "Event batching and optimization"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:82
+msgid "Attribution"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:83
+msgid "First-touch and last-touch attribution"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:95
+msgid "System & API"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:96
+msgid "API authentication and system configuration"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:109
+msgid "Meta Conversions API"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:110
+msgid "Send events to Facebook/Instagram"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:126
+msgid "Google Analytics 4"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:127
+msgid "Send events to GA4 Measurement Protocol"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:145
+msgid "WooCommerce"
+msgstr ""
+
+#: includes/free/admin/free-admin-extensions.php:146
+msgid "Track product views, cart, checkout, purchase"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:149
+msgid "Enabled Integrations"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:150
+msgid "Active e-commerce and form integrations"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:165
+msgid "Enable Meta CAPI"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:166
+msgid "Send events to Facebook Conversions API"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:177
+msgid "Meta Pixel ID"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:178
+msgid "Your Facebook Pixel ID (numeric)"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:191
+msgid "Meta Access Token"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:192
+msgid "Conversions API Access Token from Meta Events Manager"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:206
+msgid "Test Event Code"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:207
+msgid "Test event code from Meta Events Manager (optional, for testing)"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:220
+msgid "Enable GA4"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:221
+msgid "Send events to Google Analytics 4"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:232
+msgid "GA4 Measurement ID"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:233
+msgid "Your GA4 Measurement ID (starts with G-)"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:246
+msgid "GA4 API Secret"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:247
+msgid "Measurement Protocol API Secret from GA4 Admin"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:266
+msgid "Enable WooCommerce Integration"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:267
+msgid "Track WooCommerce product views, cart, checkout, purchases"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:278
+msgid "Track Product Views"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:279
+msgid "Track when users view product pages"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:290
+msgid "Track Add to Cart"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:291
+msgid "Track when items are added to cart"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:302
+msgid "Track Checkout"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:303
+msgid "Track when checkout process begins"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:314
+msgid "Track Purchases"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:315
+msgid "Track completed orders"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:627
+msgid "Total Sessions"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:632
+msgid "Total Users"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:637
+msgid "Total Events"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:642
+msgid "Bounce Rate"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:712
+msgid "Overview"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:720
+msgid "Real-Time"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:728
+msgid "Traffic Sources"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:736
+msgid "Top Pages"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:744
+msgid "Goals"
+msgstr ""
+
+#: includes/free/class-tracksure-free.php:752
+msgid "Settings"
+msgstr ""

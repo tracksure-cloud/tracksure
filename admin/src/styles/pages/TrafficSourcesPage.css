@@ -1,0 +1,491 @@
+/* ==========================================================================
+   TrafficSourcesPage.css (Premium summary + table + sorting)
+   Matches TrafficSourcesPage.tsx markup exactly
+   ========================================================================== */
+
+.ts-sources-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--ts-spacing-lg);
+  margin-top: var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-lg);
+}
+
+.ts-summary-card {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-xl);
+  box-shadow: var(--ts-shadow-sm);
+  padding: 16px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.ts-summary-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+  flex: 0 0 auto;
+}
+
+.ts-summary-content {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ts-summary-value {
+  font-size: 18px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ts-summary-sub {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ts-text-muted);
+  letter-spacing: 0;
+}
+
+.ts-summary-label {
+  color: var(--ts-text-muted);
+  font-weight: 650;
+  font-size: 13px;
+}
+
+/* View Mode Tabs */
+.ts-view-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: var(--ts-spacing-lg);
+  border-bottom: 1px solid var(--ts-border);
+  padding-bottom: 8px;
+}
+
+.ts-view-tab {
+  padding: 10px 18px;
+  border: none;
+  background: transparent;
+  color: var(--ts-text-muted);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  position: relative;
+  bottom: -9px;
+}
+
+.ts-view-tab:hover {
+  color: var(--ts-text);
+  background: rgba(14, 165, 233, 0.05);
+  border-radius: var(--ts-radius-lg) var(--ts-radius-lg) 0 0;
+}
+
+.ts-view-tab--active {
+  color: var(--ts-primary);
+  border-bottom-color: var(--ts-primary);
+}
+
+/* Table container */
+.ts-sources-table-container {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-xl);
+  box-shadow: var(--ts-shadow-sm);
+  overflow: hidden;
+}
+
+.ts-sources-table-container {
+  overflow: auto;
+  max-width: 100%;
+}
+
+/* Table */
+.ts-sources-table {
+  width: 100%;
+  min-width: 720px; /* ensures no overlap; mobile scroll instead */
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ts-sources-table thead th {
+  position: sticky;
+  top: 0;
+  background: var(--ts-surface-2);
+  border-bottom: 1px solid var(--ts-border);
+  padding: 12px 14px;
+  text-align: left;
+  font-weight: 850;
+  color: var(--ts-text);
+  white-space: nowrap;
+}
+
+.ts-sources-table tbody td {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--ts-border);
+  color: var(--ts-text);
+  vertical-align: middle;
+  text-align: center; /* Center all cells by default */
+}
+
+/* First column (Source/Channel) stays left-aligned */
+.ts-sources-table tbody td:first-child {
+  text-align: left;
+}
+
+
+
+.ts-sources-table tbody tr:hover td {
+  background: rgba(148, 163, 184, 0.10);
+}
+
+[data-theme="dark"] .ts-sources-table tbody tr:hover td {
+  background: rgba(148, 163, 184, 0.08);
+}
+
+.ts-source-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  display: inline-grid;
+  place-items: center;
+  margin-right: 10px;
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+  font-size: 14px;
+}
+
+/* Sorting */
+.ts-sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.ts-sortable:hover {
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.ts-sorted {
+  color: var(--ts-primary);
+}
+
+.ts-sort-icon {
+  color: var(--ts-text-subtle);
+  font-weight: 900;
+}
+
+/* Conversion Icon */
+.ts-conversion-icon {
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+/* Display Mode Toggle */
+.ts-display-toggle {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+  padding: 4px;
+  background: var(--ts-surface-2);
+  border-radius: var(--ts-radius-md);
+  width: fit-content;
+}
+
+.ts-toggle-btn {
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-radius: var(--ts-radius-sm);
+  background: transparent;
+  color: var(--ts-text-subtle);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ts-toggle-btn:hover {
+  color: var(--ts-text);
+  background: var(--ts-surface);
+}
+
+.ts-toggle-btn--active {
+  background: var(--ts-surface);
+  color: var(--ts-primary);
+  border-color: var(--ts-border);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+/* Channel View Styles */
+.ts-channel-row {
+  font-weight: 500;
+}
+
+.ts-channel-icon {
+  font-size: 18px;
+  margin-right: 8px;
+}
+
+.ts-source-count {
+  color: var(--ts-text-subtle);
+  font-size: 12px;
+  font-weight: 400;
+  margin-left: 6px;
+}
+
+.ts-percentage-bar {
+  position: relative;
+  width: 100%;
+  height: 24px;
+  background: var(--ts-surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.ts-percentage-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  transition: width 0.3s ease;
+  opacity: 0.7;
+}
+
+.ts-percentage-text {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ts-text);
+}
+
+/* Attribution Comparison Styles */
+.ts-revenue-sub {
+  font-size: 11px;
+  color: var(--ts-text-muted);
+  margin-top: 2px;
+  font-weight: normal;
+}
+
+.ts-table-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  justify-content: center;
+}
+
+.ts-table-header svg {
+  flex-shrink: 0;
+}
+
+/* Compact Attribution Selector */
+.ts-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.ts-attribution-compact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  font-size: 14px;
+}
+
+.ts-attribution-compact label {
+  font-weight: 600;
+  color: var(--ts-text-muted);
+  margin: 0;
+}
+
+.ts-select-wrapper {
+  position: relative;
+}
+
+.ts-select {
+  padding: 6px 32px 6px 12px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  background: var(--ts-surface-2);
+  color: var(--ts-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  min-width: 150px;
+}
+
+.ts-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ts-btn-icon {
+  padding: 6px;
+  background: transparent;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  color: var(--ts-text-muted);
+  transition: all 0.2s;
+}
+
+.ts-btn-icon:hover {
+  background: var(--ts-surface-2);
+  color: var(--ts-primary);
+}
+
+/* Modal Overlay */
+.ts-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.ts-modal {
+  background: var(--ts-surface);
+  border-radius: var(--ts-radius-xl);
+  box-shadow: var(--ts-shadow-lg);
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.ts-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.ts-modal-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.ts-modal-header button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--ts-text-muted);
+  padding: 4px;
+  display: flex;
+}
+
+/* Insights Widget */
+.ts-insights-widget {
+  background: linear-gradient(135deg, rgba(79, 70, 229, 0.05) 0%, rgba(16, 185, 129, 0.05) 100%);
+  border: 1px solid var(--ts-border);
+  border-left: 4px solid var(--ts-primary);
+  border-radius: var(--ts-radius-lg);
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+
+.ts-insights-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  color: var(--ts-primary);
+}
+
+.ts-insights-header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.ts-insights-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ts-insights-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ts-text);
+}
+
+.ts-insights-list li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--ts-success);
+}
+
+/* Quick Filters */
+.ts-quick-filters {
+  display: flex;
+  gap: 8px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+
+.ts-filter-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  background: var(--ts-surface);
+  color: var(--ts-text);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ts-filter-btn:hover {
+  background: var(--ts-surface-2);
+  border-color: var(--ts-primary);
+}
+
+.ts-filter-btn--active {
+  background: var(--ts-primary);
+  color: white;
+  border-color: var(--ts-primary);
+}
+

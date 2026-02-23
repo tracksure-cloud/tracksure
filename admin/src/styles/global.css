@@ -1,0 +1,686 @@
+/**
+ * TrackSure Global Styles (Premium UI Kit)
+ *
+ * Goals:
+ * - Premium, modern admin UI (dark/light)
+ * - Fully responsive (mobile → large desktop, portrait/landscape)
+ * - Accessible focus states, comfortable spacing, crisp typography
+ * - Safe inside WP Admin (styles scoped to #tracksure-admin-root)
+ */
+
+@import './variables.css';
+@import './components/icons.css';
+
+/* ============================================================
+   Design Tokens
+   ============================================================ */
+:root {
+  /* Typography */
+  --ts-font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Inter, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  --ts-font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+
+  /* Spacing Aliases (map to variables.css --ts-space-* values) */
+  --ts-spacing-2xs: var(--ts-space-1);   /* 0.25rem = 4px */
+  --ts-spacing-xs: var(--ts-space-2);    /* 0.5rem = 8px */
+  --ts-spacing-sm: var(--ts-space-3);    /* 0.75rem = 12px */
+  --ts-spacing-md: var(--ts-space-4);    /* 1rem = 16px */
+  --ts-spacing-lg: var(--ts-space-6);    /* 1.5rem = 24px */
+  --ts-spacing-xl: var(--ts-space-8);    /* 2rem = 32px */
+  --ts-spacing-2xl: var(--ts-space-12);  /* 3rem = 48px */
+  --ts-spacing-xxl: var(--ts-space-16);  /* 4rem = 64px */
+
+  /* Transitions */
+  --ts-ease: cubic-bezier(.2,.8,.2,1);
+  --ts-fast: 120ms var(--ts-ease);
+  --ts-base: 180ms var(--ts-ease);
+
+  /* Focus ring */
+  --ts-ring: 0 0 0 3px rgba(79, 70, 229, 0.30);
+  --ts-ring-danger: 0 0 0 3px rgba(239, 68, 68, 0.28);
+
+  /* Layout sizing */
+  --ts-topbar-h: 64px;
+  --ts-sidebar-w: 272px;
+  --ts-sidebar-w-collapsed: 76px;
+  --ts-page-max: 1440px;
+
+  /* Additional semantic tokens (built on variables.css) */
+  --ts-bg: var(--ts-bg-secondary);
+  --ts-white:#ffffff;
+  --ts-bg-elevated: var(--ts-bg-primary);
+  --ts-surface: rgba(255, 255, 255, 0.90);
+  --ts-surface-2: rgba(248, 250, 252, 0.96);
+  --ts-border: var(--ts-border-color);
+  --ts-border-hover: var(--ts-border-color-hover);
+  --ts-text: var(--ts-text-primary);
+  --ts-text-secondary: var(--ts-text-secondary);
+  --ts-text-tertiary: var(--ts-text-tertiary);
+  --ts-text-muted: var(--ts-text-secondary);
+  --ts-text-subtle: var(--ts-text-tertiary);
+  --ts-surface-hover: rgba(248, 250, 252, 1);
+  /* --ts-success-background:#dcfce7; */
+}
+
+/* Dark theme - Override semantic tokens */
+[data-theme="dark"] {
+  --ts-bg: var(--ts-bg-primary);
+  --ts-bg-elevated: var(--ts-bg-secondary);
+  --ts-surface: rgba(15, 23, 42, 0.70);
+  --ts-surface-2: rgba(17, 24, 39, 0.92);
+  --ts-border: var(--ts-border-color);
+  --ts-border-hover: var(--ts-border-color-hover);
+  --ts-text: var(--ts-text-primary);
+  /* --ts-text-secondary: var(--ts-text-secondary,#D1D5DB);
+  --ts-text-tertiary: var(--ts-text-tertiary); */
+
+  --ts-text-primary: #F9FAFB;
+  --ts-text-secondary: #D1D5DB;
+  --ts-text-tertiary: #9CA3AF;
+
+  --ts-text-muted: var(--ts-text-secondary);
+  --ts-text-subtle: var(--ts-text-tertiary);
+  --ts-surface-hover: rgba(30, 41, 59, 0.85);
+  --ts-danger-hover: #f43f5e;
+  --ts-ring: 0 0 0 3px rgba(99, 102, 241, 0.30);
+  --ts-ring-danger: 0 0 0 3px rgba(251, 113, 133, 0.22);
+  --ts-chart-accent-5: #818cf8;
+  --ts-chart-accent-6: #2dd4bf;
+  
+  /* Tooltip variables */
+  --ts-tooltip-bg: #1f2937;
+  --ts-tooltip-border: rgba(148, 163, 184, 0.3);
+  
+  /* Skeleton variables */
+  --ts-skeleton-base: #374151;
+  --ts-skeleton-shimmer: #4b5563;
+  
+  /* Error surface */
+  --ts-error-surface: #7f1d1d;
+  --ts-error-surface-hover: #991b1b;
+}
+
+/* ============================================================
+   Scoped Reset (avoid affecting WP outside TrackSure)
+   ============================================================ */
+#tracksure-admin-root,
+#tracksure-admin-root * {
+  box-sizing: border-box;
+   color:var(--ts-text-primary); 
+}
+
+#tracksure-admin-root {
+  font-family: var(--ts-font-sans);
+  font-size: 14px;
+  line-height: 1.45;
+  color: var(--ts-text-primary);
+  min-height: calc(100vh - 32px);
+  background:
+    radial-gradient(1200px 600px at 10% -10%, rgba(56, 189, 248, 0.12), transparent 55%),
+    radial-gradient(900px 500px at 105% 0%, rgba(99, 102, 241, 0.10), transparent 50%),
+    var(--ts-bg);
+  overflow: hidden;
+  color-scheme: light dark;
+}
+
+#tracksure-admin-root a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#tracksure-admin-root img,
+#tracksure-admin-root svg {
+  display: inline-block;
+}
+
+#tracksure-admin-root button,
+#tracksure-admin-root input,
+#tracksure-admin-root select,
+#tracksure-admin-root textarea {
+  font: inherit;
+  /* color: inherit; */
+}
+
+#tracksure-admin-root ::selection {
+  background: var(--ts-primary-soft);
+}
+
+/* Override WordPress admin styles that bleed into our app */
+#tracksure-admin-root h1,
+#tracksure-admin-root h2,
+#tracksure-admin-root h3,
+#tracksure-admin-root h4,
+#tracksure-admin-root h5,
+#tracksure-admin-root h6 {
+  color: var(--ts-text) !important;
+  font-family: var(--ts-font-sans);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  #tracksure-admin-root * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   Base UI Primitives
+   ============================================================ */
+.ts-card {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-card--elevated {
+  box-shadow: var(--ts-shadow-md);
+}
+
+.ts-divider {
+  height: 1px;
+  background: var(--ts-border);
+}
+
+.ts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: var(--ts-radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--ts-border);
+  background: var(--ts-primary-soft);
+  color: var(--ts-primary);
+}
+
+.ts-badge-success { background: var(--ts-success-soft); color: var(--ts-success); border-color: var(--ts-success); }
+.ts-badge-warning { background: var(--ts-warning-soft); color: var(--ts-warning); border-color: var(--ts-warning); }
+.ts-badge-danger  { background: var(--ts-danger-soft);  color: var(--ts-danger);  border-color: var(--ts-danger); }
+
+.ts-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--ts-radius-md);
+  border: 1px solid var(--ts-border);
+  background: var(--ts-surface);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset;
+  cursor: pointer;
+  transition: transform var(--ts-fast), background var(--ts-fast), border-color var(--ts-fast), box-shadow var(--ts-fast);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ts-btn:hover {
+  border-color: var(--ts-border-hover);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-btn:active { transform: translateY(1px); }
+
+.ts-btn:focus-visible {
+  outline: none;
+  box-shadow: var(--ts-ring), var(--ts-shadow-sm);
+  border-color: var(--ts-primary);
+}
+
+.ts-btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.ts-btn-primary {
+  border-color: var(--ts-primary);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.12), transparent),
+    var(--ts-primary);
+  color: white;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
+
+[data-theme="dark"] .ts-btn-primary {
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+}
+
+.ts-btn-primary:hover {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.10), transparent),
+    var(--ts-primary-hover);
+}
+
+.ts-input,
+.ts-select,
+.ts-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--ts-radius-md);
+  border: 1px solid var(--ts-border);
+  background: var(--ts-surface-2)!important;
+  color: var(--ts-text);
+  transition: border-color var(--ts-fast), box-shadow var(--ts-fast), background var(--ts-fast);
+}
+
+[data-theme="dark"] .ts-input,
+[data-theme="dark"] .ts-select,
+[data-theme="dark"] .ts-textarea {
+  background: var(--ts-bg-secondary)!important;
+  color: var(--ts-text);
+}
+
+.ts-textarea { min-height: 110px; resize: vertical; }
+
+.ts-input:hover,
+.ts-select:hover,
+.ts-textarea:hover { border-color: var(--ts-border-hover); }
+
+.ts-input:focus-visible,
+.ts-select:focus-visible,
+.ts-textarea:focus-visible {
+  outline: none;
+  border-color: var(--ts-primary);
+  box-shadow: var(--ts-ring);
+  background: var(--ts-bg-elevated);
+}
+
+.ts-input[aria-invalid="true"],
+.ts-select[aria-invalid="true"],
+.ts-textarea[aria-invalid="true"] {
+  border-color: rgba(239, 68, 68, 0.60);
+  box-shadow: var(--ts-ring-danger);
+}
+
+/* ============================================================
+   Scrollbars (scoped)
+   ============================================================ */
+#tracksure-admin-root ::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+#tracksure-admin-root ::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.35);
+  border-radius: var(--ts-radius-full);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+#tracksure-admin-root ::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* ============================================================
+   Common helpers
+   ============================================================ */
+.ts-container {
+  max-width: var(--ts-page-max);
+  margin: 0 auto;
+}
+
+.ts-text-muted { color: var(--ts-text-muted); }
+.ts-text-subtle { color: var(--ts-text-subtle); }
+
+
+
+
+
+
+
+
+
+
+
+
+/* ==========================================================================
+   TrackSure Admin - Page System + Compatibility Layer
+   Append this at the END of global.css
+   ========================================================================== */
+
+#tracksure-admin-root h1,
+#tracksure-admin-root h2,
+#tracksure-admin-root h3,
+#tracksure-admin-root h4,
+#tracksure-admin-root p{
+  margin: 0 0 var(--ts-spacing-sm) 0;
+ 
+}
+ 
+
+#tracksure-admin-root .ts-page {
+  max-width: var(--ts-page-max);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-lg);
+  min-width: 0;
+}
+
+#tracksure-admin-root .ts-page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--ts-spacing-lg);
+  flex-wrap: wrap;
+}
+
+#tracksure-admin-root .ts-page-header > div {
+  min-width: 0;
+}
+
+#tracksure-admin-root .ts-page-title {
+  font-size: 22px;
+  font-weight: 850;
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+}
+
+#tracksure-admin-root .ts-page-description {
+  margin-top: 8px;
+  color: var(--ts-text-muted);
+  max-width: 72ch;
+}
+
+#tracksure-admin-root .ts-loading {
+  padding: 16px 18px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  background: var(--ts-surface);
+  box-shadow: var(--ts-shadow-sm);
+  color: var(--ts-text-muted);
+}
+
+#tracksure-admin-root .ts-empty-state,
+#tracksure-admin-root .ts-error-state {
+  padding: 28px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-xl);
+  background: var(--ts-surface);
+  box-shadow: var(--ts-shadow-sm);
+  text-align: center;
+}
+
+#tracksure-admin-root .ts-empty-icon,
+#tracksure-admin-root .ts-error-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 18px;
+  margin: 0 auto 14px;
+  display: grid;
+  place-items: center;
+  font-size: 26px;
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+}
+
+/* --- Compatibility: existing .ts-button API in your TSX --- */
+#tracksure-admin-root .ts-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: var(--ts-radius-md);
+  border: 1px solid var(--ts-border);
+  background: var(--ts-surface);
+  box-shadow: 0 1px 0 rgba(255,255,255,0.35) inset;
+  cursor: pointer;
+  transition: transform var(--ts-fast), background var(--ts-fast), border-color var(--ts-fast), box-shadow var(--ts-fast);
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+#tracksure-admin-root .ts-button:hover {
+  border-color: var(--ts-border-hover);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+#tracksure-admin-root .ts-button:active { transform: translateY(1px); }
+
+#tracksure-admin-root .ts-button:focus-visible {
+  outline: none;
+  box-shadow: var(--ts-ring), var(--ts-shadow-sm);
+  border-color: var(--ts-primary);
+}
+
+#tracksure-admin-root .ts-button[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+#tracksure-admin-root .ts-button-primary {
+  border-color: var(--ts-primary);
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.12), transparent),
+    var(--ts-primary);
+  color: white;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
+
+[data-theme="dark"] #tracksure-admin-root .ts-button-primary {
+  box-shadow: 0 8px 20px rgba(99, 102, 241, 0.35);
+}
+
+#tracksure-admin-root .ts-button-primary:hover {
+  background:
+    linear-gradient(180deg, rgba(255,255,255,0.10), transparent),
+    var(--ts-primary-hover);
+}
+
+#tracksure-admin-root .ts-button-secondary {
+  background: var(--ts-surface-2);
+}
+
+/* ========================================
+   ANIMATIONS & TRANSITIONS
+   ======================================== */
+
+/* Fade in animation for progressive loading */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+#tracksure-admin-root .ts-fade-in {
+  animation: fadeIn 200ms var(--ts-ease) both;
+}
+
+#tracksure-admin-root .ts-page-content {
+  animation: fadeIn 200ms ease;
+}
+
+/* Slide in animation for realtime events */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+#tracksure-admin-root .ts-slide-in {
+  animation: slideIn 300ms var(--ts-ease) both;
+}
+
+/* Pulse animation for live indicators */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+}
+
+#tracksure-admin-root .ts-pulse {
+  animation: pulse 2s ease infinite;
+}
+
+/* Spin animation for loading indicators */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+#tracksure-admin-root .ts-spin {
+  animation: spin 1s linear infinite;
+}
+
+/* ========================================
+   TOAST NOTIFICATIONS
+   ======================================== */
+
+.ts-toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 12px 20px;
+  border-radius: var(--ts-radius-md);
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  box-shadow: var(--ts-shadow-lg);
+  z-index: 9999;
+  opacity: 0;
+  transition: all 300ms var(--ts-ease);
+  pointer-events: none;
+  max-width: 90%;
+  text-align: center;
+}
+
+.ts-toast--top {
+  top: 20px;
+  transform: translateX(-50%) translateY(-20px);
+}
+
+.ts-toast--bottom {
+  bottom: 20px;
+}
+
+.ts-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.ts-toast--success {
+  background: var(--ts-success);
+}
+
+.ts-toast--error {
+  background: var(--ts-danger);
+}
+
+.ts-toast--warning {
+  background: var(--ts-warning);
+}
+
+.ts-toast--info {
+  background: var(--ts-primary);
+}
+
+/* ========================================
+   HERO METRIC (for Realtime page)
+   ======================================== */
+
+#tracksure-admin-root .ts-hero-metric {
+  text-align: center;
+  padding: var(--ts-spacing-xl);
+  background: linear-gradient(135deg, var(--ts-primary) 0%, var(--ts-primary-hover) 100%);
+  border-radius: var(--ts-radius-lg);
+  color: white;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--ts-shadow-md);
+}
+
+#tracksure-admin-root .ts-hero-value {
+  font-size: 72px;
+  font-weight: 700;
+  line-height: 1;
+  margin: var(--ts-spacing-sm) 0;
+}
+
+#tracksure-admin-root .ts-hero-label {
+  font-size: 16px;
+  opacity: 0.95;
+  font-weight: 500;
+}
+
+#tracksure-admin-root .ts-pulse-indicator {
+  width: 12px;
+  height: 12px;
+  background: var(--ts-success);
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 8px;
+  animation: pulse 2s ease infinite;
+  box-shadow: 0 0 0 0 var(--ts-success-soft);
+}
+
+/* ========================================
+   TABLE IMPROVEMENTS
+   ======================================== */
+
+#tracksure-admin-root .ts-table-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
+}
+
+#tracksure-admin-root .ts-table-header:hover {
+  color: var(--ts-primary);
+}
+
+#tracksure-admin-root .ts-sort-icon {
+  opacity: 0.6;
+  transition: opacity 200ms ease;
+}
+
+#tracksure-admin-root .ts-table-header:hover .ts-sort-icon {
+  opacity: 1;
+}
+
+#tracksure-admin-root .ts-table-cell--number {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-weight: 600;
+}
+
+/* ========================================
+   RESPONSIVE IMPROVEMENTS
+   ======================================== */
+
+#tracksure-admin-root .ts-chart-card {
+  height: clamp(200px, 50vh, 400px);
+}
+
+@media (max-width: 640px) {
+  #tracksure-admin-root .ts-kpi-card {
+    min-width: 100%;
+    padding: var(--ts-spacing-lg);
+  }
+
+  #tracksure-admin-root .ts-hero-value {
+    font-size: 48px;
+  }
+}

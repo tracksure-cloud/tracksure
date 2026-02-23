@@ -1,0 +1,207 @@
+.ts-error-boundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  padding: 32px;
+}
+
+.ts-error-boundary__content {
+  max-width: 600px;
+  text-align: center;
+}
+
+.ts-error-boundary__icon {
+  width: 80px;
+  height: 80px;
+  color: var(--ts-danger);
+  margin: 0 auto 24px;
+}
+
+.ts-error-boundary__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ts-text);
+  margin: 0 0 12px;
+}
+
+.ts-error-boundary__message {
+  font-size: 16px;
+  color: var(--ts-text-muted);
+  margin: 0 0 24px;
+}
+
+.ts-error-boundary__details {
+  text-align: left;
+  margin: 24px 0;
+  padding: 16px;
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+}
+
+.ts-error-boundary__details summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: 12px;
+}
+
+.ts-error-boundary__stack {
+  font-size: 12px;
+  color: var(--ts-text-muted);
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  margin: 0;
+}
+
+.ts-error-boundary__button {
+  padding: 12px 24px;
+  background: var(--ts-primary);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ts-error-boundary__button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+  .ts-error-boundary {
+    min-height: 300px;
+    padding: 20px 16px;
+  }
+
+  .ts-error-boundary__icon {
+    width: 60px;
+    height: 60px;
+    margin-bottom: 16px;
+  }
+
+  .ts-error-boundary__title {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .ts-error-boundary__message {
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+
+  .ts-error-boundary__details {
+    padding: 12px;
+  }
+
+  .ts-error-boundary__button {
+    width: 100%;
+    padding: 12px 16px;
+  }
+}
+
+/* Mobile Landscape (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .ts-error-boundary {
+    padding: 24px 20px;
+  }
+
+  .ts-error-boundary__title {
+    font-size: 20px;
+  }
+}
+
+/* Tablet Portrait (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .ts-error-boundary {
+    padding: 32px 24px;
+  }
+
+  .ts-error-boundary__title {
+    font-size: 22px;
+  }
+}
+
+/* Laptop (1280px - 1439px) */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .ts-error-boundary {
+    min-height: 450px;
+  }
+
+  .ts-error-boundary__icon {
+    width: 90px;
+    height: 90px;
+  }
+
+  .ts-error-boundary__title {
+    font-size: 26px;
+  }
+
+  .ts-error-boundary__message {
+    font-size: 17px;
+  }
+}
+
+/* Desktop (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .ts-error-boundary {
+    min-height: 480px;
+    padding: 40px;
+  }
+
+  .ts-error-boundary__icon {
+    width: 100px;
+    height: 100px;
+  }
+
+  .ts-error-boundary__title {
+    font-size: 28px;
+  }
+
+  .ts-error-boundary__message {
+    font-size: 18px;
+  }
+
+  .ts-error-boundary__details {
+    padding: 20px;
+  }
+}
+
+/* Large Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .ts-error-boundary {
+    min-height: 500px;
+  }
+
+  .ts-error-boundary__content {
+    max-width: 700px;
+  }
+
+  .ts-error-boundary__icon {
+    width: 110px;
+    height: 110px;
+  }
+
+  .ts-error-boundary__title {
+    font-size: 30px;
+  }
+
+  .ts-error-boundary__message {
+    font-size: 19px;
+  }
+
+  .ts-error-boundary__button {
+    padding: 14px 28px;
+    font-size: 15px;
+  }
+}

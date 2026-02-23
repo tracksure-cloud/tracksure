@@ -1,0 +1,223 @@
+/* Sidebar - Premium */
+
+.ts-sidebar {
+  width: var(--ts-sidebar-w);
+  flex: 0 0 var(--ts-sidebar-w);
+  background: var(--ts-surface);
+  border-right: 1px solid var(--ts-border);
+  box-shadow: var(--ts-shadow-sm);
+  display: flex;
+  flex-direction: column;
+  padding: var(--ts-spacing-lg);
+  gap: var(--ts-spacing-lg);
+  overflow: auto;
+  position: sticky;
+  top: var(--ts-topbar-h);
+  height: calc(100dvh - var(--ts-topbar-h) - 32px);
+}
+
+@supports not (height: 100dvh) {
+  .ts-sidebar {
+    height: calc(100vh - var(--ts-topbar-h) - 32px);
+  }
+}
+
+@supports (backdrop-filter: blur(10px)) {
+  .ts-sidebar {
+    backdrop-filter: blur(10px);
+  }
+}
+
+.ts-sidebar.collapsed {
+  width: var(--ts-sidebar-w-collapsed);
+  flex-basis: var(--ts-sidebar-w-collapsed);
+  padding: var(--ts-spacing-lg) var(--ts-spacing-sm);
+}
+
+.ts-sidebar-toggle {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--ts-radius-md);
+  border: 1px solid var(--ts-border);
+  background: var(--ts-surface-2);
+  color: var(--ts-text);
+  cursor: pointer;
+  transition: background var(--ts-fast), border-color var(--ts-fast), box-shadow var(--ts-fast), transform var(--ts-fast), color var(--ts-fast);
+}
+
+.ts-sidebar-toggle:hover {
+  border-color: var(--ts-border-hover);
+  background: var(--ts-surface-hover);
+  color: var(--ts-primary);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-sidebar-toggle:active { transform: translateY(1px); }
+
+.ts-sidebar-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--ts-ring), var(--ts-shadow-sm);
+  border-color: var(--ts-primary);
+}
+
+.ts-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-lg);
+}
+
+.ts-sidebar-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-sidebar-group-label {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ts-text-subtle);
+  padding: 0 var(--ts-spacing-sm);
+}
+
+.ts-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--ts-radius-md);
+  border: 1px solid transparent;
+  color: var(--ts-text);
+  transition: background var(--ts-fast), border-color var(--ts-fast), transform var(--ts-fast);
+}
+
+.ts-sidebar-item:hover {
+  background: var(--ts-surface-2);
+  border-color: var(--ts-border);
+}
+
+.ts-sidebar-item:active { transform: translateY(1px); }
+
+.ts-sidebar-item.active {
+  background: var(--ts-primary-soft);
+  border-color: rgba(14, 165, 233, 0.30);
+}
+
+[data-theme="dark"] .ts-sidebar-item.active {
+  border-color: rgba(56, 189, 248, 0.30);
+}
+
+.ts-sidebar-icon {
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.ts-sidebar-label {
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Collapsed mode */
+.ts-sidebar.collapsed .ts-sidebar-group-label,
+.ts-sidebar.collapsed .ts-sidebar-label {
+  display: none;
+}
+
+.ts-sidebar.collapsed .ts-sidebar-item {
+  justify-content: center;
+  padding: 12px 10px;
+}
+
+/* ============================================================
+   Mobile & Tablet: convert sidebar into a floating bottom nav
+   ============================================================ */
+@media (max-width: 1224px) {
+  .ts-sidebar {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    top: auto;
+    height: 72px;
+    width: auto;
+    flex: none;
+    border-right: none;
+    border: 1px solid var(--ts-border);
+    border-radius: var(--ts-radius-xl);
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    box-shadow: var(--ts-shadow-lg);
+    z-index: 40;
+  }
+
+  .ts-sidebar-toggle,
+  .ts-sidebar-group-label {
+    display: none !important;
+  }
+
+  .ts-sidebar-nav {
+    flex-direction: row;
+    gap: 10px;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .ts-sidebar-group {
+    display: contents;
+  }
+
+  .ts-sidebar-item {
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 8px;
+    min-width: 64px;
+    border-radius: 16px;
+    background: transparent;
+  }
+
+  .ts-sidebar-item:hover {
+    background: var(--ts-surface-2);
+  }
+
+  .ts-sidebar-item.active {
+    background: var(--ts-primary-soft);
+    border-color: transparent;
+  }
+
+  .ts-sidebar-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--ts-text-muted);
+    line-height: 1;
+  }
+
+  .ts-sidebar-item.active .ts-sidebar-label {
+    color: var(--ts-text);
+  }
+}
+
+/* Very small phones: icons only */
+@media (max-width: 520px) {
+  .ts-sidebar-label {
+    display: none;
+  }
+
+  .ts-sidebar-item {
+    min-width: 54px;
+  }
+}

@@ -1,0 +1,62 @@
+# Node modules
+node_modules/
+admin/node_modules/
+
+# Build artifacts
+build/
+admin/dist/*.map
+*.map
+
+# Development only - exclude from Git
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# PHP Composer (development dependencies only - NOT for production)
+vendor/
+
+# WordPress specific
+wp-config.php
+.htaccess
+
+# Testing
+tests/coverage/
+phpunit.xml.dist
+
+# Environment files
+.env
+.env.local
+.env.*
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# SVN temp directory
+.svn-temp/
+
+# Debug and log files
+error_log
+debug.log
+phpcs-report.txt
+*.log
+
+# Security-sensitive files
+*.pem
+*.key
+*.cert
+*.p12
+*.sql
+
+# Internal / review correspondence (not for public)
+issues.md
+WORDPRESS-ORG-*.md
+
+# Release artifacts (generated, not committed)
+tracksure-*.zip

@@ -1,0 +1,394 @@
+.ts-data-table {
+  width: 100%;
+  position: relative;
+}
+
+.ts-data-table__actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}
+
+.ts-data-table__export-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: 6px;
+  color: var(--ts-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ts-data-table__export-button:hover {
+  background: var(--ts-surface-2);
+  border-color: var(--ts-primary);
+}
+
+.ts-data-table__export-button svg {
+  stroke: currentColor;
+}
+
+.ts-data-table__wrapper {
+  overflow-x: auto;
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+  background: var(--ts-surface);
+}
+
+.ts-data-table__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+.ts-data-table__table--sticky .ts-data-table__thead {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.ts-data-table__thead {
+  background: var(--ts-surface-2);
+}
+
+.ts-data-table__th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: var(--ts-text);
+  border-bottom: 2px solid var(--ts-border);
+  user-select: none;
+}
+
+.ts-data-table__th--center {
+  text-align: center;
+}
+
+.ts-data-table__th--right {
+  text-align: right;
+}
+
+.ts-data-table__th--sortable {
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ts-data-table__th--sortable:hover {
+  background: var(--ts-border);
+}
+
+.ts-data-table__th--sorted {
+  color: var(--ts-primary);
+}
+
+.ts-data-table__th-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ts-data-table__th--center .ts-data-table__th-content {
+  justify-content: center;
+}
+
+.ts-data-table__th--right .ts-data-table__th-content {
+  justify-content: flex-end;
+}
+
+.ts-data-table__sort-icon {
+  font-size: 12px;
+  opacity: 0.5;
+}
+
+.ts-data-table__th--sorted .ts-data-table__sort-icon {
+  opacity: 1;
+}
+
+.ts-data-table__tbody {
+}
+
+.ts-data-table__tr {
+  border-bottom: 1px solid var(--ts-border);
+  transition: background 0.2s ease;
+}
+
+.ts-data-table__tr:hover {
+  background: var(--ts-surface-2);
+}
+
+.ts-data-table__tr:last-child {
+  border-bottom: none;
+}
+
+.ts-data-table__td {
+  padding: 12px 16px;
+  color: var(--ts-text);
+}
+
+.ts-data-table__td--center {
+  text-align: center;
+}
+
+.ts-data-table__td--right {
+  text-align: right;
+}
+
+.ts-data-table--compact .ts-data-table__th,
+.ts-data-table--compact .ts-data-table__td {
+  padding: 8px 12px;
+  font-size: 13px;
+}
+
+.ts-data-table__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.ts-data-table__pagination-button {
+  padding: 8px 16px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: 6px;
+  color: var(--ts-text);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ts-data-table__pagination-button:hover:not(:disabled) {
+  background: var(--ts-surface-2);
+  border-color: var(--ts-primary);
+}
+
+.ts-data-table__pagination-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ts-data-table__pagination-info {
+  font-size: 14px;
+  color: var(--ts-text-muted);
+}
+
+/* Loading state */
+.ts-data-table__loading {
+  padding: 16px;
+}
+
+.ts-data-table__skeleton-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.ts-data-table__skeleton-cell {
+  flex: 1;
+  height: 20px;
+  background: linear-gradient(
+    90deg,
+    var(--ts-surface-2) 0%,
+    var(--ts-border) 50%,
+    var(--ts-surface-2) 100%
+  );
+  background-size: 200% 100%;
+  animation: ts-skeleton-pulse 1.5s ease-in-out infinite;
+  border-radius: 4px;
+}
+
+@keyframes ts-skeleton-pulse {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Empty state */
+.ts-data-table--empty {
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+  background: var(--ts-surface);
+}
+
+.ts-data-table__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--ts-text-muted);
+  padding: 32px;
+}
+
+.ts-data-table__empty-icon {
+  width: 64px;
+  height: 64px;
+  opacity: 0.3;
+}
+
+.ts-data-table__empty-message {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+  .ts-data-table__actions {
+    margin-bottom: 12px;
+  }
+
+  .ts-data-table__export-button {
+    padding: 6px 12px;
+    font-size: 12px;
+    gap: 4px;
+  }
+
+  .ts-data-table__th,
+  .ts-data-table__td {
+    padding: 8px 10px;
+    font-size: 12px;
+  }
+
+  .ts-data-table__th-content {
+    gap: 4px;
+  }
+
+  /* Horizontal scroll hint */
+  .ts-data-table__wrapper::after {
+    content: '← Scroll →';
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    font-size: 10px;
+    color: var(--ts-text-subtle);
+    pointer-events: none;
+  }
+
+  .ts-data-table__pagination {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .ts-data-table__pagination-button {
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .ts-data-table__empty {
+    padding: 20px;
+  }
+
+  .ts-data-table__empty-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .ts-data-table__empty-message {
+    font-size: 12px;
+  }
+}
+
+/* Mobile Landscape (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .ts-data-table__th,
+  .ts-data-table__td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .ts-data-table__pagination {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+}
+
+/* Tablet Portrait (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .ts-data-table__th,
+  .ts-data-table__td {
+    padding: 12px 14px;
+  }
+
+  .ts-data-table__wrapper {
+    border-radius: 10px;
+  }
+}
+
+/* Tablet Landscape (1025px - 1279px) */
+@media (min-width: 1025px) and (max-width: 1279px) {
+  .ts-data-table__th,
+  .ts-data-table__td {
+    padding: 12px 16px;
+  }
+}
+
+/* Laptop (1280px - 1439px) */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .ts-data-table__th,
+  .ts-data-table__td {
+    padding: 14px 18px;
+    font-size: 15px;
+  }
+
+  .ts-data-table__export-button {
+    padding: 10px 18px;
+    font-size: 15px;
+  }
+}
+
+/* Desktop (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .ts-data-table__th,
+  .ts-data-table__td {
+    padding: 16px 20px;
+    font-size: 15px;
+  }
+
+  .ts-data-table__export-button {
+    padding: 10px 20px;
+    font-size: 15px;
+  }
+
+  .ts-data-table__wrapper {
+    border-radius: 12px;
+  }
+}
+
+/* Large Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .ts-data-table__th,
+  .ts-data-table__td {
+    padding: 18px 24px;
+    font-size: 16px;
+  }
+
+  .ts-data-table__export-button {
+    padding: 12px 24px;
+    font-size: 16px;
+  }
+
+  .ts-data-table__empty-icon {
+    width: 80px;
+    height: 80px;
+  }
+
+  .ts-data-table__empty-message {
+    font-size: 16px;
+  }
+}

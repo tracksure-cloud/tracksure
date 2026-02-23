@@ -1,0 +1,103 @@
+/* Card Component Styles */
+
+.ts-card {
+  background-color: var(--ts-surface);
+  border-radius: var(--ts-radius-lg);
+  transition: all var(--ts-base);
+}
+
+/* Variants */
+.ts-card--default {
+  border: 1px solid var(--ts-border);
+}
+
+.ts-card--bordered {
+  border: 2px solid var(--ts-border);
+}
+
+.ts-card--elevated {
+  border: 1px solid var(--ts-border);
+  box-shadow: var(--ts-shadow-md);
+}
+
+/* Padding */
+.ts-card--padding-none {
+  padding: 0;
+}
+
+.ts-card--padding-sm {
+  padding: var(--ts-spacing-md);
+}
+
+.ts-card--padding-md {
+  padding: var(--ts-spacing-lg);
+}
+
+.ts-card--padding-lg {
+  padding: var(--ts-spacing-xl);
+}
+
+/* Interactive States */
+.ts-card--clickable {
+  cursor: pointer;
+}
+
+.ts-card--hoverable:hover,
+.ts-card--clickable:hover {
+  border-color: var(--ts-border-hover);
+  box-shadow: var(--ts-shadow-lg);
+  transform: translateY(-2px);
+}
+
+.ts-card--clickable:active {
+  transform: translateY(0);
+}
+
+/* Card Header */
+.ts-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ts-spacing-md);
+  padding-bottom: var(--ts-spacing-md);
+  border-bottom: 1px solid var(--ts-border);
+  margin-bottom: var(--ts-spacing-md);
+}
+
+.ts-card--padding-none .ts-card__header {
+  padding: var(--ts-spacing-lg);
+  padding-bottom: var(--ts-spacing-md);
+  margin-bottom: 0;
+}
+
+.ts-card__header-content {
+  flex: 1;
+}
+
+.ts-card__header-action {
+  flex-shrink: 0;
+}
+
+/* Card Body */
+.ts-card__body {
+  color: var(--ts-text);
+}
+
+.ts-card--padding-none .ts-card__body {
+  padding: var(--ts-spacing-lg);
+  padding-top: var(--ts-spacing-md);
+  padding-bottom: var(--ts-spacing-md);
+}
+
+/* Card Footer */
+.ts-card__footer {
+  padding-top: var(--ts-spacing-md);
+  border-top: 1px solid var(--ts-border);
+  margin-top: var(--ts-spacing-md);
+}
+
+.ts-card--padding-none .ts-card__footer {
+  padding: var(--ts-spacing-lg);
+  padding-top: var(--ts-spacing-md);
+  margin-top: 0;
+}

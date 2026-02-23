@@ -1,0 +1,54 @@
+# Development files
+.git
+.github
+.vscode
+.idea
+node_modules
+admin/node_modules
+admin/src
+vendor
+tests
+
+# Build files
+*.map
+webpack.config.js
+tsconfig.json
+package.json
+package-lock.json
+composer.json
+composer.lock
+
+# Vendor (dev dependencies only)
+vendor
+
+# Linting
+.eslintrc.js
+.stylelintrc.json
+phpcs.xml
+.editorconfig
+
+# Documentation (keep README.md and readme.txt)
+docs
+*.md
+!README.md
+
+# Version control
+.gitignore
+.gitattributes
+.svnignore
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+error_log
+debug.log
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~

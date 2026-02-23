@@ -1,0 +1,61 @@
+.ts-metric-toggle {
+  display: inline-flex;
+  gap: 8px;
+  padding: 4px;
+  background: var(--ts-surface-2);
+  border-radius: 8px;
+  border: 1px solid var(--ts-border);
+}
+
+.ts-metric-toggle__button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--ts-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ts-metric-toggle__button:hover {
+  background: var(--ts-surface);
+  color: var(--ts-text);
+}
+
+.ts-metric-toggle__button--active {
+  background: var(--ts-primary);
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ts-metric-toggle__button--active:hover {
+  background: var(--ts-primary);
+  color: white;
+}
+
+.ts-metric-toggle__icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+.ts-metric-toggle__label {
+  line-height: 1;
+}
+
+@media (max-width: 768px) {
+  .ts-metric-toggle {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .ts-metric-toggle__button {
+    flex: 1;
+    justify-content: center;
+  }
+}

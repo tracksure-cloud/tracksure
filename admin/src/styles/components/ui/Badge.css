@@ -1,0 +1,68 @@
+/* Badge Component Styles */
+
+.ts-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ts-spacing-2xs);
+  font-family: var(--ts-font-sans);
+  font-weight: 500;
+  line-height: 1;
+  border-radius: var(--ts-radius-full);
+  white-space: nowrap;
+}
+
+/* Sizes */
+.ts-badge--sm {
+  padding: 2px 8px;
+  font-size: 0.75rem;
+}
+
+.ts-badge--md {
+  padding: 4px 10px;
+  font-size: 0.8125rem;
+}
+
+.ts-badge--lg {
+  padding: 6px 12px;
+  font-size: 0.875rem;
+}
+
+/* Variants */
+.ts-badge--default {
+  background-color: var(--ts-surface);
+  color: var(--ts-text-secondary);
+  border: 1px solid var(--ts-border);
+}
+
+.ts-badge--success {
+  background-color: var(--ts-success-soft);
+  color: var(--ts-success);
+  border: 1px solid var(--ts-success);
+}
+
+.ts-badge--warning {
+  background-color: var(--ts-warning-soft);
+  color: var(--ts-warning);
+  border: 1px solid var(--ts-warning);
+}
+
+.ts-badge--danger {
+  background-color: var(--ts-danger-soft);
+  color: var(--ts-danger);
+  border: 1px solid var(--ts-danger);
+}
+
+.ts-badge--info {
+  background-color: var(--ts-primary-soft);
+  color: var(--ts-primary);
+  border: 1px solid var(--ts-primary);
+}
+
+/* Dot variant */
+.ts-badge--dot::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: currentColor;
+}

@@ -1,0 +1,775 @@
+/**
+ * GA4 Setup Guide Modal - Premium Styles
+ * 
+ * Dark/Light theme support with smooth animations and responsive design.
+ */
+
+/* Modal Title Customization */
+.ts-ga4-modal-title {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-ga4-modal-title-icon {
+  font-size: 28px;
+  line-height: 1;
+  animation: ts-ga4-pulse 2s ease-in-out infinite;
+}
+
+@keyframes ts-ga4-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+}
+
+.ts-ga4-modal-title-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ts-text);
+  line-height: 1.2;
+}
+
+.ts-ga4-modal-subtitle {
+  font-size: 13px;
+  color: var(--ts-text-muted);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+/* Main Container */
+.ts-ga4-setup-guide {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  background: var(--ts-bg);
+}
+
+/* Hero Banner */
+.ts-ga4-hero {
+  padding: var(--ts-spacing-2xl);
+  background: linear-gradient(135deg, 
+    var(--ts-primary) 0%, 
+    var(--ts-primary-dark) 100%
+  );
+  position: relative;
+  overflow: hidden;
+}
+
+[data-theme="dark"] .ts-ga4-hero {
+  background: linear-gradient(135deg, 
+    rgba(99, 102, 241, 0.15) 0%, 
+    rgba(79, 70, 229, 0.25) 100%
+  );
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.ts-ga4-hero::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -10%;
+  width: 300px;
+  height: 300px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ts-ga4-hero-content {
+  position: relative;
+  z-index: 1;
+}
+
+.ts-ga4-hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: var(--ts-radius-full);
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: var(--ts-spacing-md);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .ts-ga4-hero-badge {
+  background: rgba(34, 197, 94, 0.15);
+  border-color: rgba(34, 197, 94, 0.3);
+  color: var(--ts-success-light);
+}
+
+.ts-ga4-hero-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #fff;
+  margin: 0 0 var(--ts-spacing-lg) 0;
+  line-height: 1.4;
+}
+
+[data-theme="dark"] .ts-ga4-hero-title {
+  color: var(--ts-text);
+}
+
+.ts-ga4-hero-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-md) var(--ts-spacing-lg);
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: var(--ts-radius-lg);
+  backdrop-filter: blur(10px);
+}
+
+[data-theme="dark"] .ts-ga4-hero-alert {
+  background: rgba(251, 191, 36, 0.1);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.ts-ga4-hero-alert p {
+  margin: 0;
+  font-size: 14px;
+  color: #fff;
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .ts-ga4-hero-alert p {
+  color: var(--ts-text-secondary);
+}
+
+/* Steps Container */
+.ts-ga4-steps-container {
+  padding: var(--ts-spacing-2xl);
+  background: var(--ts-surface);
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.ts-ga4-steps-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+.ts-ga4-steps-header h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--ts-text);
+}
+
+.ts-ga4-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-ga4-progress-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ts-text-muted);
+}
+
+/* Steps List */
+.ts-ga4-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-md);
+}
+
+/* Individual Step */
+.ts-ga4-step {
+  background: var(--ts-bg);
+  border: 2px solid var(--ts-border);
+  border-radius: var(--ts-radius-xl);
+  overflow: hidden;
+  transition: all var(--ts-fast);
+}
+
+.ts-ga4-step:hover {
+  border-color: var(--ts-border-hover);
+  box-shadow: var(--ts-shadow-md);
+}
+
+.ts-ga4-step--critical {
+  border-left: 4px solid var(--ts-danger);
+}
+
+.ts-ga4-step--expanded {
+  border-color: var(--ts-primary);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.2), var(--ts-shadow-md);
+}
+
+[data-theme="dark"] .ts-ga4-step--expanded {
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3), var(--ts-shadow-md);
+}
+
+/* Step Header */
+.ts-ga4-step-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ts-spacing-lg) var(--ts-spacing-xl);
+  cursor: pointer;
+  user-select: none;
+  transition: background var(--ts-fast);
+}
+
+.ts-ga4-step-header:hover {
+  background: var(--ts-surface-2);
+}
+
+.ts-ga4-step-header-left {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-lg);
+  flex: 1;
+}
+
+.ts-ga4-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--ts-radius-lg);
+  background: var(--ts-primary);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .ts-ga4-step-number {
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--ts-primary-light);
+  border: 1px solid var(--ts-primary);
+}
+
+.ts-ga4-step-info {
+  flex: 1;
+}
+
+.ts-ga4-step-title {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: 4px;
+}
+
+.ts-ga4-critical-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  background: var(--ts-danger-soft);
+  color: var(--ts-danger);
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  border-radius: var(--ts-radius-sm);
+  letter-spacing: 0.3px;
+}
+
+.ts-ga4-step-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ts-text-muted);
+}
+
+.ts-ga4-step-chevron {
+  color: var(--ts-text-muted);
+  transition: transform var(--ts-fast);
+  flex-shrink: 0;
+}
+
+.ts-ga4-step--expanded .ts-ga4-step-chevron {
+  transform: rotate(180deg);
+}
+
+/* Step Content */
+.ts-ga4-step-content {
+  padding: 0 var(--ts-spacing-xl) var(--ts-spacing-xl) var(--ts-spacing-xl);
+  animation: ts-ga4-slide-down var(--ts-base) ease-out;
+  border-top: 1px solid var(--ts-border);
+  margin-top: var(--ts-spacing-sm);
+}
+
+@keyframes ts-ga4-slide-down {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ts-ga4-step-description {
+  margin-bottom: var(--ts-spacing-lg);
+  padding-left: 56px; /* Align with step number */
+}
+
+.ts-ga4-step-description p {
+  margin: 10px 0 0 0;
+  font-size: 14px;
+  color: var(--ts-text-secondary);
+  line-height: 1.6;
+  font-weight: 700;
+}
+
+.ts-ga4-step-list {
+  margin-bottom: var(--ts-spacing-lg);
+  padding-left: 56px; /* Align with step number */
+}
+
+.ts-ga4-step-list-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: var(--ts-spacing-md);
+}
+
+/* Events Grid */
+.ts-ga4-events-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-ga4-event-tag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  font-size: 13px;
+  transition: all var(--ts-fast);
+}
+
+.ts-ga4-event-tag:hover {
+  border-color: var(--ts-primary);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-ga4-event-tag code {
+  font-family: var(--ts-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ts-primary);
+  flex: 1;
+}
+
+.ts-ga4-event-status {
+  font-size: 11px;
+  color: var(--ts-success);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Dimensions List */
+.ts-ga4-dimensions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-ga4-dimension-card {
+  padding: var(--ts-spacing-md);
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-left: 3px solid var(--ts-primary);
+  border-radius: var(--ts-radius-md);
+  transition: all var(--ts-fast);
+}
+
+.ts-ga4-dimension-card:hover {
+  border-left-color: var(--ts-primary-dark);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-ga4-dimension-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--ts-spacing-sm);
+}
+
+.ts-ga4-dimension-name {
+  font-family: var(--ts-font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ts-primary);
+  background: rgba(99, 102, 241, 0.1);
+  padding: 4px 10px;
+  border-radius: var(--ts-radius-sm);
+}
+
+.ts-ga4-dimension-scope {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ts-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ts-ga4-dimension-detail {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.ts-ga4-dimension-label {
+  color: var(--ts-text-muted);
+  font-weight: 500;
+}
+
+.ts-ga4-dimension-detail code {
+  font-family: var(--ts-font-mono);
+  color: var(--ts-text);
+  background: var(--ts-bg);
+  padding: 2px 6px;
+  border-radius: var(--ts-radius-sm);
+}
+
+.ts-ga4-dimension-why {
+  font-size: 12px;
+  color: var(--ts-text-secondary);
+  line-height: 1.5;
+}
+
+/* Audiences List */
+.ts-ga4-audiences-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--ts-spacing-md);
+}
+
+.ts-ga4-audience-card {
+  padding: var(--ts-spacing-md);
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  transition: all var(--ts-fast);
+}
+
+.ts-ga4-audience-card:hover {
+  border-color: var(--ts-primary);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-ga4-audience-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: var(--ts-spacing-sm);
+}
+
+.ts-ga4-audience-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  margin-bottom: 6px;
+  color: var(--ts-text-secondary);
+}
+
+.ts-ga4-audience-rule-label {
+  font-weight: 600;
+  color: var(--ts-text-muted);
+  white-space: nowrap;
+}
+
+/* Integrations Grid */
+.ts-ga4-integrations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--ts-spacing-md);
+}
+
+.ts-ga4-integration-card {
+  padding: var(--ts-spacing-md);
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  transition: all var(--ts-fast);
+}
+
+.ts-ga4-integration-card:hover {
+  border-color: var(--ts-primary);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-ga4-integration-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: var(--ts-spacing-sm);
+}
+
+.ts-ga4-integration-benefits {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.ts-ga4-integration-benefits li {
+  font-size: 12px;
+  color: var(--ts-text-secondary);
+  padding-left: 16px;
+  position: relative;
+  margin-bottom: 4px;
+  line-height: 1.5;
+}
+
+.ts-ga4-integration-benefits li::before {
+  content: '✓';
+  position: absolute;
+  left: 0;
+  color: var(--ts-success);
+  font-weight: 700;
+}
+
+/* Why Section */
+.ts-ga4-step-why {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-md) var(--ts-spacing-lg);
+  padding-left: 56px; /* Align with step number */
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: var(--ts-radius-md);
+  font-size: 13px;
+  color: var(--ts-text-secondary);
+  line-height: 1.6;
+  margin-top: var(--ts-spacing-md);
+}
+
+[data-theme="dark"] .ts-ga4-step-why {
+  background: rgba(251, 191, 36, 0.05);
+  border-color: rgba(251, 191, 36, 0.2);
+}
+
+/* Automation Section */
+.ts-ga4-automation {
+  padding: var(--ts-spacing-xl) var(--ts-spacing-2xl);
+  background: var(--ts-surface);
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.ts-ga4-automation-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--ts-spacing-lg);
+  background: var(--ts-bg);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  cursor: pointer;
+  transition: all var(--ts-fast);
+}
+
+.ts-ga4-automation-toggle:hover {
+  border-color: var(--ts-success);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-ga4-automation-toggle-left {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-ga4-automation-toggle-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ts-text);
+}
+
+.ts-ga4-automation-badge {
+  padding: 4px 10px;
+  background: var(--ts-success-soft);
+  color: var(--ts-success);
+  font-size: 11px;
+  font-weight: 700;
+  border-radius: var(--ts-radius-full);
+}
+
+.ts-ga4-automation-content {
+  margin-top: var(--ts-spacing-lg);
+  animation: ts-ga4-slide-down var(--ts-base) ease-out;
+}
+
+.ts-ga4-automation-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-ga4-automation-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  font-size: 13px;
+  color: var(--ts-text-secondary);
+  line-height: 1.5;
+}
+
+/* Summary */
+.ts-ga4-summary {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ts-spacing-lg);
+  padding: var(--ts-spacing-xl) var(--ts-spacing-2xl);
+  background: rgba(79, 70, 229, 0.05);
+  border-bottom: 1px solid var(--ts-border);
+}
+
+[data-theme="dark"] .ts-ga4-summary {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.ts-ga4-summary-content {
+  flex: 1;
+}
+
+.ts-ga4-summary-content p {
+  margin: 0 0 var(--ts-spacing-sm) 0;
+  font-size: 14px;
+  color: var(--ts-text-secondary);
+  line-height: 1.6;
+}
+
+.ts-ga4-summary-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding-top: var(--ts-spacing-sm);
+  font-size: 13px !important;
+  color: var(--ts-text-muted) !important;
+  font-style: italic;
+}
+
+/* Actions */
+.ts-ga4-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-2xl);
+  background: var(--ts-surface);
+}
+
+.ts-ga4-primary-action {
+  padding: 14px 28px !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  box-shadow: var(--ts-shadow-md) !important;
+}
+
+.ts-ga4-primary-action:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: var(--ts-shadow-lg) !important;
+}
+
+/* Responsive Design */
+@media (max-width: 767px) {
+  .ts-ga4-modal-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ts-spacing-sm);
+  }
+
+  .ts-ga4-modal-title-icon {
+    font-size: 24px;
+  }
+
+  .ts-ga4-modal-title-text {
+    font-size: 18px;
+  }
+
+  .ts-ga4-hero,
+  .ts-ga4-steps-container,
+  .ts-ga4-automation,
+  .ts-ga4-summary,
+  .ts-ga4-actions {
+    padding: var(--ts-spacing-lg);
+  }
+
+  .ts-ga4-step-header {
+    padding: var(--ts-spacing-md);
+  }
+
+  .ts-ga4-step-content {
+    padding: 0 var(--ts-spacing-md) var(--ts-spacing-md) var(--ts-spacing-md);
+  }
+
+  .ts-ga4-step-description,
+  .ts-ga4-step-list,
+  .ts-ga4-step-why {
+    padding-left: 0;
+  }
+
+  .ts-ga4-step-number {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .ts-ga4-events-grid,
+  .ts-ga4-audiences-list,
+  .ts-ga4-integrations-grid,
+  .ts-ga4-automation-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ts-ga4-actions {
+    flex-direction: column;
+    gap: var(--ts-spacing-sm);
+  }
+
+  .ts-ga4-actions .ts-button {
+    width: 100%;
+  }
+
+  .ts-ga4-automation-toggle-left {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ts-spacing-sm);
+  }
+}
+
+/* Print Styles */
+@media print {
+  .ts-ga4-modal {
+    display: none;
+  }
+}

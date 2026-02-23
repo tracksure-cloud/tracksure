@@ -1,0 +1,748 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "parameters": [
+    {
+      "name": "page_title",
+      "display_name": "Page Title",
+      "description": "The title of the page",
+      "type": "string",
+      "example": "Homepage - My Store"
+    },
+    {
+      "name": "page_location",
+      "display_name": "Page Location",
+      "description": "The full URL of the page",
+      "type": "string",
+      "example": "https://example.com/products"
+    },
+    {
+      "name": "page_referrer",
+      "display_name": "Page Referrer",
+      "description": "The referring page URL",
+      "type": "string",
+      "example": "https://google.com"
+    },
+    {
+      "name": "page_path",
+      "display_name": "Page Path",
+      "description": "The path portion of the page URL (e.g., /products/item)",
+      "type": "string",
+      "example": "/products/item"
+    },
+    {
+      "name": "item_id",
+      "display_name": "Item ID",
+      "description": "The unique identifier for an item/product",
+      "type": "string",
+      "example": "SKU123"
+    },
+    {
+      "name": "item_name",
+      "display_name": "Item Name",
+      "description": "The name of an item/product",
+      "type": "string",
+      "example": "Blue T-Shirt"
+    },
+    {
+      "name": "item_category",
+      "display_name": "Item Category",
+      "description": "The category of an item/product",
+      "type": "string",
+      "example": "Apparel"
+    },
+    {
+      "name": "item_variant",
+      "display_name": "Item Variant",
+      "description": "The variant of an item (size, color, etc.)",
+      "type": "string",
+      "example": "Large"
+    },
+    {
+      "name": "price",
+      "display_name": "Price",
+      "description": "The price of an item",
+      "type": "number",
+      "example": 29.99
+    },
+    {
+      "name": "currency",
+      "display_name": "Currency",
+      "description": "Currency code (ISO 4217)",
+      "type": "string",
+      "example": "USD"
+    },
+    {
+      "name": "value",
+      "display_name": "Value",
+      "description": "Monetary value associated with the event",
+      "type": "number",
+      "example": 99.99
+    },
+    {
+      "name": "quantity",
+      "display_name": "Quantity",
+      "description": "The quantity of items",
+      "type": "integer",
+      "example": 2
+    },
+    {
+      "name": "transaction_id",
+      "display_name": "Transaction ID",
+      "description": "Unique transaction/order identifier",
+      "type": "string",
+      "example": "ORDER-12345"
+    },
+    {
+      "name": "items",
+      "display_name": "Items",
+      "description": "Array of items in cart or purchase",
+      "type": "array",
+      "example": []
+    },
+    {
+      "name": "tax",
+      "display_name": "Tax",
+      "description": "Tax amount",
+      "type": "number",
+      "example": 5.99
+    },
+    {
+      "name": "shipping",
+      "display_name": "Shipping",
+      "description": "Shipping cost",
+      "type": "number",
+      "example": 9.99
+    },
+    {
+      "name": "coupon",
+      "display_name": "Coupon",
+      "description": "Coupon code used",
+      "type": "string",
+      "example": "SAVE20"
+    },
+    {
+      "name": "affiliation",
+      "display_name": "Affiliation",
+      "description": "Store or affiliation name",
+      "type": "string",
+      "example": "Online Store"
+    },
+    {
+      "name": "payment_type",
+      "display_name": "Payment Type",
+      "description": "Payment method used",
+      "type": "string",
+      "example": "Credit Card"
+    },
+    {
+      "name": "shipping_tier",
+      "display_name": "Shipping Tier",
+      "description": "Shipping method selected",
+      "type": "string",
+      "example": "Express"
+    },
+    {
+      "name": "element_type",
+      "display_name": "Element Type",
+      "description": "Type of HTML element clicked",
+      "type": "string",
+      "example": "button"
+    },
+    {
+      "name": "element_id",
+      "display_name": "Element ID",
+      "description": "ID attribute of clicked element",
+      "type": "string",
+      "example": "submit-btn"
+    },
+    {
+      "name": "element_class",
+      "display_name": "Element Class",
+      "description": "Class attribute of clicked element",
+      "type": "string",
+      "example": "btn btn-primary"
+    },
+    {
+      "name": "element_text",
+      "display_name": "Element Text",
+      "description": "Text content of clicked element",
+      "type": "string",
+      "example": "Buy Now"
+    },
+    {
+      "name": "link_url",
+      "display_name": "Link URL",
+      "description": "URL of clicked link",
+      "type": "string",
+      "example": "https://example.com/page"
+    },
+    {
+      "name": "link_domain",
+      "display_name": "Link Domain",
+      "description": "Domain of clicked link",
+      "type": "string",
+      "example": "example.com"
+    },
+    {
+      "name": "scroll_depth",
+      "display_name": "Scroll Depth",
+      "description": "Percentage of page scrolled",
+      "type": "integer",
+      "example": 75
+    },
+    {
+      "name": "form_id",
+      "display_name": "Form ID",
+      "description": "ID of submitted form",
+      "type": "string",
+      "example": "contact-form"
+    },
+    {
+      "name": "form_name",
+      "display_name": "Form Name",
+      "description": "Name of submitted form",
+      "type": "string",
+      "example": "Contact Us"
+    },
+    {
+      "name": "form_destination",
+      "display_name": "Form Destination",
+      "description": "Where form data is sent",
+      "type": "string",
+      "example": "/submit-contact"
+    },
+    {
+      "name": "search_term",
+      "display_name": "Search Term",
+      "description": "User's search query",
+      "type": "string",
+      "example": "blue shirts"
+    },
+    {
+      "name": "search_results",
+      "display_name": "Search Results",
+      "description": "Number of search results",
+      "type": "integer",
+      "example": 24
+    },
+    {
+      "name": "method",
+      "display_name": "Method",
+      "description": "Method used (e.g., Google, Email)",
+      "type": "string",
+      "example": "Google"
+    },
+    {
+      "name": "promotion_id",
+      "display_name": "Promotion ID",
+      "description": "Unique promotion identifier",
+      "type": "string",
+      "example": "PROMO-SUMMER"
+    },
+    {
+      "name": "promotion_name",
+      "display_name": "Promotion Name",
+      "description": "Name of promotion",
+      "type": "string",
+      "example": "Summer Sale"
+    },
+    {
+      "name": "creative_name",
+      "display_name": "Creative Name",
+      "description": "Name of promotional creative",
+      "type": "string",
+      "example": "Banner Ad"
+    },
+    {
+      "name": "creative_slot",
+      "display_name": "Creative Slot",
+      "description": "Position of promotional creative",
+      "type": "string",
+      "example": "Homepage Hero"
+    },
+    {
+      "name": "location_id",
+      "display_name": "Location ID",
+      "description": "Location identifier for promotion",
+      "type": "string",
+      "example": "home-top"
+    },
+    {
+      "name": "video_url",
+      "display_name": "Video URL",
+      "description": "URL of the video",
+      "type": "string",
+      "example": "https://example.com/video.mp4"
+    },
+    {
+      "name": "video_title",
+      "display_name": "Video Title",
+      "description": "Title of the video",
+      "type": "string",
+      "example": "Product Demo"
+    },
+    {
+      "name": "video_duration",
+      "display_name": "Video Duration",
+      "description": "Duration of video in seconds",
+      "type": "integer",
+      "example": 120
+    },
+    {
+      "name": "video_percent",
+      "display_name": "Video Percent",
+      "description": "Percentage of video watched",
+      "type": "integer",
+      "example": 50
+    },
+    {
+      "name": "file_name",
+      "display_name": "File Name",
+      "description": "Name of downloaded file",
+      "type": "string",
+      "example": "product-brochure.pdf"
+    },
+    {
+      "name": "file_extension",
+      "display_name": "File Extension",
+      "description": "Extension of downloaded file",
+      "type": "string",
+      "example": "pdf"
+    },
+    {
+      "name": "is_returning",
+      "display_name": "Is Returning",
+      "description": "Whether the user is returning",
+      "type": "boolean",
+      "example": true
+    },
+    {
+      "name": "time_seconds",
+      "display_name": "Time (Seconds)",
+      "description": "Time spent in seconds",
+      "type": "integer",
+      "example": 45
+    },
+    {
+      "name": "time_on_page",
+      "display_name": "Time on Page",
+      "description": "Total time user spent on page (seconds)",
+      "type": "integer",
+      "example": 120
+    },
+    {
+      "name": "time_threshold",
+      "display_name": "Time Threshold",
+      "description": "Time threshold that was reached (seconds)",
+      "type": "integer",
+      "example": 30
+    },
+    {
+      "name": "engaged_seconds",
+      "display_name": "Engaged Seconds",
+      "description": "Active engagement time (not idle)",
+      "type": "integer",
+      "example": 85
+    },
+    {
+      "name": "exit_type",
+      "display_name": "Exit Type",
+      "description": "How the user exited (navigate, close, unload)",
+      "type": "string",
+      "example": "navigate"
+    },
+    {
+      "name": "away_seconds",
+      "display_name": "Away Seconds",
+      "description": "Time user was away from tab (seconds)",
+      "type": "integer",
+      "example": 15
+    },
+    {
+      "name": "hidden_at",
+      "display_name": "Hidden At",
+      "description": "Timestamp when tab was hidden",
+      "type": "integer",
+      "example": 1702652400
+    },
+    {
+      "name": "load_time",
+      "display_name": "Load Time",
+      "description": "Total page load time (milliseconds)",
+      "type": "integer",
+      "example": 1250
+    },
+    {
+      "name": "dom_load_time",
+      "display_name": "DOM Load Time",
+      "description": "DOM content loaded time (milliseconds)",
+      "type": "integer",
+      "example": 850
+    },
+    {
+      "name": "first_paint",
+      "display_name": "First Paint",
+      "description": "First paint time (milliseconds)",
+      "type": "integer",
+      "example": 600
+    },
+    {
+      "name": "first_contentful_paint",
+      "display_name": "First Contentful Paint",
+      "description": "First contentful paint time (milliseconds)",
+      "type": "integer",
+      "example": 750
+    },
+    {
+      "name": "largest_contentful_paint",
+      "display_name": "Largest Contentful Paint",
+      "description": "Largest contentful paint time (milliseconds)",
+      "type": "integer",
+      "example": 1100
+    },
+    {
+      "name": "time_to_interactive",
+      "display_name": "Time to Interactive",
+      "description": "Time until page is interactive (milliseconds)",
+      "type": "integer",
+      "example": 1500
+    },
+    {
+      "name": "page_size",
+      "display_name": "Page Size",
+      "description": "Total page size in kilobytes",
+      "type": "integer",
+      "example": 850
+    },
+    {
+      "name": "item_brand",
+      "display_name": "Item Brand",
+      "description": "Brand of the product/item",
+      "type": "string",
+      "example": "Nike"
+    },
+    {
+      "name": "item_sku",
+      "display_name": "Item SKU",
+      "description": "Stock keeping unit identifier",
+      "type": "string",
+      "example": "TSHIRT-BLU-L-001"
+    },
+    {
+      "name": "payment_method",
+      "display_name": "Payment Method",
+      "description": "Method of payment (card, paypal, etc.)",
+      "type": "string",
+      "example": "credit_card"
+    },
+    {
+      "name": "payment_gateway",
+      "display_name": "Payment Gateway",
+      "description": "Payment gateway used (Stripe, PayPal, etc.)",
+      "type": "string",
+      "example": "stripe"
+    },
+    {
+      "name": "cart_id",
+      "display_name": "Cart ID",
+      "description": "Unique identifier for shopping cart",
+      "type": "string",
+      "example": "cart_abc123"
+    },
+    {
+      "name": "content_ids",
+      "display_name": "Content IDs",
+      "description": "Array of product/content IDs",
+      "type": "array",
+      "example": ["123", "456", "789"]
+    },
+    {
+      "name": "content_type",
+      "display_name": "Content Type",
+      "description": "Type of content (product, article, video, etc.)",
+      "type": "string",
+      "example": "product"
+    },
+    {
+      "name": "content_name",
+      "display_name": "Content Name",
+      "description": "Name of the content",
+      "type": "string",
+      "example": "Summer Collection 2025"
+    },
+    {
+      "name": "num_items",
+      "display_name": "Number of Items",
+      "description": "Total number of items",
+      "type": "integer",
+      "example": 3
+    },
+    {
+      "name": "payment_type",
+      "display_name": "Payment Type",
+      "description": "Type of payment (one-time, subscription, etc.)",
+      "type": "string",
+      "example": "one_time"
+    },
+    {
+      "name": "search_string",
+      "display_name": "Search String",
+      "description": "User's search query",
+      "type": "string",
+      "example": "blue running shoes"
+    },
+    {
+      "name": "predicted_ltv",
+      "display_name": "Predicted Lifetime Value",
+      "description": "Predicted customer lifetime value",
+      "type": "number",
+      "example": 500.00
+    },
+    {
+      "name": "refund_reason",
+      "display_name": "Refund Reason",
+      "description": "Reason for refund",
+      "type": "string",
+      "example": "customer_request"
+    },
+    {
+      "name": "item_list_name",
+      "display_name": "Item List Name",
+      "description": "Name of the product list",
+      "type": "string",
+      "example": "Search Results"
+    },
+    {
+      "name": "item_list_id",
+      "display_name": "Item List ID",
+      "description": "ID of the product list",
+      "type": "string",
+      "example": "search_results_001"
+    },
+    {
+      "name": "contact_method",
+      "display_name": "Contact Method",
+      "description": "Method of contact (phone, email, chat, whatsapp)",
+      "type": "string",
+      "example": "phone"
+    },
+    {
+      "name": "contact_value",
+      "display_name": "Contact Value",
+      "description": "The phone number, email, or handle contacted",
+      "type": "string",
+      "example": "+1-555-0123"
+    },
+    {
+      "name": "experience_id",
+      "display_name": "Experience ID",
+      "description": "Unique identifier of the experience shown",
+      "type": "string",
+      "example": "123"
+    },
+    {
+      "name": "experience_name",
+      "display_name": "Experience Name",
+      "description": "Name of the experience campaign",
+      "type": "string",
+      "example": "Black Friday Exit Popup"
+    },
+    {
+      "name": "experience_type",
+      "display_name": "Experience Type",
+      "description": "Type of experience (popup, bar, widget, inline, redirect)",
+      "type": "string",
+      "example": "popup"
+    },
+    {
+      "name": "variant_id",
+      "display_name": "Variant ID",
+      "description": "A/B test variant identifier",
+      "type": "string",
+      "example": "variant_a"
+    },
+    {
+      "name": "variant_name",
+      "display_name": "Variant Name",
+      "description": "A/B test variant name",
+      "type": "string",
+      "example": "Control - Short Headline"
+    },
+    {
+      "name": "interaction_type",
+      "display_name": "Interaction Type",
+      "description": "Type of interaction (click, submit, expand, dismiss)",
+      "type": "string",
+      "example": "click"
+    },
+    {
+      "name": "experience_priority",
+      "display_name": "Experience Priority",
+      "description": "Priority level of the experience",
+      "type": "integer",
+      "example": 10
+    },
+    {
+      "name": "time_visible",
+      "display_name": "Time Visible",
+      "description": "Seconds the experience was visible before dismissal",
+      "type": "integer",
+      "example": 5
+    },
+    {
+      "name": "order_id",
+      "display_name": "Order ID",
+      "description": "Unique order identifier (alias for transaction_id)",
+      "type": "string",
+      "example": "ORDER-67890"
+    },
+    {
+      "name": "item_ids",
+      "display_name": "Item IDs",
+      "description": "Array of item/product IDs (comma-separated or array)",
+      "type": "array",
+      "example": ["SKU123", "SKU456", "SKU789"]
+    },
+    {
+      "name": "revenue_value",
+      "display_name": "Revenue Value",
+      "description": "Revenue amount (Microsoft Ads specific)",
+      "type": "number",
+      "example": 149.99
+    },
+    {
+      "name": "revenue_currency",
+      "display_name": "Revenue Currency",
+      "description": "Revenue currency code (Microsoft Ads specific)",
+      "type": "string",
+      "example": "USD"
+    },
+    {
+      "name": "item_count",
+      "display_name": "Item Count",
+      "description": "Total count of items (Reddit specific)",
+      "type": "integer",
+      "example": 3
+    },
+    {
+      "name": "products",
+      "display_name": "Products Array",
+      "description": "Array of product objects (Reddit specific)",
+      "type": "array",
+      "example": [{"id": "SKU123", "name": "Product 1"}]
+    },
+    {
+      "name": "content_id",
+      "display_name": "Content ID",
+      "description": "Single content/product ID (Twitter/X specific)",
+      "type": "string",
+      "example": "PROD-123"
+    },
+    {
+      "name": "line_items",
+      "display_name": "Line Items",
+      "description": "Array of line items in cart/order (Pinterest specific)",
+      "type": "array",
+      "example": [{"product_id": "SKU123", "quantity": 2}]
+    },
+    {
+      "name": "event_date",
+      "display_name": "Event Date",
+      "description": "Date when event occurred (YYYY-MM-DD format)",
+      "type": "string",
+      "example": "2026-02-05"
+    },
+    {
+      "name": "event_time",
+      "display_name": "Event Time",
+      "description": "Time when event occurred (HH:MM:SS format, 24-hour)",
+      "type": "string",
+      "example": "14:30:45"
+    },
+    {
+      "name": "event_hour",
+      "display_name": "Event Hour",
+      "description": "Hour of day when event occurred (0-23)",
+      "type": "integer",
+      "example": 14
+    },
+    {
+      "name": "day_of_week",
+      "display_name": "Day of Week",
+      "description": "Day of the week when event occurred",
+      "type": "string",
+      "example": "Monday"
+    },
+    {
+      "name": "day_of_week_number",
+      "display_name": "Day of Week Number",
+      "description": "Numeric day of week (0=Sunday, 6=Saturday)",
+      "type": "integer",
+      "example": 1
+    },
+    {
+      "name": "week_of_year",
+      "display_name": "Week of Year",
+      "description": "ISO week number (1-53)",
+      "type": "integer",
+      "example": 6
+    },
+    {
+      "name": "month_name",
+      "display_name": "Month Name",
+      "description": "Name of the month when event occurred",
+      "type": "string",
+      "example": "February"
+    },
+    {
+      "name": "month_number",
+      "display_name": "Month Number",
+      "description": "Numeric month (1-12)",
+      "type": "integer",
+      "example": 2
+    },
+    {
+      "name": "quarter",
+      "display_name": "Quarter",
+      "description": "Quarter of the year (Q1-Q4)",
+      "type": "string",
+      "example": "Q1"
+    },
+    {
+      "name": "year",
+      "display_name": "Year",
+      "description": "Year when event occurred",
+      "type": "integer",
+      "example": 2026
+    },
+    {
+      "name": "is_weekend",
+      "display_name": "Is Weekend",
+      "description": "Whether event occurred on weekend (Saturday or Sunday)",
+      "type": "boolean",
+      "example": false
+    },
+    {
+      "name": "page_type",
+      "display_name": "Page Type",
+      "description": "Type of page (e.g., account, login, dashboard, orders, settings)",
+      "type": "string",
+      "example": "account"
+    },
+    {
+      "name": "account_section",
+      "display_name": "Account Section",
+      "description": "Specific section within account page (e.g., dashboard, orders, downloads, addresses, account-details)",
+      "type": "string",
+      "example": "orders"
+    },
+    {
+      "name": "timezone",
+      "display_name": "Timezone",
+      "description": "WordPress site timezone (e.g., America/New_York, Europe/London, Asia/Dhaka)",
+      "type": "string",
+      "example": "America/New_York"
+    }
+  ]
+}

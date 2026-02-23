@@ -1,0 +1,112 @@
+/**
+ * Tracking Status Banner Styles
+ */
+
+.ts-tracking-status-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1.5rem;
+  border-radius: 8px;
+  background-color: var(--ts-background);
+  border: 1px solid var(--ts-border);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.ts-tracking-status-banner--disabled {
+  background-color: #fef3c7;
+  border-color: #f59e0b;
+  color: #92400e;
+}
+
+[data-theme="dark"] .ts-tracking-status-banner--disabled {
+  background-color: rgba(245, 158, 11, 0.1);
+  border-color: #f59e0b;
+  color: #fbbf24;
+}
+
+.ts-banner-icon {
+  flex-shrink: 0;
+  color: #f59e0b;
+  margin-top: 0.125rem;
+}
+
+[data-theme="dark"] .ts-banner-icon {
+  color: #fbbf24;
+}
+
+.ts-banner-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-banner-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #92400e;
+}
+
+[data-theme="dark"] .ts-banner-title {
+  color: #fbbf24;
+}
+
+.ts-banner-description {
+  margin: 0;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #78350f;
+}
+
+[data-theme="dark"] .ts-banner-description {
+  color: #fcd34d;
+}
+
+.ts-banner-link {
+  color: #92400e;
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.ts-banner-link:hover {
+  color: #78350f;
+}
+
+[data-theme="dark"] .ts-banner-link {
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .ts-banner-link:hover {
+  color: #fcd34d;
+}
+
+.ts-banner-actions {
+  flex-shrink: 0;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.ts-banner-actions .ts-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ts-tracking-status-banner {
+    flex-direction: column;
+  }
+  
+  .ts-banner-actions {
+    width: 100%;
+  }
+  
+  .ts-banner-actions .ts-button {
+    width: 100%;
+    justify-content: center;
+  }
+}

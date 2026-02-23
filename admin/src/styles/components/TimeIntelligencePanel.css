@@ -1,0 +1,190 @@
+/**
+ * Time Intelligence Panel Styles
+ */
+
+.ts-time-intelligence-panel {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-xl);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+}
+
+.ts-time-intelligence-panel:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Panel Header */
+.ts-panel-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  margin-bottom: var(--ts-spacing-lg);
+  padding-bottom: var(--ts-spacing-md);
+  border-bottom: 2px solid var(--ts-border);
+}
+
+.ts-panel-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0;
+  flex: 1;
+}
+
+.ts-panel-badge {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  background: var(--ts-primary-soft);
+  color: var(--ts-primary);
+  border-radius: var(--ts-radius-full);
+}
+
+/* Panel Content */
+.ts-panel-content {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--ts-spacing-md);
+}
+
+/* Insight Cards */
+.ts-insight-card {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-md);
+  background: var(--ts-bg);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ts-insight-card:hover {
+  background: var(--ts-surface);
+  border-color: var(--ts-primary-light);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+}
+
+.ts-insight-card.ts-highlight {
+  background: linear-gradient(135deg, var(--ts-primary-soft) 0%, var(--ts-surface) 100%);
+  border-color: var(--ts-primary);
+  border-width: 2px;
+}
+
+.ts-insight-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-surface);
+  border-radius: var(--ts-radius-md);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.ts-insight-card.ts-highlight .ts-insight-icon {
+  background: var(--ts-primary);
+  color: white;
+}
+
+.ts-insight-content {
+  flex: 1;
+}
+
+.ts-insight-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ts-text-muted);
+  /* text-transform: uppercase; */
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.ts-insight-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ts-text);
+  margin-bottom: 4px;
+  line-height: 1.2;
+}
+
+.ts-insight-detail {
+  font-size: 13px;
+  color: var(--ts-text-subtle);
+  line-height: 1.4;
+}
+
+/* Panel Footer */
+.ts-panel-footer {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: var(--ts-spacing-lg);
+  padding-top: var(--ts-spacing-md);
+  border-top: 1px dashed var(--ts-border);
+  font-size: 12px;
+  color: var(--ts-text-muted);
+}
+
+/* Loading State */
+.ts-time-intelligence-panel.ts-loading .ts-skeleton-insight {
+  height: 80px;
+  background: linear-gradient(
+    90deg,
+    var(--ts-bg) 0%,
+    var(--ts-border) 50%,
+    var(--ts-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--ts-radius-md);
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+  .ts-panel-content {
+    grid-template-columns: 1fr;
+  }
+
+  .ts-insight-value {
+    font-size: 16px;
+  }
+
+  .ts-insight-detail {
+    font-size: 12px;
+  }
+}
+
+/* Tablet Portrait (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .ts-panel-content {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Desktop (1280px+) */
+@media (min-width: 1280px) {
+  .ts-panel-content {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}

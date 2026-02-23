@@ -1,0 +1,215 @@
+/**
+ * DynamicField Component Styles
+ */
+
+.ts-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ts-field-label {
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ts-text, #111827);
+}
+
+.ts-field-required {
+  color: var(--ts-danger, #ef4444);
+}
+
+.ts-field-description {
+  font-size: 13px;
+  color: var(--ts-text-secondary, #6b7280);
+  margin-left: 5px;
+  line-height: 1.4;
+}
+
+.ts-field-input {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid var(--ts-border, #e5e7eb);
+  border-radius: 6px;
+  background: var(--ts-bg-secondary, #ffffff);
+  color: var(--ts-text-primary, #111827);
+  transition: border-color 0.2s ease;
+}
+
+.ts-field-input:focus {
+  outline: none;
+  border-color: var(--ts-primary, #3b82f6);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.ts-field-input:disabled {
+  background: var(--ts-bg-disabled, #f9fafb);
+  color: var(--ts-text-disabled, #9ca3af);
+  cursor: not-allowed;
+}
+
+.ts-field-input[readonly] {
+  background: var(--ts-bg-disabled, #f9fafb);
+  cursor: default;
+}
+
+.ts-field-textarea {
+  min-height: 100px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.ts-field-select {
+  cursor: pointer;
+}
+
+.ts-field-with-unit {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ts-field-with-unit .ts-field-input {
+  flex: 1;
+}
+
+.ts-field-unit {
+  font-size: 14px;
+  color: var(--ts-text-secondary, #6b7280);
+  font-weight: 500;
+}
+
+.ts-field-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ts-field-slider-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ts-field-slider {
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--ts-bg-secondary, #f3f4f6);
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.ts-field-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--ts-primary, #3b82f6);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ts-field-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.ts-field-slider::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: var(--ts-primary, #3b82f6);
+  cursor: pointer;
+}
+
+.ts-field-slider-value {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--ts-text-secondary, #6b7280);
+}
+
+.ts-field-slider-current {
+  font-weight: 600;
+  color: var(--ts-text-primary, #111827);
+}
+
+.ts-field-validation-error {
+  font-size: 13px;
+  color: var(--ts-danger, #ef4444);
+  margin-top: 4px;
+}
+
+/* API Token Field Styles */
+.ts-token-warning {
+  background: var(--ts-warning-bg, #fef3c7);
+  border: 1px solid var(--ts-warning-border, #fbbf24);
+  border-radius: 5px;
+  padding: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--ts-warning-text, #78350f);
+}
+
+.ts-token-warning strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ts-warning-text-strong, #78350f);
+}
+
+.ts-token-warning p {
+  margin: 8px 0 0 0;
+  line-height: 1.5;
+}
+
+.ts-token-security-note {
+  font-size: 12px;
+  color: var(--ts-text-secondary, #6b7280);
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+/* Dark theme support */
+@media (prefers-color-scheme: dark) {
+  .ts-token-warning {
+    background: var(--ts-warning-bg-dark, #854d0e);
+    border-color: var(--ts-warning-border-dark, #a16207);
+    color: var(--ts-warning-text-dark, #fef3c7);
+  }
+  
+  .ts-token-warning strong {
+    color: var(--ts-warning-text-strong-dark, #fef3c7);
+  }
+  
+  .ts-token-security-note {
+    color: var(--ts-text-secondary-dark, #9ca3af);
+  }
+}
+
+/* WordPress admin color scheme support */
+body.admin-color-scheme-dark .ts-token-warning,
+body.admin-color-scheme-midnight .ts-token-warning,
+body.admin-color-scheme-blue .ts-token-warning,
+body.admin-color-scheme-coffee .ts-token-warning,
+body.admin-color-scheme-ectoplasm .ts-token-warning,
+body.admin-color-scheme-ocean .ts-token-warning {
+  background: var(--ts-warning-soft);
+  border-color: var(--ts-warning);
+  color: inherit;
+}
+
+body.admin-color-scheme-dark .ts-token-warning strong,
+body.admin-color-scheme-midnight .ts-token-warning strong,
+body.admin-color-scheme-blue .ts-token-warning strong,
+body.admin-color-scheme-coffee .ts-token-warning strong,
+body.admin-color-scheme-ectoplasm .ts-token-warning strong,
+body.admin-color-scheme-ocean .ts-token-warning strong {
+  color: var(--ts-warning);
+}

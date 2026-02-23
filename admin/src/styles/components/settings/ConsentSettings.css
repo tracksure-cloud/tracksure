@@ -1,0 +1,193 @@
+/**
+ * Consent Settings Component Styles
+ * Premium design for consent management UI
+ * Compatible with dark/light modes via CSS variables
+ */
+
+.ts-consent-settings {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-lg);
+}
+
+/* Mode Info Cards */
+.ts-consent-mode-info {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ts-spacing-lg);
+  padding: var(--ts-spacing-xl);
+  border: 2px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  background: var(--ts-surface);
+  box-shadow: var(--ts-shadow-md);
+  transition: all var(--ts-base);
+}
+
+.ts-consent-mode-info:hover {
+  box-shadow: var(--ts-shadow-lg);
+}
+
+.ts-consent-mode-info__icon-container {
+  flex-shrink: 0;
+  width: 3.5rem;
+  height: 3.5rem;
+  border-radius: var(--ts-radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--ts-shadow-lg);
+}
+
+.ts-consent-mode-info__icon-container--green {
+  background: var(--ts-success);
+  color: white;
+}
+
+.ts-consent-mode-info__icon-container--blue {
+  background: var(--ts-primary);
+  color: white;
+}
+
+.ts-consent-mode-info__icon-container--yellow {
+  background: var(--ts-warning);
+  color: white;
+}
+
+.ts-consent-mode-info__icon-container--gray {
+  background: var(--ts-gray-300);
+  color: var(--ts-gray-700);
+}
+
+[data-theme="dark"] .ts-consent-mode-info__icon-container--gray {
+  background: var(--ts-gray-700);
+  color: var(--ts-gray-300);
+}
+
+.ts-consent-mode-info__icon {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.ts-consent-mode-info__content {
+  flex: 1;
+}
+
+.ts-consent-mode-info__title {
+  font-size: var(--ts-text-base);
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0 0 var(--ts-spacing-sm);
+}
+
+.ts-consent-mode-info__description {
+  font-size: var(--ts-text-sm);
+  line-height: 1.6;
+  color: var(--ts-text-secondary);
+  margin: 0 0 var(--ts-spacing-sm);
+}
+
+.ts-consent-mode-info__warning {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ts-spacing-sm);
+  padding: var(--ts-spacing-md);
+  background: var(--ts-warning-bg);
+  border: 1px solid var(--ts-warning-border);
+  border-radius: var(--ts-radius-md);
+  font-size: var(--ts-text-xs);
+  color: var(--ts-warning-text);
+  margin: var(--ts-spacing-sm) 0 0;
+}
+
+/* Help Section */
+.ts-consent-help {
+  padding: var(--ts-spacing-lg);
+  background: var(--ts-primary-bg);
+  border: 2px solid var(--ts-primary-border);
+  border-radius: var(--ts-radius-lg);
+}
+
+[data-theme="dark"] .ts-consent-help {
+  background: rgba(79, 70, 229, 0.1);
+  border-color: rgba(79, 70, 229, 0.3);
+}
+
+.ts-consent-help__header {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+  margin-bottom: var(--ts-spacing-md);
+}
+
+.ts-consent-help__icon-container {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: var(--ts-radius-lg);
+  background: var(--ts-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+[data-theme="dark"] .ts-consent-help__icon-container {
+  background: rgba(79, 70, 229, 0.3);
+}
+
+.ts-consent-help__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--ts-primary);
+}
+
+.ts-consent-help__title {
+  font-size: var(--ts-text-base);
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0;
+}
+
+.ts-consent-help__content {
+  font-size: var(--ts-text-sm);
+  line-height: 1.7;
+  color: var(--ts-text-secondary);
+}
+
+.ts-consent-help__content ul {
+  margin: var(--ts-spacing-sm) 0;
+  padding-left: var(--ts-spacing-lg);
+}
+
+.ts-consent-help__content li {
+  margin-bottom: var(--ts-spacing-xs);
+}
+
+/* Mode Badge (inline) */
+.ts-consent-mode-badge {
+  display: inline;
+  padding: 0.125rem 0.375rem;
+  background: var(--ts-primary-light);
+  color: var(--ts-primary-dark);
+  border-radius: var(--ts-radius-sm);
+  font-weight: 500;
+  font-family: var(--ts-font-mono);
+  font-size: 0.875em;
+}
+
+[data-theme="dark"] .ts-consent-mode-badge {
+  background: rgba(99, 102, 241, 0.2);
+  color: var(--ts-primary-light);
+}
+
+/* Active Status Badge */
+[data-theme="dark"] .ts-consent-mode-info__content span[style*="ts-primary-light"] {
+  background: rgba(99, 102, 241, 0.2) !important;
+  color: var(--ts-primary-light) !important;
+}
+
+/* Loading State */
+.ts-consent-loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-xl);
+}

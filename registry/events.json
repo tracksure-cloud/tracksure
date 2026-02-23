@@ -1,0 +1,1610 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "version": "1.1.0",
+  "events": [
+    {
+      "name": "page_view",
+      "display_name": "Viewed Page",
+      "icon": "FileText",
+      "description": "Fired when a page is viewed",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": true,
+      "required_params": [],
+      "optional_params": [
+        "page_title",
+        "page_location",
+        "page_referrer"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "PageView",
+          "param_mapping": {}
+        },
+        "ga4": {
+          "event_name": "page_view",
+          "param_mapping": {
+            "page_title": "page_title",
+            "page_location": "page_location",
+            "page_referrer": "page_referrer"
+          }
+        },
+        "linkedin": {
+          "event_name": "page_view",
+          "param_mapping": {}
+        },
+        "tiktok": {
+          "event_name": "PageView",
+          "param_mapping": {}
+        },
+        "pinterest": {
+          "event_name": "PageVisit",
+          "param_mapping": {}
+        },
+        "snapchat": {
+          "event_name": "PAGE_VIEW",
+          "param_mapping": {}
+        },
+        "reddit": {
+          "event_name": "PageVisit",
+          "param_mapping": {}
+        },
+        "twitter": {
+          "event_name": "PAGE_VIEW",
+          "param_mapping": {}
+        },
+        "microsoft_ads": {
+          "event_name": "page_view",
+          "param_mapping": {}
+        },
+        "google_ads": {
+          "event_name": "page_view",
+          "param_mapping": {}
+        }
+      }
+    },
+    {
+      "name": "click",
+      "display_name": "Clicked Element",
+      "icon": "MousePointerClick",
+      "description": "User clicked an element",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "element_type"
+      ],
+      "optional_params": [
+        "element_id",
+        "element_class",
+        "element_text",
+        "link_url"
+      ]
+    },
+    {
+      "name": "scroll",
+      "display_name": "Scrolled",
+      "icon": "ScrollText",
+      "description": "User scrolled to a certain depth",
+      "category": "engagement",
+      "display_in_journey": false,
+      "automatically_collected": true,
+      "required_params": [
+        "scroll_depth"
+      ],
+      "optional_params": []
+    },
+    {
+      "name": "time_on_page",
+      "display_name": "Time on Page",
+      "icon": "Timer",
+      "description": "Time user spent on page before leaving",
+      "category": "engagement",
+      "display_in_journey": false,
+      "automatically_collected": true,
+      "required_params": [
+        "time_seconds"
+      ],
+      "optional_params": [
+        "page_title",
+        "page_location"
+      ]
+    },
+    {
+      "name": "form_view",
+      "display_name": "Viewed Form",
+      "icon": "Clipboard",
+      "description": "User viewed a form",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": true,
+      "required_params": [
+        "form_id"
+      ],
+      "optional_params": [
+        "form_name"
+      ]
+    },
+    {
+      "name": "form_start",
+      "display_name": "Started Form",
+      "icon": "FileEdit",
+      "description": "User started filling a form",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": true,
+      "required_params": [
+        "form_id"
+      ],
+      "optional_params": [
+        "form_name"
+      ]
+    },
+    {
+      "name": "form_submit",
+      "display_name": "Submitted Form",
+      "icon": "CheckCircle",
+      "description": "User submitted a form",
+      "category": "engagement",
+      "display_in_journey": true,
+      "is_conversion": true,
+      "automatically_collected": false,
+      "required_params": [
+        "form_id"
+      ],
+      "optional_params": [
+        "form_name",
+        "form_destination"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "Lead",
+          "param_mapping": {}
+        },
+        "ga4": {
+          "event_name": "generate_lead",
+          "param_mapping": {}
+        },
+        "google_ads": {
+          "event_name": "generate_lead",
+          "param_mapping": {
+            "form_id": "form_id",
+            "form_name": "form_name"
+          }
+        },
+        "linkedin": {
+          "event_name": "lead",
+          "param_mapping": {
+            "form_id": "form_id",
+            "form_name": "form_name"
+          }
+        },
+        "tiktok": {
+          "event_name": "SubmitForm",
+          "param_mapping": {
+            "form_id": "form_id",
+            "form_name": "content_name"
+          }
+        },
+        "pinterest": {
+          "event_name": "Signup",
+          "param_mapping": {}
+        },
+        "snapchat": {
+          "event_name": "SIGN_UP",
+          "param_mapping": {}
+        },
+        "reddit": {
+          "event_name": "Lead",
+          "param_mapping": {}
+        },
+        "twitter": {
+          "event_name": "LEAD",
+          "param_mapping": {
+            "form_id": "content_id",
+            "form_name": "content_name"
+          }
+        },
+        "microsoft_ads": {
+          "event_name": "submit_lead_form",
+          "param_mapping": {}
+        }
+      }
+    },
+    {
+      "name": "view_item",
+      "display_name": "Viewed Product",
+      "icon": "Eye",
+      "description": "User viewed a product or item",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "item_id"
+      ],
+      "optional_params": [
+        "item_name",
+        "item_category",
+        "item_variant",
+        "price",
+        "currency",
+        "item_url",
+        "image_url",
+        "item_sku",
+        "item_brand",
+        "item_category2",
+        "item_category3"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "ViewContent",
+          "param_mapping": {
+            "item_id": "content_ids",
+            "item_name": "content_name",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "content_ids": "to_array"
+          }
+        },
+        "ga4": {
+          "event_name": "view_item",
+          "param_mapping": {
+            "item_id": "item_id",
+            "item_name": "item_name",
+            "item_category": "item_category",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "_build_items_array": true
+          }
+        },
+        "tiktok": {
+          "event_name": "ViewContent",
+          "param_mapping": {
+            "item_id": "content_ids",
+            "item_name": "content_name",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "content_ids": "to_array"
+          }
+        },
+        "pinterest": {
+          "event_name": "PageVisit",
+          "param_mapping": {
+            "item_id": "product_id",
+            "item_name": "product_name",
+            "price": "value",
+            "currency": "currency"
+          }
+        },
+        "google_ads": {
+          "event_name": "view_item",
+          "param_mapping": {
+            "item_id": "item_id",
+            "item_name": "item_name",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "value": "to_float"
+          }
+        },
+        "linkedin": {
+          "event_name": "view_item",
+          "param_mapping": {
+            "item_id": "product_id",
+            "price": "value",
+            "currency": "currency"
+          }
+        },
+        "snapchat": {
+          "event_name": "VIEW_CONTENT",
+          "param_mapping": {
+            "item_id": "item_ids",
+            "price": "price",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "item_ids": "to_array"
+          }
+        },
+        "reddit": {
+          "event_name": "ViewContent",
+          "param_mapping": {
+            "item_id": "item_id",
+            "price": "value",
+            "currency": "currency"
+          }
+        },
+        "twitter": {
+          "event_name": "CONTENT_VIEW",
+          "param_mapping": {
+            "item_id": "content_id",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "value": "to_float"
+          }
+        },
+        "microsoft_ads": {
+          "event_name": "view_item",
+          "param_mapping": {
+            "item_id": "item_id",
+            "price": "revenue_value",
+            "currency": "currency"
+          }
+        }
+      }
+    },
+    {
+      "name": "add_to_cart",
+      "display_name": "Added to Cart",
+      "icon": "ShoppingCart",
+      "description": "User added item to cart",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "item_id",
+        "quantity"
+      ],
+      "optional_params": [
+        "item_name",
+        "item_category",
+        "price",
+        "currency"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "AddToCart",
+          "param_mapping": {
+            "item_id": "content_ids",
+            "item_name": "content_name",
+            "quantity": "quantity",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "content_ids": "to_array"
+          }
+        },
+        "ga4": {
+          "event_name": "add_to_cart",
+          "param_mapping": {
+            "item_id": "item_id",
+            "item_name": "item_name",
+            "quantity": "quantity",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "_build_items_array": true
+          }
+        },
+        "tiktok": {
+          "event_name": "AddToCart",
+          "param_mapping": {
+            "item_id": "content_ids",
+            "item_name": "content_name",
+            "quantity": "quantity",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "content_ids": "to_array"
+          }
+        },
+        "pinterest": {
+          "event_name": "AddToCart",
+          "param_mapping": {
+            "item_id": "product_id",
+            "quantity": "product_quantity",
+            "price": "value",
+            "currency": "currency"
+          }
+        },
+        "snapchat": {
+          "event_name": "ADD_CART",
+          "param_mapping": {
+            "item_id": "item_ids",
+            "price": "price",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "item_ids": "to_array"
+          }
+        },
+        "google_ads": {
+          "event_name": "add_to_cart",
+          "param_mapping": {
+            "item_id": "item_id",
+            "item_name": "item_name",
+            "quantity": "quantity",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "value": "to_float"
+          }
+        },
+        "linkedin": {
+          "event_name": "add_to_cart",
+          "param_mapping": {
+            "item_id": "product_id",
+            "quantity": "quantity",
+            "price": "value",
+            "currency": "currency"
+          }
+        },
+        "reddit": {
+          "event_name": "AddToCart",
+          "param_mapping": {
+            "item_id": "item_id",
+            "quantity": "item_count",
+            "price": "value",
+            "currency": "currency"
+          }
+        },
+        "twitter": {
+          "event_name": "ADD_TO_CART",
+          "param_mapping": {
+            "item_id": "content_ids",
+            "quantity": "num_items",
+            "price": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "content_ids": "to_array",
+            "value": "to_float"
+          }
+        },
+        "microsoft_ads": {
+          "event_name": "add_to_cart",
+          "param_mapping": {
+            "item_id": "item_id",
+            "quantity": "quantity",
+            "price": "revenue_value",
+            "currency": "currency"
+          }
+        }
+      }
+    },
+    {
+      "name": "begin_checkout",
+      "display_name": "Started Checkout",
+      "icon": "CreditCard",
+      "description": "User started checkout process",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "is_conversion": false,
+      "automatically_collected": false,
+      "required_params": [
+        "value",
+        "currency"
+      ],
+      "optional_params": [
+        "items",
+        "coupon"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "InitiateCheckout",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency",
+            "items": "contents"
+          },
+          "requires_transform": {
+            "contents": "to_meta_contents_array"
+          }
+        },
+        "ga4": {
+          "event_name": "begin_checkout",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency",
+            "items": "items",
+            "coupon": "coupon"
+          }
+        },
+        "tiktok": {
+          "event_name": "InitiateCheckout",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "pinterest": {
+          "event_name": "Checkout",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "snapchat": {
+          "event_name": "START_CHECKOUT",
+          "param_mapping": {
+            "value": "price",
+            "currency": "currency"
+          }
+        },
+        "google_ads": {
+          "event_name": "begin_checkout",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "value": "to_float"
+          }
+        },
+        "linkedin": {
+          "event_name": "begin_checkout",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "reddit": {
+          "event_name": "AddToCart",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "twitter": {
+          "event_name": "CHECKOUT_INITIATED",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "value": "to_float"
+          }
+        },
+        "microsoft_ads": {
+          "event_name": "begin_checkout",
+          "param_mapping": {
+            "value": "revenue_value",
+            "currency": "currency"
+          }
+        }
+      }
+    },
+    {
+      "name": "purchase",
+      "display_name": "Completed Purchase",
+      "icon": "CreditCard",
+      "description": "User completed a purchase",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "is_conversion": true,
+      "automatically_collected": false,
+      "required_params": [
+        "transaction_id",
+        "value",
+        "currency"
+      ],
+      "optional_params": [
+        "items",
+        "tax",
+        "shipping",
+        "coupon",
+        "affiliation"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "Purchase",
+          "param_mapping": {
+            "transaction_id": "transaction_id",
+            "value": "value",
+            "currency": "currency",
+            "items": "contents"
+          },
+          "requires_transform": {
+            "contents": "to_meta_contents_array",
+            "value": "to_float"
+          }
+        },
+        "ga4": {
+          "event_name": "purchase",
+          "param_mapping": {
+            "transaction_id": "transaction_id",
+            "value": "value",
+            "currency": "currency",
+            "items": "items",
+            "tax": "tax",
+            "shipping": "shipping",
+            "coupon": "coupon",
+            "affiliation": "affiliation"
+          },
+          "requires_transform": {
+            "value": "to_float",
+            "tax": "to_float",
+            "shipping": "to_float"
+          }
+        },
+        "tiktok": {
+          "event_name": "Purchase",
+          "param_mapping": {
+            "transaction_id": "order_id",
+            "value": "value",
+            "currency": "currency",
+            "items": "content_ids"
+          },
+          "requires_transform": {
+            "content_ids": "to_id_array",
+            "value": "to_float"
+          }
+        },
+        "pinterest": {
+          "event_name": "Checkout",
+          "param_mapping": {
+            "transaction_id": "order_id",
+            "value": "value",
+            "currency": "currency",
+            "items": "line_items"
+          }
+        },
+        "snapchat": {
+          "event_name": "PURCHASE",
+          "param_mapping": {
+            "transaction_id": "transaction_id",
+            "value": "price",
+            "currency": "currency",
+            "items": "item_ids"
+          },
+          "requires_transform": {
+            "item_ids": "to_id_array",
+            "price": "to_float"
+          }
+        },
+        "google_ads": {
+          "event_name": "purchase",
+          "param_mapping": {
+            "transaction_id": "transaction_id",
+            "value": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "value": "to_float"
+          }
+        },
+        "linkedin": {
+          "event_name": "purchase",
+          "param_mapping": {
+            "transaction_id": "transaction_id",
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "reddit": {
+          "event_name": "Purchase",
+          "param_mapping": {
+            "transaction_id": "order_id",
+            "value": "value",
+            "currency": "currency",
+            "items": "products"
+          },
+          "requires_transform": {
+            "value": "to_float"
+          }
+        },
+        "twitter": {
+          "event_name": "PURCHASE",
+          "param_mapping": {
+            "transaction_id": "order_id",
+            "value": "value",
+            "currency": "currency",
+            "items": "content_ids"
+          },
+          "requires_transform": {
+            "value": "to_float",
+            "content_ids": "to_id_array"
+          }
+        },
+        "microsoft_ads": {
+          "event_name": "purchase",
+          "param_mapping": {
+            "transaction_id": "transaction_id",
+            "value": "revenue_value",
+            "currency": "revenue_currency"
+          },
+          "requires_transform": {
+            "revenue_value": "to_float"
+          }
+        }
+      }
+    },
+    {
+      "name": "refund",
+      "display_name": "Refunded Purchase",
+      "icon": "RotateCcw",
+      "description": "Transaction was refunded",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "is_conversion": false,
+      "automatically_collected": false,
+      "required_params": [
+        "transaction_id",
+        "value",
+        "currency"
+      ],
+      "optional_params": [
+        "items",
+        "refund_reason"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "Refund",
+          "param_mapping": {
+            "transaction_id": "order_id",
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "ga4": {
+          "event_name": "refund",
+          "param_mapping": {
+            "transaction_id": "transaction_id",
+            "value": "value",
+            "currency": "currency",
+            "items": "items"
+          }
+        }
+      }
+    },
+    {
+      "name": "view_item_list",
+      "display_name": "Viewed Product List",
+      "icon": "Clipboard",
+      "description": "User viewed a list of products",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "items"
+      ],
+      "optional_params": [
+        "item_list_name",
+        "item_list_id"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "ViewContent",
+          "param_mapping": {
+            "items": "content_ids",
+            "item_list_name": "content_category"
+          }
+        },
+        "ga4": {
+          "event_name": "view_item_list",
+          "param_mapping": {
+            "items": "items",
+            "item_list_name": "item_list_name",
+            "item_list_id": "item_list_id"
+          }
+        }
+      }
+    },
+    {
+      "name": "select_item",
+      "display_name": "Selected Product",
+      "icon": "MousePointerClick",
+      "description": "User selected a product from a list",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "item_id",
+        "item_name"
+      ],
+      "optional_params": [
+        "item_list_name",
+        "item_list_id"
+      ],
+      "destination_mappings": {
+        "ga4": {
+          "event_name": "select_item",
+          "param_mapping": {
+            "item_id": "item_id",
+            "item_name": "item_name",
+            "item_list_name": "item_list_name"
+          }
+        }
+      }
+    },
+    {
+      "name": "lead",
+      "display_name": "Generated Lead",
+      "icon": "Target",
+      "description": "User submitted a lead form",
+      "category": "engagement",
+      "display_in_journey": true,
+      "is_conversion": true,
+      "automatically_collected": false,
+      "required_params": [],
+      "optional_params": [
+        "form_id",
+        "form_name",
+        "value",
+        "currency"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "Lead",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "ga4": {
+          "event_name": "generate_lead",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        }
+      }
+    },
+    {
+      "name": "contact",
+      "display_name": "Contact Initiated",
+      "icon": "Phone",
+      "description": "User initiated contact (phone/email/chat)",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "contact_method"
+      ],
+      "optional_params": [
+        "contact_value"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "Contact",
+          "param_mapping": {}
+        },
+        "ga4": {
+          "event_name": "contact",
+          "param_mapping": {
+            "contact_method": "method"
+          }
+        }
+      }
+    },
+    {
+      "name": "add_payment_info",
+      "display_name": "Added Payment",
+      "icon": "DollarSign",
+      "description": "User added payment information",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "payment_type"
+      ],
+      "optional_params": [
+        "value",
+        "currency"
+      ]
+    },
+    {
+      "name": "add_shipping_info",
+      "display_name": "Added Shipping",
+      "icon": "Package",
+      "description": "User added shipping information",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "shipping_tier"
+      ],
+      "optional_params": [
+        "value",
+        "currency"
+      ]
+    },
+    {
+      "name": "view_cart",
+      "display_name": "Viewed Cart",
+      "icon": "ShoppingCart",
+      "description": "User viewed shopping cart",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [],
+      "optional_params": [
+        "value",
+        "currency",
+        "items",
+        "tax",
+        "shipping",
+        "coupon"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "ts_view_cart",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "_build_contents_array": true
+          }
+        },
+        "ga4": {
+          "event_name": "view_cart",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "_build_items_array": true
+          }
+        },
+        "tiktok": {
+          "event_name": "ViewCart",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "_build_contents_array": true
+          }
+        },
+        "pinterest": {
+          "event_name": "PageVisit",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "snapchat": {
+          "event_name": "VIEW_CART",
+          "param_mapping": {
+            "value": "price",
+            "currency": "currency"
+          }
+        },
+        "google_ads": {
+          "event_name": "view_cart",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          },
+          "requires_transform": {
+            "value": "to_float"
+          }
+        },
+        "linkedin": {
+          "event_name": "view_cart",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "reddit": {
+          "event_name": "ViewCart",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "twitter": {
+          "event_name": "VIEW_CART",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "microsoft_ads": {
+          "event_name": "view_cart",
+          "param_mapping": {
+            "value": "revenue_value",
+            "currency": "currency"
+          }
+        }
+      }
+    },
+    {
+      "name": "remove_from_cart",
+      "display_name": "Removed from Cart",
+      "icon": "Trash2",
+      "description": "User removed item from cart",
+      "category": "ecommerce",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "item_id"
+      ],
+      "optional_params": [
+        "item_name",
+        "quantity"
+      ]
+    },
+    {
+      "name": "sign_up",
+      "display_name": "Signed Up",
+      "icon": "UserPlus",
+      "description": "User created an account",
+      "category": "conversion",
+      "display_in_journey": true,
+      "is_conversion": true,
+      "automatically_collected": false,
+      "required_params": [],
+      "optional_params": [
+        "method"
+      ]
+    },
+    {
+      "name": "login",
+      "display_name": "Logged In",
+      "icon": "LogIn",
+      "description": "User logged in",
+      "category": "conversion",
+      "display_in_journey": true,
+      "is_conversion": false,
+      "automatically_collected": false,
+      "required_params": [],
+      "optional_params": [
+        "method",
+        "page_type"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "ts_login",
+          "param_mapping": {
+            "method": "content_name"
+          }
+        },
+        "ga4": {
+          "event_name": "login",
+          "param_mapping": {
+            "method": "method"
+          }
+        },
+        "tiktok": {
+          "event_name": "Login",
+          "param_mapping": {
+            "method": "content_name"
+          }
+        },
+        "pinterest": {
+          "event_name": "Custom",
+          "param_mapping": {
+            "method": "custom_event_name"
+          }
+        },
+        "snapchat": {
+          "event_name": "LOGIN",
+          "param_mapping": {
+            "method": "sign_up_method"
+          }
+        },
+        "google_ads": {
+          "event_name": "login",
+          "param_mapping": {
+            "method": "method"
+          }
+        },
+        "linkedin": {
+          "event_name": "login",
+          "param_mapping": {
+            "method": "method"
+          }
+        },
+        "reddit": {
+          "event_name": "Login",
+          "param_mapping": {
+            "method": "method"
+          }
+        },
+        "twitter": {
+          "event_name": "LOGIN",
+          "param_mapping": {
+            "method": "content_name"
+          }
+        },
+        "microsoft_ads": {
+          "event_name": "login",
+          "param_mapping": {
+            "method": "method"
+          }
+        }
+      }
+    },
+    {
+      "name": "account_page_view",
+      "display_name": "Viewed Account Page",
+      "icon": "User",
+      "description": "Logged-in user viewed their account page (my account, dashboard, orders, settings)",
+      "category": "engagement",
+      "display_in_journey": true,
+      "is_conversion": false,
+      "automatically_collected": false,
+      "required_params": [],
+      "optional_params": [
+        "page_type",
+        "account_section"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "ts_account_view",
+          "param_mapping": {
+            "page_type": "content_name",
+            "account_section": "content_category"
+          }
+        },
+        "ga4": {
+          "event_name": "account_page_view",
+          "param_mapping": {
+            "page_type": "page_type",
+            "account_section": "account_section"
+          }
+        },
+        "tiktok": {
+          "event_name": "ViewContent",
+          "param_mapping": {
+            "page_type": "content_name",
+            "account_section": "content_category"
+          }
+        },
+        "pinterest": {
+          "event_name": "PageVisit",
+          "param_mapping": {
+            "page_type": "custom_event_name"
+          }
+        },
+        "snapchat": {
+          "event_name": "PAGE_VIEW",
+          "param_mapping": {
+            "page_type": "page_category"
+          }
+        },
+        "google_ads": {
+          "event_name": "account_page_view",
+          "param_mapping": {
+            "page_type": "page_type",
+            "account_section": "account_section"
+          }
+        },
+        "linkedin": {
+          "event_name": "page_view",
+          "param_mapping": {
+            "page_type": "page_type"
+          }
+        },
+        "reddit": {
+          "event_name": "PageVisit",
+          "param_mapping": {
+            "page_type": "page_type"
+          }
+        },
+        "twitter": {
+          "event_name": "PAGE_VIEW",
+          "param_mapping": {
+            "page_type": "content_name"
+          }
+        },
+        "microsoft_ads": {
+          "event_name": "page_view",
+          "param_mapping": {
+            "page_type": "page_type"
+          }
+        }
+      }
+    },
+    {
+      "name": "search",
+      "display_name": "Searched",
+      "icon": "Search",
+      "description": "User performed a search",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "search_term"
+      ],
+      "optional_params": [
+        "search_results"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "Search",
+          "param_mapping": {
+            "search_term": "search_string"
+          }
+        },
+        "ga4": {
+          "event_name": "search",
+          "param_mapping": {
+            "search_term": "search_term"
+          }
+        }
+      }
+    },
+    {
+      "name": "view_promotion",
+      "display_name": "Viewed Promotion",
+      "icon": "Tag",
+      "description": "User viewed a promotion",
+      "category": "promotion",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "promotion_id"
+      ],
+      "optional_params": [
+        "promotion_name",
+        "creative_name",
+        "creative_slot",
+        "location_id"
+      ]
+    },
+    {
+      "name": "select_promotion",
+      "display_name": "Clicked Promotion",
+      "icon": "Gift",
+      "description": "User clicked on a promotion",
+      "category": "promotion",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "promotion_id"
+      ],
+      "optional_params": [
+        "promotion_name",
+        "creative_name",
+        "creative_slot",
+        "location_id"
+      ]
+    },
+    {
+      "name": "generate_lead",
+      "display_name": "Generated Lead",
+      "icon": "FileEdit",
+      "description": "User completed a lead form",
+      "category": "conversion",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [],
+      "optional_params": [
+        "value",
+        "currency"
+      ]
+    },
+    {
+      "name": "video_start",
+      "display_name": "Started Video",
+      "icon": "Play",
+      "description": "User started watching a video",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "video_url"
+      ],
+      "optional_params": [
+        "video_title",
+        "video_duration"
+      ]
+    },
+    {
+      "name": "video_progress",
+      "display_name": "Video Progress",
+      "icon": "Film",
+      "description": "User reached a video milestone",
+      "category": "engagement",
+      "display_in_journey": false,
+      "automatically_collected": false,
+      "required_params": [
+        "video_url",
+        "video_percent"
+      ],
+      "optional_params": [
+        "video_title"
+      ]
+    },
+    {
+      "name": "video_complete",
+      "display_name": "Finished Video",
+      "icon": "Film",
+      "description": "User finished watching a video",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "video_url"
+      ],
+      "optional_params": [
+        "video_title",
+        "video_duration"
+      ]
+    },
+    {
+      "name": "file_download",
+      "display_name": "Downloaded File",
+      "icon": "Download",
+      "description": "User downloaded a file",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": false,
+      "required_params": [
+        "file_name"
+      ],
+      "optional_params": [
+        "file_extension",
+        "link_url"
+      ]
+    },
+    {
+      "name": "outbound_click",
+      "display_name": "Clicked External Link",
+      "icon": "ExternalLink",
+      "description": "User clicked on an external link",
+      "category": "engagement",
+      "display_in_journey": true,
+      "automatically_collected": true,
+      "required_params": [
+        "link_url"
+      ],
+      "optional_params": [
+        "link_domain"
+      ]
+    },
+    {
+      "name": "session_start",
+      "display_name": "Started Session",
+      "icon": "Rocket",
+      "description": "New session began",
+      "category": "system",
+      "display_in_journey": true,
+      "automatically_collected": true,
+      "required_params": [],
+      "optional_params": [
+        "is_returning"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "SessionStart",
+          "param_mapping": {
+            "is_returning": "is_returning"
+          }
+        },
+        "ga4": {
+          "event_name": "session_start",
+          "param_mapping": {
+            "is_returning": "is_returning"
+          }
+        }
+      }
+    },
+    {
+      "name": "first_visit",
+      "display_name": "First Visit",
+      "icon": "Star",
+      "description": "User's first visit to the site",
+      "category": "system",
+      "display_in_journey": true,
+      "automatically_collected": true,
+      "required_params": [],
+      "optional_params": []
+    },
+    
+    {
+      "name": "tab_visible",
+      "display_name": "Tab Visible",
+      "icon": "Eye",
+      "description": "User switched back to this tab",
+      "category": "engagement",
+      "display_in_journey": false,
+      "automatically_collected": true,
+      "required_params": [],
+      "optional_params": [
+        "away_seconds"
+      ]
+    },
+    {
+      "name": "tab_hidden",
+      "display_name": "Tab Hidden",
+      "icon": "EyeOff",
+      "description": "User switched away from this tab",
+      "category": "engagement",
+      "display_in_journey": false,
+      "automatically_collected": true,
+      "required_params": [],
+      "optional_params": [
+        "hidden_at"
+      ]
+    },
+    {
+      "name": "time_on_page_threshold",
+      "display_name": "Time Threshold",
+      "icon": "Clock",
+      "description": "User reached a time threshold on page",
+      "category": "engagement",
+      "display_in_journey": false,
+      "automatically_collected": true,
+      "required_params": [
+        "time_on_page",
+        "time_threshold"
+      ],
+      "optional_params": [
+        "engaged_seconds"
+      ]
+    },
+    {
+      "name": "page_exit",
+      "display_name": "Exited Page",
+      "icon": "LogOut",
+      "description": "User exited the page",
+      "category": "engagement",
+      "display_in_journey": false,
+      "automatically_collected": true,
+      "required_params": [
+        "time_on_page",
+        "exit_type"
+      ],
+      "optional_params": [
+        "engaged_seconds"
+      ]
+    },
+    {
+      "name": "scroll_depth_final",
+      "display_name": "Final Scroll Depth",
+      "icon": "BarChart2",
+      "description": "Final scroll depth when leaving page",
+      "category": "engagement",
+      "display_in_journey": false,
+      "automatically_collected": true,
+      "required_params": [
+        "scroll_depth"
+      ],
+      "optional_params": []
+    },
+    {
+      "name": "experience_view",
+      "display_name": "Viewed Experience",
+      "icon": "Eye",
+      "description": "User was shown an on-site experience (popup, bar, widget)",
+      "category": "personalization",
+      "display_in_journey": true,
+      "is_conversion": false,
+      "automatically_collected": false,
+      "required_params": [
+        "experience_id",
+        "experience_name",
+        "experience_type"
+      ],
+      "optional_params": [
+        "variant_id",
+        "variant_name",
+        "experience_priority"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "ViewContent",
+          "param_mapping": {
+            "experience_name": "content_name",
+            "experience_type": "content_category"
+          }
+        },
+        "ga4": {
+          "event_name": "view_promotion",
+          "param_mapping": {
+            "experience_id": "promotion_id",
+            "experience_name": "promotion_name",
+            "variant_name": "creative_name",
+            "experience_type": "creative_slot"
+          }
+        }
+      }
+    },
+    {
+      "name": "experience_interaction",
+      "display_name": "Interacted with Experience",
+      "icon": "MousePointerClick",
+      "description": "User interacted with an experience (clicked, submitted, expanded)",
+      "category": "personalization",
+      "display_in_journey": true,
+      "is_conversion": false,
+      "automatically_collected": false,
+      "required_params": [
+        "experience_id",
+        "experience_name",
+        "interaction_type"
+      ],
+      "optional_params": [
+        "variant_id",
+        "variant_name",
+        "experience_type"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "CustomizeProduct",
+          "param_mapping": {
+            "experience_name": "content_name",
+            "interaction_type": "content_type"
+          }
+        },
+        "ga4": {
+          "event_name": "select_promotion",
+          "param_mapping": {
+            "experience_id": "promotion_id",
+            "experience_name": "promotion_name",
+            "variant_name": "creative_name",
+            "experience_type": "creative_slot"
+          }
+        }
+      }
+    },
+    {
+      "name": "experience_conversion",
+      "display_name": "Experience Conversion",
+      "icon": "CheckCircle",
+      "description": "User completed desired action from experience (submitted form, made purchase)",
+      "category": "personalization",
+      "display_in_journey": true,
+      "is_conversion": true,
+      "automatically_collected": false,
+      "required_params": [
+        "experience_id",
+        "experience_name"
+      ],
+      "optional_params": [
+        "variant_id",
+        "variant_name",
+        "experience_type",
+        "value",
+        "currency"
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "Lead",
+          "param_mapping": {
+            "experience_name": "content_name",
+            "value": "value",
+            "currency": "currency"
+          }
+        },
+        "ga4": {
+          "event_name": "conversion",
+          "param_mapping": {
+            "experience_id": "promotion_id",
+            "experience_name": "promotion_name",
+            "value": "value",
+            "currency": "currency"
+          }
+        }
+      }
+    },
+    {
+      "name": "experience_dismiss",
+      "display_name": "Dismissed Experience",
+      "icon": "X",
+      "description": "User dismissed or closed an experience",
+      "category": "personalization",
+      "display_in_journey": false,
+      "is_conversion": false,
+      "automatically_collected": false,
+      "required_params": [
+        "experience_id",
+        "experience_name"
+      ],
+      "optional_params": [
+        "variant_id",
+        "variant_name",
+        "experience_type",
+        "time_visible"
+      ]
+    }
+  ]
+}

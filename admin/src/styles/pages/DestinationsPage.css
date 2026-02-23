@@ -1,0 +1,243 @@
+/* ==========================================================================
+   DestinationsPage.css (Premium, fixed toggle, no overlap)
+   Matches DestinationsPage.tsx markup exactly
+   ========================================================================== */
+
+.ts-destinations-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: var(--ts-spacing-lg);
+  margin-top: var(--ts-spacing-lg);
+}
+
+@media (max-width: 520px) {
+  .ts-destinations-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ts-destination-card {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-xl);
+  box-shadow: var(--ts-shadow-sm);
+  overflow: hidden;
+  transition: transform var(--ts-fast), border-color var(--ts-fast), box-shadow var(--ts-fast);
+}
+
+.ts-destination-card:hover {
+  border-color: var(--ts-border-hover);
+  box-shadow: var(--ts-shadow-md);
+  transform: translateY(-1px);
+}
+
+.ts-destination-card.ts-enabled {
+  border-color: var(--ts-primary);
+  box-shadow: 0 0 0 1px rgba(79, 70, 229, 0.1), var(--ts-shadow-sm);
+}
+
+[data-theme="dark"] .ts-destination-card.ts-enabled {
+  border-color: var(--ts-primary);
+  box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.15), var(--ts-shadow-sm);
+}
+
+.ts-destination-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 18px;
+}
+
+.ts-destination-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  font-size: 20px;
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+  flex: 0 0 auto;
+}
+
+.ts-destination-info {
+  min-width: 0;
+  flex: 1;
+}
+
+.ts-destination-title {
+  font-size: 15px;
+  font-weight: 850;
+  letter-spacing: -0.01em;
+  line-height: 1.2;
+}
+
+.ts-destination-description {
+  margin-top: 6px;
+  color: var(--ts-text-muted);
+  line-height: 1.35;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ts-destination-config {
+  border-top: 1px solid var(--ts-border);
+  background: var(--ts-surface-2);
+  padding: 16px 18px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* --------------------------
+   Toggle (ts-toggle-*)
+   -------------------------- */
+
+label.ts-toggle-label {
+  position: relative;
+  width: 52px;
+  height: 30px;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 8px;
+}
+
+.ts-toggle-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.ts-toggle-slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.35);
+  border: 1px solid var(--ts-border);
+  transition: background var(--ts-fast), border-color var(--ts-fast), box-shadow var(--ts-fast);
+  cursor: pointer;
+}
+
+.ts-toggle-slider::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 4px;
+  width: 22px;
+  height: 22px;
+  transform: translateY(-50%);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: var(--ts-shadow-sm);
+  transition: transform var(--ts-fast);
+}
+
+.ts-toggle-input:checked + .ts-toggle-slider {
+  background: var(--ts-primary);
+  border-color: rgba(14, 165, 233, 0.55);
+  box-shadow: 0 10px 25px rgba(14, 165, 233, 0.18);
+}
+
+.ts-toggle-input:checked + .ts-toggle-slider::before {
+  transform: translate(22px, -50%);
+}
+
+
+.ts-toggle-input:focus-visible + .ts-toggle-slider {
+  box-shadow: var(--ts-ring);
+  border-color: rgba(14, 165, 233, 0.62);
+}
+
+.ts-toggle-input:disabled + .ts-toggle-slider {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.ts-toggle-input:disabled {
+  cursor: not-allowed;
+}
+
+/* --------------------------
+   GA4 Setup Guide Banner
+   -------------------------- */
+
+.ts-ga4-setup-guide-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ts-spacing-lg);
+  padding: var(--ts-spacing-lg);
+  background: linear-gradient(135deg, 
+    rgba(251, 191, 36, 0.1) 0%, 
+    rgba(245, 158, 11, 0.05) 100%
+  );
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-left: 4px solid var(--ts-warning);
+  border-radius: var(--ts-radius-lg);
+  margin-top: var(--ts-spacing-md);
+  animation: ts-ga4-banner-fade-in var(--ts-base) ease-out;
+}
+
+[data-theme="dark"] .ts-ga4-setup-guide-banner {
+  background: linear-gradient(135deg, 
+    rgba(251, 191, 36, 0.08) 0%, 
+    rgba(245, 158, 11, 0.03) 100%
+  );
+  border-color: rgba(251, 191, 36, 0.25);
+}
+
+@keyframes ts-ga4-banner-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ts-ga4-setup-guide-banner-content {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ts-spacing-md);
+  flex: 1;
+}
+
+.ts-ga4-setup-guide-banner-content strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ts-text);
+  margin-bottom: 4px;
+}
+
+.ts-ga4-setup-guide-banner-content p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ts-text-secondary);
+  line-height: 1.5;
+}
+
+.ts-ga4-setup-guide-banner .ts-button {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 767px) {
+  .ts-ga4-setup-guide-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ts-ga4-setup-guide-banner .ts-button {
+    width: 100%;
+  }
+}

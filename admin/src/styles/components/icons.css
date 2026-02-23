@@ -1,0 +1,446 @@
+/**
+ * Icon System Styles
+ * 
+ * Global styles for icon components with dark/light theme support.
+ * Applies to all Lucide React icons throughout the application.
+ * 
+ * @package TrackSure\Admin
+ * @since 2.0.0
+ */
+
+/* ============================================================
+   Base Icon Styles
+   ============================================================ */
+
+.ts-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  vertical-align: middle;
+  color: var(--ts-text);
+  transition: color 0.15s ease, opacity 0.15s ease, transform 0.15s ease;
+}
+
+/* Theme-adaptive icons automatically adjust to theme colors */
+.ts-icon--theme-adaptive {
+  color: var(--ts-text);
+}
+
+/* Icon states */
+.ts-icon:hover {
+  opacity: 0.8;
+}
+
+.ts-icon:active {
+  transform: scale(0.95);
+}
+
+.ts-icon[aria-disabled="true"] {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   Icon Sizes
+   ============================================================ */
+
+.ts-icon--xs {
+  width: 14px;
+  height: 14px;
+}
+
+.ts-icon--sm {
+  width: 16px;
+  height: 16px;
+}
+
+.ts-icon--md {
+  width: 20px;
+  height: 20px;
+}
+
+.ts-icon--lg {
+  width: 24px;
+  height: 24px;
+}
+
+.ts-icon--xl {
+  width: 32px;
+  height: 32px;
+}
+
+.ts-icon--2xl {
+  width: 48px;
+  height: 48px;
+}
+
+/* ============================================================
+   Semantic Color Variants
+   ============================================================ */
+
+.ts-icon--primary {
+  color: var(--ts-primary);
+}
+
+.ts-icon--success {
+  color: var(--ts-success);
+}
+
+.ts-icon--warning {
+  color: var(--ts-warning);
+}
+
+.ts-icon--danger {
+  color: var(--ts-danger);
+}
+
+.ts-icon--muted {
+  color: var(--ts-text-muted);
+}
+
+.ts-icon--white {
+  color: var(--ts-bg-elevated);
+}
+
+.ts-icon--black {
+  color: var(--ts-text);
+}
+
+/* Dark theme adjustments */
+[data-theme="dark"] .ts-icon--muted {
+  color: var(--ts-text-muted);
+  opacity: 0.7;
+}
+
+/* ============================================================
+   Icon with Label Component
+   ============================================================ */
+
+.ts-icon-with-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--ts-text);
+  transition: color 0.15s ease;
+}
+
+.ts-icon-with-label--right {
+  flex-direction: row;
+}
+
+.ts-icon-with-label--bottom {
+  flex-direction: column;
+  text-align: center;
+}
+
+.ts-icon-with-label:hover {
+  color: var(--ts-primary);
+}
+
+/* ============================================================
+   Navigation Icons (Sidebar)
+   ============================================================ */
+
+.ts-sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  color: var(--ts-text-muted);
+  transition: color 0.15s ease;
+}
+
+.ts-sidebar-item:hover .ts-sidebar-icon,
+.ts-sidebar-item.active .ts-sidebar-icon {
+  color: var(--ts-primary);
+}
+
+[data-theme="dark"] .ts-sidebar-icon {
+  color: var(--ts-text-muted);
+}
+
+[data-theme="dark"] .ts-sidebar-item:hover .ts-sidebar-icon,
+[data-theme="dark"] .ts-sidebar-item.active .ts-sidebar-icon {
+  color: var(--ts-primary);
+}
+
+/* ============================================================
+   Product Icons
+   ============================================================ */
+
+.product-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--ts-bg-subtle);
+  border-radius: 8px;
+  color: var(--ts-primary);
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .product-icon {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--ts-primary);
+}
+
+/* ============================================================
+   Stat Card Icons
+   ============================================================ */
+
+.stat-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background: var(--ts-primary-soft);
+  border-radius: 10px;
+  color: var(--ts-primary);
+  flex-shrink: 0;
+}
+
+[data-theme="dark"] .stat-icon {
+  background: rgba(var(--ts-primary-rgb), 0.15);
+}
+
+/* ============================================================
+   Insight/Alert Icons
+   ============================================================ */
+
+.insight-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.insight-item.positive .insight-icon {
+  color: var(--ts-success);
+}
+
+.insight-item.medium .insight-icon {
+  color: var(--ts-warning);
+}
+
+.insight-item.negative .insight-icon {
+  color: var(--ts-danger);
+}
+
+[data-theme="dark"] .insight-item.positive .insight-icon {
+  color: var(--ts-success);
+  filter: brightness(1.2);
+}
+
+[data-theme="dark"] .insight-item.medium .insight-icon {
+  color: var(--ts-warning);
+  filter: brightness(1.2);
+}
+
+[data-theme="dark"] .insight-item.negative .insight-icon {
+  color: var(--ts-danger);
+  filter: brightness(1.2);
+}
+
+/* ============================================================
+   Table Icons
+   ============================================================ */
+
+.table-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: var(--ts-text-muted);
+}
+
+/* ============================================================
+   Button Icons
+   ============================================================ */
+
+.ts-btn .ts-icon {
+  margin-right: 6px;
+}
+
+.ts-btn--icon-only {
+  padding: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ts-btn--icon-only .ts-icon {
+  margin: 0;
+}
+
+/* ============================================================
+   Badge Icons
+   ============================================================ */
+
+.ts-badge .ts-icon {
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+}
+
+/* ============================================================
+   Channel Icons (Traffic Sources)
+   ============================================================ */
+
+.channel-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  color: var(--ts-text);
+}
+
+.channel-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  background: var(--ts-bg-subtle);
+  color: var(--ts-text);
+}
+
+.channel-badge .ts-icon {
+  margin-right: 6px;
+}
+
+[data-theme="dark"] .channel-badge {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+   Event Icons (Journey Timeline)
+   ============================================================ */
+
+.event-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  background: var(--ts-bg-subtle);
+  border: 2px solid var(--ts-border);
+  border-radius: 50%;
+  color: var(--ts-text);
+  flex-shrink: 0;
+}
+
+.event-icon--conversion {
+  background: var(--ts-success-soft);
+  border-color: var(--ts-success);
+  color: var(--ts-success);
+}
+
+.event-icon--ecommerce {
+  background: var(--ts-primary-soft);
+  border-color: var(--ts-primary);
+  color: var(--ts-primary);
+}
+
+.event-icon--engagement {
+  background: var(--ts-bg-subtle);
+  border-color: var(--ts-border);
+  color: var(--ts-text-muted);
+}
+
+[data-theme="dark"] .event-icon {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme="dark"] .event-icon--conversion {
+  background: rgba(var(--ts-success-rgb), 0.15);
+  border-color: var(--ts-success);
+}
+
+[data-theme="dark"] .event-icon--ecommerce {
+  background: rgba(var(--ts-primary-rgb), 0.15);
+  border-color: var(--ts-primary);
+}
+
+/* ============================================================
+   Empty State Icons
+   ============================================================ */
+
+.empty-state-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  color: var(--ts-text-muted);
+  opacity: 0.5;
+}
+
+[data-theme="dark"] .empty-state-icon {
+  opacity: 0.3;
+}
+
+/* ============================================================
+   Loading Spinner Icon Animation
+   ============================================================ */
+
+@keyframes ts-icon-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ts-icon--spinning {
+  animation: ts-icon-spin 1s linear infinite;
+}
+
+/* ============================================================
+   Accessibility
+   ============================================================ */
+
+/* Ensure icons have proper focus states */
+button:focus-visible .ts-icon,
+a:focus-visible .ts-icon {
+  outline: 2px solid var(--ts-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ts-icon {
+    stroke-width: 2;
+  }
+  
+  .ts-icon--muted {
+    color: var(--ts-text);
+    opacity: 0.7;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .ts-icon,
+  .ts-icon-with-label,
+  .ts-sidebar-icon {
+    transition: none;
+  }
+  
+  .ts-icon--spinning {
+    animation: none;
+  }
+}

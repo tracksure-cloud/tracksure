@@ -1,0 +1,289 @@
+/**
+ * Consent Mode Visualizer Styles
+ * 
+ * Google Consent Mode V2 state display with visual indicators.
+ * Supports dark/light mode via CSS variables.
+ * 
+ * @since 1.0.2
+ */
+
+.ts-consent-visualizer {
+	background: var(--ts-card-bg);
+	border: 1px solid var(--ts-border-color);
+	border-radius: var(--ts-radius-lg);
+	padding: var(--ts-spacing-lg);
+}
+
+.ts-consent-visualizer__header {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: var(--ts-spacing-md);
+	margin-bottom: var(--ts-spacing-lg);
+}
+
+.ts-consent-visualizer__title {
+	font-size: var(--ts-text-sm);
+	font-weight: 600;
+	color: var(--ts-text-primary);
+	margin: 0 0 var(--ts-spacing-xs) 0;
+}
+
+.ts-consent-visualizer__subtitle {
+	font-size: var(--ts-text-xs);
+	color: var(--ts-text-secondary);
+	margin: 0;
+}
+
+.ts-consent-visualizer__tracking-badge {
+	display: flex;
+	align-items: center;
+	gap: var(--ts-spacing-sm);
+	padding: var(--ts-spacing-sm) var(--ts-spacing-md);
+	border-radius: var(--ts-radius-full);
+	font-size: var(--ts-text-xs);
+	font-weight: 500;
+	white-space: nowrap;
+}
+
+.ts-consent-visualizer__tracking-badge--allowed {
+	background: var(--ts-success-bg);
+	color: var(--ts-success-text);
+	border: 1px solid var(--ts-success-border);
+}
+
+.ts-consent-visualizer__tracking-badge--denied {
+	background: var(--ts-danger-bg);
+	color: var(--ts-danger-text);
+	border: 1px solid var(--ts-danger-border);
+}
+
+.ts-consent-visualizer__tracking-icon {
+	width: 16px;
+	height: 16px;
+}
+
+/* Category Grid */
+.ts-consent-visualizer__grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--ts-spacing-sm);
+}
+
+/* Category Card */
+.ts-consent-category {
+	display: flex;
+	align-items: center;
+	gap: var(--ts-spacing-md);
+	padding: var(--ts-spacing-md);
+	border-radius: var(--ts-radius-md);
+	border: 1px solid;
+	transition: all 0.2s ease;
+}
+
+.ts-consent-category--granted {
+	background: var(--ts-success-bg);
+	border-color: var(--ts-success-border);
+}
+
+.ts-consent-category--denied {
+	background: var(--ts-danger-bg);
+	border-color: var(--ts-danger-border);
+}
+
+.ts-consent-category:hover {
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+/* Category Icon Container */
+.ts-consent-category__icon-container {
+	flex-shrink: 0;
+	width: 40px;
+	height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--ts-radius-md);
+	background: rgba(255, 255, 255, 0.6);
+}
+
+.ts-consent-category--granted .ts-consent-category__icon-container {
+	color: var(--ts-success);
+}
+
+.ts-consent-category--denied .ts-consent-category__icon-container {
+	color: var(--ts-danger);
+}
+
+.ts-consent-category__icon {
+	width: 20px;
+	height: 20px;
+}
+
+/* Category Content */
+.ts-consent-category__content {
+	flex: 1;
+	min-width: 0;
+}
+
+.ts-consent-category__label {
+	font-size: var(--ts-text-sm);
+	font-weight: 600;
+	margin: 0 0 var(--ts-spacing-xs) 0;
+}
+
+.ts-consent-category--granted .ts-consent-category__label {
+	color: var(--ts-success-text);
+}
+
+.ts-consent-category--denied .ts-consent-category__label {
+	color: var(--ts-danger-text);
+}
+
+.ts-consent-category__description {
+	font-size: var(--ts-text-xs);
+	margin: 0;
+}
+
+.ts-consent-category--granted .ts-consent-category__description {
+	color: var(--ts-success-text);
+	opacity: 0.8;
+}
+
+.ts-consent-category--denied .ts-consent-category__description {
+	color: var(--ts-danger-text);
+	opacity: 0.8;
+}
+
+/* Status Badge */
+.ts-consent-category__badge {
+	flex-shrink: 0;
+	padding: var(--ts-spacing-xs) var(--ts-spacing-sm);
+	border-radius: var(--ts-radius-sm);
+	font-size: var(--ts-text-xs);
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.ts-consent-category--granted .ts-consent-category__badge {
+	background: var(--ts-success);
+	color: white;
+}
+
+.ts-consent-category--denied .ts-consent-category__badge {
+	background: var(--ts-danger);
+	color: white;
+}
+
+/* Status Check Icon */
+.ts-consent-category__check {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+}
+
+.ts-consent-category--granted .ts-consent-category__check {
+	color: var(--ts-success);
+}
+
+.ts-consent-category--denied .ts-consent-category__check {
+	color: var(--ts-danger);
+}
+
+/* Info Box */
+.ts-consent-visualizer__info {
+	margin-top: var(--ts-spacing-lg);
+	padding: var(--ts-spacing-md);
+	background: var(--ts-info-bg);
+	border: 1px solid var(--ts-info-border);
+	border-radius: var(--ts-radius-md);
+}
+
+.ts-consent-visualizer__info-content {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--ts-spacing-sm);
+}
+
+.ts-consent-visualizer__info-icon {
+	flex-shrink: 0;
+	width: 16px;
+	height: 16px;
+	margin-top: 2px;
+	color: var(--ts-info);
+}
+
+.ts-consent-visualizer__info-text {
+	font-size: var(--ts-text-xs);
+	color: var(--ts-info-text);
+	margin: 0;
+	line-height: 1.5;
+}
+
+.ts-consent-visualizer__info-text strong {
+	font-weight: 600;
+}
+
+/* Warning Box */
+.ts-consent-visualizer__warning {
+	margin-top: var(--ts-spacing-md);
+	padding: var(--ts-spacing-md);
+	background: var(--ts-warning-bg);
+	border: 1px solid var(--ts-warning-border);
+	border-radius: var(--ts-radius-md);
+}
+
+.ts-consent-visualizer__warning-content {
+	display: flex;
+	align-items: flex-start;
+	gap: var(--ts-spacing-sm);
+}
+
+.ts-consent-visualizer__warning-icon {
+	flex-shrink: 0;
+	width: 16px;
+	height: 16px;
+	margin-top: 2px;
+	color: var(--ts-warning);
+}
+
+.ts-consent-visualizer__warning-text {
+	font-size: var(--ts-text-xs);
+	color: var(--ts-warning-text);
+	margin: 0;
+	line-height: 1.5;
+}
+
+.ts-consent-visualizer__warning-text strong {
+	font-weight: 600;
+}
+
+/* Dark Mode Adjustments */
+[data-theme="dark"] .ts-consent-category__icon-container {
+	background: rgba(0, 0, 0, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+	.ts-consent-visualizer__header {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+	
+	.ts-consent-category {
+		gap: var(--ts-spacing-sm);
+		padding: var(--ts-spacing-sm);
+	}
+	
+	.ts-consent-category__icon-container {
+		width: 32px;
+		height: 32px;
+	}
+	
+	.ts-consent-category__icon {
+		width: 16px;
+		height: 16px;
+	}
+}

@@ -1,0 +1,117 @@
+/**
+ * Export Button Component Styles
+ */
+
+.ts-export-button-wrapper {
+  position: relative;
+}
+
+.ts-export-button {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+  padding: var(--ts-spacing-sm) var(--ts-spacing-md);
+  background: var(--ts-primary);
+  color: var(--ts-white)!important;
+  border: none;
+  border-radius: var(--ts-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ts-export-button:hover:not(:disabled) {
+  background: var(--ts-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.ts-export-button:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.ts-export-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ts-export-button .spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ts-export-menu {
+  position: absolute;
+  top: calc(100% + var(--ts-spacing-xs));
+  right: 0;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: var(--ts-spacing-xs);
+  min-width: 200px;
+  z-index: 1000;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ts-export-option {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  width: 100%;
+  padding: var(--ts-spacing-sm) var(--ts-spacing-md);
+  background: transparent;
+  border: none;
+  border-radius: var(--ts-radius-sm);
+  font-size: 14px;
+  color: var(--ts-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.ts-export-option:hover {
+  background: var(--ts-bg-secondary);
+  color: var(--ts-primary);
+}
+
+.ts-export-option svg {
+  color: var(--ts-text-muted);
+  transition: color 0.2s ease;
+}
+
+.ts-export-option:hover svg {
+  color: var(--ts-primary);
+}
+
+/* Close menu when clicking outside */
+.ts-export-menu::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: -1;
+}

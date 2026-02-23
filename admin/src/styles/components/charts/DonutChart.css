@@ -1,0 +1,179 @@
+.ts-donut-chart {
+  width: 100%;
+  position: relative;
+}
+
+.ts-donut-chart--loading,
+.ts-donut-chart--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ts-donut-chart__skeleton {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ts-donut-chart__skeleton-circle {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  border: 20px solid var(--ts-surface-2);
+  border-top-color: var(--ts-border);
+  animation: ts-donut-spin 1.5s linear infinite;
+}
+
+@keyframes ts-donut-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.ts-donut-chart__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  color: var(--ts-text-muted);
+}
+
+.ts-donut-chart__empty-icon {
+  width: 64px;
+  height: 64px;
+  opacity: 0.3;
+}
+
+.ts-donut-chart__empty-message {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+  .ts-donut-chart {
+    min-height: 200px;
+  }
+
+  .ts-donut-chart__skeleton-circle {
+    width: 140px;
+    height: 140px;
+    border-width: 14px;
+  }
+
+  .ts-donut-chart__empty-icon {
+    width: 48px;
+    height: 48px;
+  }
+
+  .ts-donut-chart__empty-message {
+    font-size: 12px;
+  }
+}
+
+/* Mobile Landscape (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .ts-donut-chart {
+    min-height: 240px;
+  }
+
+  .ts-donut-chart__skeleton-circle {
+    width: 160px;
+    height: 160px;
+    border-width: 16px;
+  }
+
+  .ts-donut-chart__empty-icon {
+    width: 56px;
+    height: 56px;
+  }
+
+  .ts-donut-chart__empty-message {
+    font-size: 13px;
+  }
+}
+
+/* Tablet Portrait (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .ts-donut-chart {
+    min-height: 280px;
+  }
+
+  .ts-donut-chart__skeleton-circle {
+    width: 180px;
+    height: 180px;
+    border-width: 18px;
+  }
+}
+
+/* Laptop (1280px - 1439px) */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .ts-donut-chart {
+    min-height: 320px;
+  }
+
+  .ts-donut-chart__skeleton-circle {
+    width: 220px;
+    height: 220px;
+    border-width: 22px;
+  }
+
+  .ts-donut-chart__empty-icon {
+    width: 72px;
+    height: 72px;
+  }
+
+  .ts-donut-chart__empty-message {
+    font-size: 15px;
+  }
+}
+
+/* Desktop (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .ts-donut-chart {
+    min-height: 350px;
+  }
+
+  .ts-donut-chart__skeleton-circle {
+    width: 240px;
+    height: 240px;
+    border-width: 24px;
+  }
+
+  .ts-donut-chart__empty-icon {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+/* Large Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .ts-donut-chart {
+    min-height: 400px;
+  }
+
+  .ts-donut-chart__skeleton-circle {
+    width: 260px;
+    height: 260px;
+    border-width: 26px;
+  }
+
+  .ts-donut-chart__empty-icon {
+    width: 90px;
+    height: 90px;
+  }
+
+  .ts-donut-chart__empty-message {
+    font-size: 16px;
+  }
+}

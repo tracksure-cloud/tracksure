@@ -1,0 +1,289 @@
+/**
+ * Consent Plugin Detector Component Styles
+ * Shows detected consent plugin and supported plugin list
+ * Premium design with dark/light mode support
+ */
+
+.ts-consent-detector {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-md);
+}
+
+/* Header */
+.ts-consent-detector__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--ts-spacing-sm);
+}
+
+.ts-consent-detector__title {
+  font-size: var(--ts-text-sm);
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0;
+}
+
+.ts-consent-detector__status {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+  padding: 0.25rem 0.75rem;
+  background: var(--ts-surface-hover);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-full);
+}
+
+.ts-consent-detector__status-icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+.ts-consent-detector__status-text {
+  font-size: var(--ts-text-xs);
+  font-weight: 500;
+  color: var(--ts-text-secondary);
+}
+
+/* Detected Plugin Card */
+.ts-consent-detected {
+  padding: var(--ts-spacing-md);
+  background: var(--ts-success-bg);
+  border: 1px solid var(--ts-success-border);
+  border-radius: var(--ts-radius-xl);
+  box-shadow: var(--ts-shadow-sm);
+  margin-bottom: var(--ts-spacing-md);
+}
+
+[data-theme="dark"] .ts-consent-detected {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+}
+
+.ts-consent-detected__inner {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-consent-detected__icon-container {
+  flex-shrink: 0;
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--ts-radius-xl);
+  background: var(--ts-success);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .ts-consent-detected__icon-container {
+  background: rgba(16, 185, 129, 0.3);
+}
+
+.ts-consent-detected__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: white;
+}
+
+[data-theme="dark"] .ts-consent-detected__icon {
+  color: var(--ts-success-light);
+}
+
+.ts-consent-detected__content {
+  flex: 1;
+}
+
+.ts-consent-detected__name {
+  font-size: var(--ts-text-sm);
+  font-weight: 600;
+  color: var(--ts-success-dark);
+  margin: 0 0 0.25rem;
+}
+
+[data-theme="dark"] .ts-consent-detected__name {
+  color: var(--ts-success-light);
+}
+
+.ts-consent-detected__description {
+  font-size: var(--ts-text-xs);
+  color: var(--ts-success-dark);
+  opacity: 0.9;
+  margin: 0;
+}
+
+[data-theme="dark"] .ts-consent-detected__description {
+  color: var(--ts-success);
+}
+
+.ts-consent-detected__check-icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--ts-success-dark);
+}
+
+[data-theme="dark"] .ts-consent-detected__check-icon {
+  color: var(--ts-success-light);
+}
+
+/* No Plugin Detected */
+.ts-consent-no-plugin {
+  padding: var(--ts-spacing-md);
+  background: var(--ts-surface-hover);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  margin-bottom: var(--ts-spacing-md);
+}
+
+.ts-consent-no-plugin__text {
+  font-size: var(--ts-text-sm);
+  color: var(--ts-text-secondary);
+  margin: 0;
+}
+
+/* Supported Plugins Section */
+.ts-consent-supported__title {
+  font-size: var(--ts-text-xs);
+  font-weight: 600;
+  color: var(--ts-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 var(--ts-spacing-md);
+}
+
+.ts-consent-supported__grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.625rem;
+}
+
+@media (min-width: 640px) {
+  .ts-consent-supported__grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Plugin Card */
+.ts-consent-plugin-card {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-md);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  background: var(--ts-surface);
+  transition: all 0.2s ease;
+}
+
+.ts-consent-plugin-card:hover {
+  border-color: var(--ts-border-hover);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-consent-plugin-card--detected {
+  background: var(--ts-success-bg);
+  border-color: var(--ts-success-border);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+[data-theme="dark"] .ts-consent-plugin-card--detected {
+  background: rgba(16, 185, 129, 0.08);
+  border-color: rgba(16, 185, 129, 0.2);
+}
+
+.ts-consent-plugin-card__check {
+  flex-shrink: 0;
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-gray-200);
+}
+
+[data-theme="dark"] .ts-consent-plugin-card__check {
+  background: var(--ts-gray-700);
+}
+
+.ts-consent-plugin-card--detected .ts-consent-plugin-card__check {
+  background: var(--ts-success);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-consent-plugin-card__check-icon {
+  width: 1rem;
+  height: 1rem;
+  color: white;
+}
+
+.ts-consent-plugin-card:not(.ts-consent-plugin-card--detected) .ts-consent-plugin-card__check-icon {
+  width: 0.75rem;
+  height: 0.75rem;
+  opacity: 0.4;
+}
+
+.ts-consent-plugin-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-consent-plugin-card__name {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+  font-size: var(--ts-text-sm);
+  font-weight: 500;
+  color: var(--ts-text);
+  text-decoration: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: all 0.2s ease;
+}
+
+.ts-consent-plugin-card__name:hover {
+  color: var(--ts-primary);
+  text-decoration: underline;
+}
+
+[data-theme="dark"] .ts-consent-plugin-card__name:hover {
+  color: var(--ts-primary-light);
+}
+
+.ts-consent-plugin-card__link-icon {
+  flex-shrink: 0;
+  width: 14px;
+  height: 14px;
+  opacity: 0.5;
+  transition: opacity 0.2s ease;
+}
+
+.ts-consent-plugin-card__name:hover .ts-consent-plugin-card__link-icon {
+  opacity: 1;
+}
+
+.ts-consent-plugin-card__badge {
+  display: inline-block;
+  padding: 0.125rem 0.5rem;
+  background: var(--ts-primary-light);
+  color: var(--ts-primary-dark);
+  border-radius: var(--ts-radius-full);
+  font-size: var(--ts-text-xs);
+  font-weight: 500;
+}
+
+[data-theme="dark"] .ts-consent-plugin-card__badge {
+  background: rgba(79, 70, 229, 0.2);
+  color: var(--ts-primary-light);
+}
+
+/* Loading State */
+.ts-consent-detector__loading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-sm);
+}

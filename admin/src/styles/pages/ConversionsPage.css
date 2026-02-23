@@ -1,0 +1,367 @@
+/**
+ * Conversions Page Styles - Premium Professional Design
+ * Features: Dark/Light theme compatible, smooth animations, elevated cards
+ */
+
+.tracksure-conversions-page {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Page Header Enhancement */
+.tracksure-page__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-xl);
+  padding-bottom: var(--ts-spacing-lg);
+  border-bottom: 2px solid var(--ts-border);
+}
+
+.tracksure-page__title {
+  flex: 1;
+}
+
+.tracksure-page__title h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--ts-text-primary);
+  margin: 0 0 var(--ts-spacing-xs) 0;
+  letter-spacing: -0.025em;
+}
+
+.tracksure-page__description {
+  font-size: 15px;
+  color: var(--ts-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Conversion Breakdown Grid - Enhanced Layout */
+.conversion-breakdown-grid {
+  display: grid;
+  grid-template-columns: minmax(380px, 420px) 1fr;
+  gap: var(--ts-spacing-xl);
+  align-items: start;
+}
+
+.breakdown-chart {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: var(--ts-spacing-lg);
+  background: var(--ts-bg-secondary);
+  border-radius: 12px;
+  border: 1px solid var(--ts-border);
+  box-shadow: var(--ts-shadow-sm);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.breakdown-chart:hover {
+  box-shadow: var(--ts-shadow-md);
+  border-color: var(--ts-border-hover);
+}
+
+.breakdown-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-md);
+}
+
+.breakdown-section {
+  background: var(--ts-bg-secondary);
+  border: 1px solid var(--ts-border);
+  border-radius: 12px;
+  padding: var(--ts-spacing-lg);
+  box-shadow: var(--ts-shadow-sm);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.breakdown-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ts-primary), var(--ts-primary-light));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.breakdown-section:hover {
+  box-shadow: var(--ts-shadow-md);
+  border-color: var(--ts-border-hover);
+  transform: translateY(-2px);
+}
+
+.breakdown-section:hover::before {
+  opacity: 1;
+}
+
+.breakdown-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  margin-bottom: var(--ts-spacing-lg);
+  padding-bottom: var(--ts-spacing-md);
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.breakdown-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.breakdown-header h4 {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ts-text-primary);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.breakdown-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-sm);
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--ts-spacing-sm) var(--ts-spacing-xs);
+  border-radius: 6px;
+  transition: background-color 0.2s ease;
+}
+
+.metric-row:hover {
+  background: var(--ts-bg-tertiary);
+}
+
+.metric-label {
+  font-size: 14px;
+  color: var(--ts-text-secondary);
+  font-weight: 500;
+}
+
+.metric-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ts-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Insights Grid - Premium Card Design */
+.insights-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--ts-spacing-lg);
+}
+
+.insight-card {
+  display: flex;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-xl);
+  background: linear-gradient(135deg, var(--ts-bg-secondary) 0%, var(--ts-bg-tertiary) 100%);
+  border: 1px solid var(--ts-border);
+  border-radius: 12px;
+  box-shadow: var(--ts-shadow-sm);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.insight-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 4px;
+  height: 100%;
+  background: linear-gradient(180deg, var(--ts-primary), var(--ts-primary-light));
+  transform: scaleY(0);
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.insight-card:hover {
+  border-color: var(--ts-primary);
+  box-shadow: var(--ts-shadow-lg);
+  transform: translateY(-4px);
+}
+
+.insight-card:hover::before {
+  transform: scaleY(1);
+}
+
+.insight-card .icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-primary-soft);
+  color: var(--ts-primary);
+  border-radius: 10px;
+  transition: all 0.3s ease;
+}
+
+.insight-card:hover .icon {
+  transform: scale(1.1) rotate(5deg);
+  background: var(--ts-primary);
+  color: white;
+}
+
+.insight-card strong {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ts-text-primary);
+  margin-bottom: var(--ts-spacing-xs);
+  letter-spacing: -0.01em;
+}
+
+.insight-card p {
+  font-size: 14px;
+  color: var(--ts-text-secondary);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.card-description {
+  font-size: 14.5px;
+  color: var(--ts-text-secondary);
+  margin: var(--ts-spacing-xs) 0 0 0;
+  line-height: 1.6;
+}
+
+/* 4-column grid for KPIs - Enhanced Spacing */
+.tracksure-grid--4-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+/* Card Component Enhancements */
+.tracksure-card {
+  background: var(--ts-bg-secondary);
+  border: 1px solid var(--ts-border);
+  border-radius: 12px;
+  box-shadow: var(--ts-shadow-sm);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.tracksure-card:hover {
+  box-shadow: var(--ts-shadow-md);
+  border-color: var(--ts-border-hover);
+}
+
+.tracksure-card__header {
+  padding: var(--ts-spacing-lg) var(--ts-spacing-xl);
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.tracksure-card__header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ts-text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.tracksure-card__body {
+  padding: var(--ts-spacing-xl);
+}
+
+/* Chart Container Styling */
+.recharts-wrapper {
+  border-radius: 8px;
+  padding: var(--ts-spacing-md);
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design - Enhanced */
+@media (max-width: 1400px) {
+  .conversion-breakdown-grid {
+    grid-template-columns: minmax(350px, 380px) 1fr;
+    gap: var(--ts-spacing-lg);
+  }
+}
+
+@media (max-width: 1200px) {
+  .conversion-breakdown-grid {
+    grid-template-columns: 1fr;
+    gap: var(--ts-spacing-xl);
+  }
+
+  .breakdown-chart {
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .tracksure-grid--4-cols {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--ts-spacing-md);
+  }
+}
+
+@media (max-width: 768px) {
+  .insights-grid {
+    grid-template-columns: 1fr;
+    gap: var(--ts-spacing-md);
+  }
+
+  .tracksure-grid--4-cols {
+    grid-template-columns: 1fr;
+    gap: var(--ts-spacing-md);
+  }
+
+  .tracksure-page__title h1 {
+    font-size: 1.75rem;
+  }
+
+  .breakdown-section {
+    padding: var(--ts-spacing-md);
+  }
+}
+
+/* Dark Theme Adjustments - Enhanced */
+[data-theme="dark"] .breakdown-section,
+[data-theme="dark"] .insight-card {
+  background: linear-gradient(135deg, var(--ts-bg-secondary) 0%, rgba(31, 41, 55, 0.8) 100%);
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+[data-theme="dark"] .breakdown-chart {
+  background: var(--ts-bg-primary);
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+[data-theme="dark"] .insight-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border-color: var(--ts-primary);
+}
+
+[data-theme="dark"] .breakdown-section:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}

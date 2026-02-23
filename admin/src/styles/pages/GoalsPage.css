@@ -1,0 +1,976 @@
+/**
+ * Goals Page - Modern, User-Friendly Design
+ * Features: CSS Variables, Dark Mode Support, Smooth Animations
+ * Now using global CSS variables for consistent theming
+ */
+
+/* ========================================
+   Page Container
+
+   ======================================== */
+.ts-goals-page {
+  padding: var(--ts-spacing-lg);
+  background: var(--ts-bg);
+  min-height: 100vh;
+}
+
+/* ========================================
+   Page Header
+   ======================================== */
+.ts-page-header {
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+.ts-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ts-text);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.025em;
+}
+
+.ts-page-description {
+  font-size: 15px;
+  color: var(--ts-text-muted);
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* ========================================
+   Tab Navigation
+   ======================================== */
+.ts-goals-tabs {
+  display: flex;
+  gap: var(--ts-spacing-xs);
+  margin-bottom: var(--ts-spacing-lg);
+  border-bottom: 1px solid var(--ts-border);
+  padding: 0;
+}
+
+.ts-goals-tab {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+  padding: var(--ts-spacing-md) var(--ts-spacing-lg);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--ts-text-muted);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  top: 1px;
+}
+
+.ts-goals-tab:hover {
+  color: var(--ts-text);
+  background: var(--ts-surface-hover);
+}
+
+.ts-goals-tab--active {
+  color: var(--ts-primary);
+  border-bottom-color: var(--ts-primary);
+  font-weight: 600;
+}
+
+.ts-goals-tab--active:hover {
+  background: transparent;
+}
+
+[data-theme="dark"] .ts-goals-tab:hover {
+  background: var(--ts-surface-hover-dark);
+}
+
+/* ========================================
+   Goals Grid
+   ======================================== */
+
+/* Summary Cards - Row Layout */
+.ts-goals-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ts-spacing-md);
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+.ts-goals-summary-row {
+  display: flex;
+  flex-direction: row;
+  gap: var(--ts-spacing-md);
+  margin-bottom: var(--ts-spacing-xl);
+  flex-wrap: wrap;
+}
+
+.ts-goals-summary-row > * {
+  flex: 1;
+  min-width: 200px;
+}
+
+.ts-goals-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: var(--ts-spacing-lg);
+  margin-top: var(--ts-spacing-lg);
+}
+
+/* ========================================
+   Goal Card
+   ======================================== */
+.ts-goal-card {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: var(--ts-spacing-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-goal-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--ts-primary), var(--ts-success));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.ts-goal-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12), 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-3px);
+  border-color: var(--ts-primary);
+}
+
+.ts-goal-card:hover::before {
+  opacity: 1;
+}
+
+.ts-goal-card-selected {
+  border-color: var(--ts-primary);
+  background: var(--ts-surface-hover);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+/* Goal Checkbox */
+.ts-goal-checkbox {
+  display: flex;
+  align-items: flex-start;
+  padding-top: 2px;
+}
+
+.ts-goal-checkbox input[type="checkbox"] {
+  margin: 0;
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ts-primary);
+}
+
+/* Goal Header */
+.ts-goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--ts-spacing-md);
+  gap: var(--ts-spacing-md);
+  grid-column: 2;
+}
+
+.ts-goal-title-section {
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-goal-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+
+.ts-goal-description {
+  font-size: 14px;
+  color: var(--ts-text-muted);
+  margin: 0;
+  line-height: 1.5;
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Goal Actions */
+.ts-goal-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  flex-shrink: 0;
+}
+
+.ts-goal-status {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: var(--ts-radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+}
+
+.ts-goal-status.ts-active {
+  background: var(--ts-success-soft);
+  color: var(--ts-success);
+  border: 1px solid var(--ts-success);
+}
+
+.ts-goal-status.ts-inactive {
+  background: var(--ts-danger-soft);
+  color: var(--ts-danger);
+  border: 1px solid var(--ts-danger);
+}
+
+.ts-btn-icon {
+  background: var(--ts-surface-hover);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 8px;
+  color: var(--ts-text-muted);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+}
+
+.ts-btn-icon:hover {
+  background: var(--ts-primary-soft);
+  color: var(--ts-primary);
+  border-color: var(--ts-primary);
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.ts-btn-icon.ts-btn-danger:hover {
+  background: var(--ts-danger-soft);
+  color: var(--ts-danger);
+  border-color: var(--ts-danger);
+  transform: scale(1.1);
+  box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
+}
+
+/* Goal Details */
+.ts-goal-details {
+  margin-bottom: var(--ts-spacing-md);
+  grid-column: 2;
+}
+
+.ts-goal-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ts-spacing-sm);
+  grid-column: 2;
+}
+
+.ts-goal-event,
+.ts-goal-conditions {
+  font-size: 13px;
+  color: var(--ts-text);
+  background: var(--ts-bg-tertiary);
+  padding: 6px 12px;
+  border-radius: var(--ts-radius-md);
+  border: 1px solid var(--ts-border);
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.ts-goal-event:hover,
+.ts-goal-conditions:hover {
+  background: var(--ts-primary-soft);
+  border-color: var(--ts-primary);
+  color: var(--ts-primary);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+/* Goal Performance */
+.ts-goal-performance {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--ts-spacing-md);
+  padding-top: var(--ts-spacing-md);
+  border-top: 1px solid var(--ts-border);
+  margin-top: var(--ts-spacing-md);
+  grid-column: 2;
+}
+
+.ts-goal-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ts-goal-stat-label {
+  font-size: 11px;
+  color: var(--ts-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 600;
+}
+
+.ts-goal-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ts-text);
+  line-height: 1;
+}
+
+/* View Details Button */
+.ts-goal-view-details {
+  width: 100%;
+  margin-top: var(--ts-spacing-md);
+  padding: var(--ts-spacing-sm) var(--ts-spacing-md);
+  background: var(--ts-primary-soft);
+  border: 1px solid var(--ts-primary);
+  color: var(--ts-primary);
+  border-radius: var(--ts-radius-md);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+  position: relative;
+  white-space: nowrap;
+}
+
+.ts-goal-view-details svg {
+  flex-shrink: 0;
+}
+
+.ts-goal-view-details::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.ts-goal-view-details:hover::before {
+  left: 100%;
+}
+
+.ts-goal-view-details:hover {
+  background: var(--ts-primary);
+  color: var(--ts-bg-elevated);
+  transform: translateY(-1px);
+  box-shadow: var(--ts-shadow-md);
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+.ts-empty-state {
+  text-align: center;
+  padding: var(--ts-spacing-xl) var(--ts-spacing-lg);
+  background: var(--ts-surface);
+  border: 2px dashed var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  margin-top: var(--ts-spacing-lg);
+}
+
+.ts-empty-icon {
+  font-size: 64px;
+  margin-bottom: var(--ts-spacing-md);
+  opacity: 0.5;
+}
+
+.ts-empty-state h2 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0 0 8px 0;
+}
+
+.ts-empty-state p {
+  font-size: 15px;
+  color: var(--ts-text-muted);
+  margin: 0 0 var(--ts-spacing-lg) 0;
+  line-height: 1.6;
+}
+
+/* ========================================
+   Error Banner
+   ======================================== */
+.ts-error-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+  background: var(--ts-danger-soft);
+  border: 1px solid var(--ts-danger);
+  border-radius: var(--ts-radius-lg);
+  padding: var(--ts-spacing-md) var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-lg);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.15);
+}
+
+.ts-error-banner span {
+  font-size: 24px;
+  flex-shrink: 0;
+  color: var(--ts-danger);
+}
+
+.ts-error-banner p {
+  margin: 0;
+  color: var(--ts-danger);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+/* ========================================
+   Modal
+   ======================================== */
+.ts-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  animation: fadeIn 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.ts-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--ts-spacing-lg);
+  border-bottom: 1px solid var(--ts-border);
+  background: var(--ts-surface-hover);
+}
+
+.ts-modal-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ts-text);
+}
+
+.ts-modal-close {
+  background: transparent;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  color: var(--ts-text-muted);
+  padding: 8px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--ts-radius-md);
+  transition: all 0.2s ease;
+}
+
+.ts-modal-close:hover {
+  background: var(--ts-danger-soft);
+  color: var(--ts-danger);
+  transform: rotate(90deg);
+}
+
+.ts-modal-body {
+  padding: var(--ts-spacing-lg);
+  overflow-y: auto;
+  flex: 1;
+}
+
+.ts-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ts-spacing-sm);
+  padding: var(--ts-spacing-md) var(--ts-spacing-lg);
+  border-top: 1px solid var(--ts-border);
+  background: var(--ts-surface-hover);
+}
+
+/* ========================================
+   Form Fields
+   ======================================== */
+.ts-form-field {
+  margin-bottom: var(--ts-spacing-lg);
+}
+
+.ts-form-field label {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: 8px;
+}
+
+.ts-field-help {
+  font-size: 13px;
+  color: var(--ts-text-muted);
+  margin: 4px 0 0 0;
+  line-height: 1.5;
+}
+
+.ts-form-field input[type="text"],
+.ts-form-field textarea,
+.ts-form-field select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  font-size: 14px;
+  color: var(--ts-text);
+  background: var(--ts-surface);
+  transition: all 0.2s ease;
+}
+
+.ts-form-field input[type="text"]:focus,
+.ts-form-field textarea:focus,
+.ts-form-field select:focus {
+  outline: none;
+  border-color: var(--ts-primary);
+  box-shadow: 0 0 0 3px var(--ts-primary-soft);
+}
+
+.ts-form-field textarea {
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  line-height: 1.6;
+}
+
+/* ========================================
+   Condition Rows
+   ======================================== */
+.ts-condition-row {
+  display: flex;
+  gap: var(--ts-spacing-sm);
+  margin-bottom: var(--ts-spacing-sm);
+  align-items: flex-start;
+}
+
+.ts-condition-param,
+.ts-condition-operator,
+.ts-condition-value {
+  flex: 1;
+}
+
+.ts-condition-row .ts-btn-icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* ========================================
+   Checkbox
+   ======================================== */
+.ts-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  cursor: pointer;
+  font-weight: normal !important;
+  padding: var(--ts-spacing-sm);
+  border-radius: var(--ts-radius-md);
+  transition: background 0.2s ease;
+}
+
+.ts-checkbox-label:hover {
+  background: var(--ts-surface-hover);
+}
+
+.ts-checkbox-label input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--ts-primary);
+}
+
+.ts-checkbox-label span {
+  font-size: 14px;
+  color: var(--ts-text);
+  line-height: 1.5;
+}
+
+/* ========================================
+   Buttons
+   ======================================== */
+.ts-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: var(--ts-radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ts-spacing-sm);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.ts-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.ts-btn-primary {
+  background: var(--ts-primary);
+  color: var(--ts-bg-elevated);
+}
+
+.ts-btn-primary:hover:not(:disabled) {
+  background: var(--ts-primary-hover);
+  box-shadow: var(--ts-shadow-md);
+  transform: translateY(-1px);
+}
+
+.ts-btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-btn-secondary {
+  background: var(--ts-surface-hover);
+  color: var(--ts-text);
+  border: 1px solid var(--ts-border);
+}
+
+.ts-btn-secondary:hover:not(:disabled) {
+  background: var(--ts-bg-tertiary);
+  border-color: var(--ts-text-muted);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.ts-btn-sm {
+  padding: 6px 14px;
+  font-size: 13px;
+}
+
+/* ========================================
+   Loading State
+   ======================================== */
+.ts-loading-state {
+  text-align: center;
+  padding: var(--ts-spacing-xl) var(--ts-spacing-lg);
+}
+
+.ts-spinner {
+  width: 48px;
+  height: 48px;
+  border: 4px solid var(--ts-border);
+  border-top-color: var(--ts-primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto var(--ts-spacing-md);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.ts-loading-state p {
+  color: var(--ts-text-muted);
+  font-size: 15px;
+  font-weight: 500;
+}
+
+/* ========================================
+   Templates Grid
+   ======================================== */
+.ts-templates-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--ts-spacing-lg);
+  margin-top: var(--ts-spacing-lg);
+}
+
+.ts-template-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.ts-template-card .ts-card-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.ts-template-icon {
+  font-size: 48px;
+  margin-bottom: var(--ts-spacing-md);
+  text-align: center;
+}
+
+.ts-template-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0 0 8px 0;
+  line-height: 1.4;
+}
+
+.ts-template-description {
+  font-size: 14px;
+  color: var(--ts-text-muted);
+  margin: 0 0 var(--ts-spacing-md) 0;
+  line-height: 1.6;
+  flex: 1;
+}
+
+.ts-template-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--ts-spacing-sm);
+  margin-bottom: var(--ts-spacing-md);
+  padding-top: var(--ts-spacing-md);
+  border-top: 1px solid var(--ts-border);
+}
+
+.ts-template-add-btn {
+  margin-top: auto;
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+@media (max-width: 1024px) {
+  .ts-goals-grid {
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  }
+  
+  .ts-templates-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .ts-goals-page {
+    padding: var(--ts-spacing-md);
+  }
+
+  .ts-goals-grid,
+  .ts-templates-grid {
+    grid-template-columns: 1fr;
+    gap: var(--ts-spacing-md);
+  }
+
+  .ts-goal-performance {
+    grid-template-columns: 1fr;
+  }
+
+  .ts-condition-row {
+    flex-direction: column;
+  }
+
+  .ts-modal {
+    width: 95%;
+    max-height: 95vh;
+  }
+
+  .ts-modal-footer {
+    flex-direction: column;
+  }
+
+  .ts-modal-footer .ts-btn {
+    width: 100%;
+  }
+}
+
+/* ========================================
+   Dark Theme Support
+   ======================================== */
+[data-theme="dark"] .ts-goals-page {
+  background: var(--ts-bg-dark, #0f1419);
+  color: var(--ts-text-dark, #e8eaed);
+}
+
+[data-theme="dark"] .ts-goal-card,
+[data-theme="dark"] .ts-template-card,
+[data-theme="dark"] .ts-modal-content,
+[data-theme="dark"] .ts-card {
+  background: var(--ts-surface-dark, #1a1f26);
+  border-color: var(--ts-border-dark, #2d3748);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+[data-theme="dark"] .ts-goal-card:hover,
+[data-theme="dark"] .ts-template-card:hover {
+  border-color: var(--ts-primary);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--ts-primary);
+}
+
+[data-theme="dark"] .ts-page-title,
+[data-theme="dark"] .ts-goal-title,
+[data-theme="dark"] .ts-template-title,
+[data-theme="dark"] .ts-modal-title {
+  color: var(--ts-text-dark, #e8eaed);
+}
+
+[data-theme="dark"] .ts-page-description,
+[data-theme="dark"] .ts-goal-description,
+[data-theme="dark"] .ts-template-description,
+[data-theme="dark"] .ts-text-muted {
+  color: var(--ts-text-muted-dark, #9ca3af);
+}
+
+[data-theme="dark"] .ts-kpi-value,
+[data-theme="dark"] .ts-perf-value {
+  color: var(--ts-text-dark, #ffffff);
+}
+
+[data-theme="dark"] .ts-kpi-label,
+[data-theme="dark"] .ts-perf-label {
+  color: var(--ts-text-muted-dark, #9ca3af);
+}
+
+[data-theme="dark"] .ts-btn-outline {
+  border-color: var(--ts-border-dark, #2d3748);
+  color: var(--ts-text-dark, #e8eaed);
+}
+
+[data-theme="dark"] .ts-btn-outline:hover {
+  background: var(--ts-surface-dark, #2d3748);
+  border-color: var(--ts-primary);
+}
+
+[data-theme="dark"] .ts-btn-danger-outline {
+  border-color: var(--ts-danger);
+  color: var(--ts-danger);
+}
+
+[data-theme="dark"] .ts-btn-danger-outline:hover {
+  background: var(--ts-danger);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .ts-input,
+[data-theme="dark"] .ts-select,
+[data-theme="dark"] .ts-textarea {
+  background: var(--ts-surface-dark, #0f1419);
+  border-color: var(--ts-border-dark, #2d3748);
+  color: var(--ts-text-dark, #e8eaed);
+}
+
+[data-theme="dark"] .ts-input:focus,
+[data-theme="dark"] .ts-select:focus,
+[data-theme="dark"] .ts-textarea:focus {
+  border-color: var(--ts-primary);
+  background: var(--ts-surface-dark, #1a1f26);
+}
+
+[data-theme="dark"] .ts-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+}
+
+[data-theme="dark"] .ts-badge-success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+}
+
+[data-theme="dark"] .ts-badge-warning {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+}
+
+[data-theme="dark"] .ts-badge-danger {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+}
+
+[data-theme="dark"] .ts-divider {
+  border-color: var(--ts-border-dark, #2d3748);
+}
+
+[data-theme="dark"] .ts-goal-status-inactive {
+  background: rgba(156, 163, 175, 0.1);
+  color: #9ca3af;
+}
+
+[data-theme="dark"] .ts-empty-state {
+  color: var(--ts-text-muted-dark, #9ca3af);
+}
+
+[data-theme="dark"] .ts-empty-state-title {
+  color: var(--ts-text-dark, #e8eaed);
+}
+
+[data-theme="dark"] .ts-condition-row {
+  background: var(--ts-bg-dark, #0f1419);
+  border-color: var(--ts-border-dark, #2d3748);
+}
+
+[data-theme="dark"] .ts-template-category {
+  color: var(--ts-text-muted-dark, #9ca3af);
+  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+
+[data-theme="dark"] .ts-modal-overlay {
+  background: rgba(0, 0, 0, 0.85);
+}
+
+[data-theme="dark"] .ts-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--ts-surface-dark, #1a1f26) 0%,
+    var(--ts-border-dark, #2d3748) 50%,
+    var(--ts-surface-dark, #1a1f26) 100%
+  );
+  background-size: 200% 100%;
+}

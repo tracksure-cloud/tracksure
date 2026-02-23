@@ -1,0 +1,410 @@
+/**
+ * Goal Modal Styles
+ * 
+ * Unified styling for goal creation/editing modal
+ * Supports dark/light themes with CSS variables
+ * 
+ * @since 2.1.0
+ * @package TrackSure
+ */
+
+/* ============================================================
+   Modal Content
+   ============================================================ */
+
+.ts-goal-modal__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-lg, 1.5rem);
+  padding: var(--ts-spacing-md, 1rem);
+}
+
+/* ============================================================
+   Banner (Info/Error Messages)
+   ============================================================ */
+
+.ts-goal-modal__banner {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--ts-spacing-sm, 0.75rem);
+  padding: var(--ts-spacing-md, 1rem);
+  border-radius: var(--ts-radius-lg, 8px);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.ts-goal-modal__banner-icon {
+  flex-shrink: 0;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+.ts-goal-modal__banner--info {
+  background: var(--ts-info-bg, #e0f2fe);
+  border: 1px solid var(--ts-info-border, #7dd3fc);
+  color: var(--ts-info-text, #0c4a6e);
+}
+
+[data-theme="dark"] .ts-goal-modal__banner--info {
+  background: rgba(14, 116, 144, 0.1);
+  border-color: rgba(6, 182, 212, 0.3);
+  color: var(--ts-text-primary, #f9fafb);
+}
+
+.ts-goal-modal__banner--error {
+  background: var(--ts-error-bg, #fef2f2);
+  border: 1px solid var(--ts-error-border, #fca5a5);
+  color: var(--ts-error-text, #991b1b);
+}
+
+[data-theme="dark"] .ts-goal-modal__banner--error {
+  background: rgba(127, 29, 29, 0.2);
+  border-color: rgba(248, 113, 113, 0.3);
+  color: var(--ts-text-primary, #f9fafb);
+}
+
+.ts-goal-modal__banner strong {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.ts-goal-modal__banner p {
+  margin: 0;
+  color: inherit;
+  opacity: 0.9;
+}
+
+/* ============================================================
+   Sections
+   ============================================================ */
+
+.ts-goal-modal__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-md, 1rem);
+}
+
+.ts-goal-modal__section-title {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm, 0.75rem);
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--ts-text-primary, #1e293b);
+}
+
+[data-theme="dark"] .ts-goal-modal__section-title {
+  color: var(--ts-text-primary, #f9fafb);
+}
+
+.ts-goal-modal__section-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* ============================================================
+   Form Fields
+   ============================================================ */
+
+.ts-goal-modal__field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-xs, 0.5rem);
+}
+
+.ts-goal-modal__label {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs, 0.5rem);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ts-text-primary, #334155);
+}
+
+[data-theme="dark"] .ts-goal-modal__label {
+  color: var(--ts-text-primary, #e2e8f0);
+}
+
+.ts-goal-modal__label--required::after {
+  content: '*';
+  color: var(--ts-danger, #ef4444);
+  margin-left: 0.125rem;
+}
+
+.ts-goal-modal__label-optional {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--ts-text-tertiary, #94a3b8);
+}
+
+/* Input Styles */
+.ts-goal-modal__input,
+.ts-goal-modal__textarea,
+.ts-goal-modal__select {
+  width: 100%;
+  padding: 0.625rem 0.875rem;
+  font-size: 0.875rem;
+  font-family: var(--ts-font-sans);
+  color: var(--ts-text-primary, #1e293b);
+  background: var(--ts-bg-primary, #ffffff);
+  border: 1px solid var(--ts-border-color, #e2e8f0);
+  border-radius: var(--ts-radius-md, 6px);
+  transition: all var(--ts-fast, 120ms);
+  outline: none;
+}
+
+[data-theme="dark"] .ts-goal-modal__input,
+[data-theme="dark"] .ts-goal-modal__textarea,
+[data-theme="dark"] .ts-goal-modal__select {
+  color: var(--ts-text-primary, #f9fafb);
+  background: var(--ts-bg-secondary, #1e293b);
+  border-color: var(--ts-border-color, #334155);
+}
+
+.ts-goal-modal__input:hover,
+.ts-goal-modal__textarea:hover,
+.ts-goal-modal__select:hover {
+  border-color: var(--ts-border-color-hover, #cbd5e1);
+}
+
+[data-theme="dark"] .ts-goal-modal__input:hover,
+[data-theme="dark"] .ts-goal-modal__textarea:hover,
+[data-theme="dark"] .ts-goal-modal__select:hover {
+  border-color: var(--ts-border-color-hover, #475569);
+}
+
+.ts-goal-modal__input:focus,
+.ts-goal-modal__textarea:focus,
+.ts-goal-modal__select:focus {
+  border-color: var(--ts-primary, #6366f1);
+  box-shadow: var(--ts-ring, 0 0 0 3px rgba(99, 102, 241, 0.1));
+}
+
+[data-theme="dark"] .ts-goal-modal__input:focus,
+[data-theme="dark"] .ts-goal-modal__textarea:focus,
+[data-theme="dark"] .ts-goal-modal__select:focus {
+  border-color: var(--ts-primary, #818cf8);
+  box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.2);
+}
+
+.ts-goal-modal__input::placeholder,
+.ts-goal-modal__textarea::placeholder {
+  color: var(--ts-text-tertiary, #94a3b8);
+  opacity: 1;
+}
+
+[data-theme="dark"] .ts-goal-modal__input::placeholder,
+[data-theme="dark"] .ts-goal-modal__textarea::placeholder {
+  color: var(--ts-text-tertiary, #64748b);
+}
+
+.ts-goal-modal__textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* Error State */
+.ts-goal-modal__input--error,
+.ts-goal-modal__textarea--error {
+  border-color: var(--ts-danger, #ef4444);
+}
+
+[data-theme="dark"] .ts-goal-modal__input--error,
+[data-theme="dark"] .ts-goal-modal__textarea--error {
+  border-color: var(--ts-danger, #f87171);
+}
+
+.ts-goal-modal__input--error:focus,
+.ts-goal-modal__textarea--error:focus {
+  box-shadow: var(--ts-ring-danger, 0 0 0 3px rgba(239, 68, 68, 0.1));
+}
+
+[data-theme="dark"] .ts-goal-modal__input--error:focus,
+[data-theme="dark"] .ts-goal-modal__textarea--error:focus {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.2);
+}
+
+/* ============================================================
+   Help Text & Errors
+   ============================================================ */
+
+.ts-goal-modal__help {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ts-text-secondary, #64748b);
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .ts-goal-modal__help {
+  color: var(--ts-text-secondary, #94a3b8);
+}
+
+.ts-goal-modal__error {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--ts-danger, #ef4444);
+  line-height: 1.5;
+}
+
+[data-theme="dark"] .ts-goal-modal__error {
+  color: var(--ts-danger, #f87171);
+}
+
+.ts-goal-modal__error::before {
+  content: '⚠';
+  font-size: 0.875rem;
+}
+
+.ts-goal-modal__error-list {
+  margin: 0.5rem 0 0 0;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.ts-goal-modal__error-list li {
+  margin: 0.25rem 0;
+}
+
+/* ============================================================
+   Toggle Switch
+   ============================================================ */
+
+.ts-goal-modal__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm, 0.75rem);
+  padding: var(--ts-spacing-md, 1rem);
+  background: var(--ts-bg-secondary, #f8fafc);
+  border: 1px solid var(--ts-border-color, #e2e8f0);
+  border-radius: var(--ts-radius-lg, 8px);
+  cursor: pointer;
+  transition: all var(--ts-fast, 120ms);
+}
+
+[data-theme="dark"] .ts-goal-modal__toggle {
+  background: var(--ts-bg-tertiary, #0f172a);
+  border-color: var(--ts-border-color, #1e293b);
+}
+
+.ts-goal-modal__toggle:hover {
+  background: var(--ts-surface-hover, #f1f5f9);
+  border-color: var(--ts-border-color-hover, #cbd5e1);
+}
+
+[data-theme="dark"] .ts-goal-modal__toggle:hover {
+  background: var(--ts-surface-hover, #1e293b);
+  border-color: var(--ts-border-color-hover, #334155);
+}
+
+.ts-goal-modal__toggle-input {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--ts-primary, #6366f1);
+}
+
+.ts-goal-modal__toggle-content {
+  flex: 1;
+}
+
+.ts-goal-modal__toggle-title {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: var(--ts-text-primary, #1e293b);
+  margin-bottom: 0.125rem;
+}
+
+[data-theme="dark"] .ts-goal-modal__toggle-title {
+  color: var(--ts-text-primary, #f9fafb);
+}
+
+.ts-goal-modal__toggle-description {
+  font-size: 0.75rem;
+  color: var(--ts-text-secondary, #64748b);
+}
+
+[data-theme="dark"] .ts-goal-modal__toggle-description {
+  color: var(--ts-text-secondary, #94a3b8);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+
+.ts-goal-modal__footer {
+  display: flex;
+  gap: var(--ts-spacing-sm, 0.75rem);
+  justify-content: flex-end;
+}
+
+/* ============================================================
+   Responsive Design
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .ts-goal-modal__content {
+    padding: var(--ts-spacing-sm, 0.75rem);
+    gap: var(--ts-spacing-md, 1rem);
+  }
+
+  .ts-goal-modal__section {
+    gap: var(--ts-spacing-sm, 0.75rem);
+  }
+
+  .ts-goal-modal__footer {
+    flex-direction: column;
+  }
+
+  .ts-goal-modal__footer .ts-btn {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   Accessibility Improvements
+   ============================================================ */
+
+/* Focus visible (keyboard navigation) */
+.ts-goal-modal__input:focus-visible,
+.ts-goal-modal__textarea:focus-visible,
+.ts-goal-modal__select:focus-visible,
+.ts-goal-modal__toggle-input:focus-visible {
+  outline: 2px solid var(--ts-primary, #6366f1);
+  outline-offset: 2px;
+}
+
+[data-theme="dark"] .ts-goal-modal__input:focus-visible,
+[data-theme="dark"] .ts-goal-modal__textarea:focus-visible,
+[data-theme="dark"] .ts-goal-modal__select:focus-visible,
+[data-theme="dark"] .ts-goal-modal__toggle-input:focus-visible {
+  outline-color: var(--ts-primary, #818cf8);
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .ts-goal-modal__input,
+  .ts-goal-modal__textarea,
+  .ts-goal-modal__select,
+  .ts-goal-modal__toggle {
+    border-width: 2px;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .ts-goal-modal__input,
+  .ts-goal-modal__textarea,
+  .ts-goal-modal__select,
+  .ts-goal-modal__toggle {
+    transition: none;
+  }
+}

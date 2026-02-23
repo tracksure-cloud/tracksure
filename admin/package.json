@@ -1,0 +1,36 @@
+{
+  "name": "tracksure-admin",
+  "version": "1.0.0",
+  "description": "TrackSure Admin Interface - React SPA",
+  "private": true,
+  "scripts": {
+    "dev": "webpack --mode development --watch",
+    "build": "webpack --mode production",
+    "type-check": "tsc --noEmit",
+    "i18n:make-pot": "wp i18n make-pot ../ ../languages/tracksure-core.pot --domain=tracksure-core --exclude=node_modules,dist"
+  },
+  "dependencies": {
+    "clsx": "^2.0.0",
+    "date-fns": "^3.0.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.2",
+    "lucide-react": "^0.562.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.0",
+    "recharts": "^2.15.4"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@wordpress/dependency-extraction-webpack-plugin": "^6.39.0",
+    "@wordpress/i18n": "^4.52.0",
+    "@wordpress/scripts": "^31.1.0",
+    "css-loader": "^6.8.0",
+    "style-loader": "^3.3.0",
+    "ts-loader": "^9.5.0",
+    "typescript": "^5.3.0",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.0"
+  }
+}

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<ruleset name="TrackSure">
+	<description>TrackSure WordPress Coding Standards</description>
+
+	<!-- Check all PHP files in the plugin -->
+	<file>.</file>
+
+	<!-- Exclude dependencies and build files -->
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/admin/dist/*</exclude-pattern>
+	<exclude-pattern>*/admin/src/*</exclude-pattern>
+	<exclude-pattern>*/build/*</exclude-pattern>
+	<exclude-pattern>*/tests/*</exclude-pattern>
+
+	<!-- WordPress Coding Standards -->
+	<rule ref="WordPress">
+		<!-- Direct database queries are required for analytics -->
+		<exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery" />
+		<exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching" />
+		<exclude name="WordPress.DB.DirectDatabaseQuery.SchemaChange" />
+		
+		<!-- Table names using $wpdb->prefix are safe -->
+		<exclude name="PluginCheck.Security.DirectDB.UnescapedDBParameter" />
+		
+		<!-- Allow file operations for geolocation database -->
+		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents" />
+	</rule>
+
+	<!-- Show progress and errors -->
+	<arg value="ps" />
+	<arg name="colors" />
+
+	<!-- Check PHP 7.4+ compatibility -->
+	<config name="testVersion" value="7.4-" />
+
+	<!-- Set text domain -->
+	<rule ref="WordPress.WP.I18n">
+		<properties>
+			<property name="text_domain" type="array">
+				<element value="tracksure"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

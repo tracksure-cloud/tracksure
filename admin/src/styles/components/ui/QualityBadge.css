@@ -1,0 +1,78 @@
+/* QualityBadge Styles */
+
+.ts-quality-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: var(--border-radius);
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  cursor: help;
+  transition: all 0.2s ease;
+}
+
+.ts-quality-badge:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Compact version */
+.ts-quality-badge--compact {
+  padding: 2px 6px;
+  font-size: 10px;
+}
+
+/* High quality - Green */
+.ts-quality-badge--high {
+  background-color: var(--ts-success-soft);
+  color: var(--ts-success);
+  border: 1px solid var(--ts-success);
+}
+
+.ts-quality-badge--high .ts-quality-badge__icon {
+  color: var(--ts-success);
+  font-weight: 700;
+}
+
+/* Medium quality - Yellow */
+.ts-quality-badge--medium {
+  background-color: var(--ts-warning-soft);
+  color: var(--ts-warning);
+  border: 1px solid var(--ts-warning);
+}
+
+.ts-quality-badge--medium .ts-quality-badge__icon {
+  color: var(--ts-warning);
+  font-weight: 700;
+}
+
+/* Low quality - Red */
+.ts-quality-badge--low {
+  background-color: var(--ts-danger-soft);
+  color: var(--ts-danger);
+  border: 1px solid var(--ts-danger);
+}
+
+.ts-quality-badge--low .ts-quality-badge__icon {
+  color: var(--ts-danger);
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ts-quality-badge {
+    font-size: 10px;
+    padding: 3px 6px;
+  }
+  
+  .ts-quality-badge__label {
+    display: none;
+  }
+  
+  .ts-quality-badge--compact .ts-quality-badge__label {
+    display: none;
+  }
+}

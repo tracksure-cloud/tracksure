@@ -1,0 +1,94 @@
+/* Checkbox Component Styles */
+
+.ts-checkbox-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-xs);
+}
+
+.ts-checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-checkbox {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 2px solid var(--ts-border);
+  border-radius: var(--ts-radius-sm);
+  background-color: var(--ts-surface);
+  cursor: pointer;
+  transition: all var(--ts-fast);
+  appearance: none;
+  position: relative;
+}
+
+.ts-checkbox:hover:not(:disabled) {
+  border-color: var(--ts-primary);
+}
+
+.ts-checkbox:checked {
+  background-color: var(--ts-primary);
+  border-color: var(--ts-primary);
+}
+
+.ts-checkbox:checked::after {
+  content: '';
+  position: absolute;
+  left: 5px;
+  top: 2px;
+  width: 4px;
+  height: 8px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.ts-checkbox:focus {
+  outline: none;
+  box-shadow: var(--ts-ring);
+}
+
+.ts-checkbox:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ts-checkbox-label {
+  font-size: 0.9375rem;
+  color: var(--ts-text);
+  line-height: 1.5;
+  cursor: pointer;
+  user-select: none;
+}
+
+.ts-checkbox:disabled + .ts-checkbox-label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Error State */
+.ts-checkbox--error {
+  border-color: var(--ts-danger);
+}
+
+.ts-checkbox--error:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.ts-checkbox-error {
+  font-size: 0.8125rem;
+  color: var(--ts-danger);
+  line-height: 1.4;
+  margin-left: calc(18px + var(--ts-spacing-sm));
+}
+
+/* Hint Text */
+.ts-checkbox-hint {
+  font-size: 0.8125rem;
+  color: var(--ts-text-tertiary);
+  line-height: 1.4;
+  margin-left: calc(18px + var(--ts-spacing-sm));
+}

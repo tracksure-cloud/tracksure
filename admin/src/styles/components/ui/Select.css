@@ -1,0 +1,87 @@
+/* Select Component Styles */
+
+.ts-select-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-xs);
+}
+
+.ts-select-wrapper--full {
+  width: 100%;
+}
+
+.ts-select-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--ts-text);
+  line-height: 1.5;
+}
+
+.ts-select-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.ts-select {
+  width: 100%;
+  padding: var(--ts-spacing-sm) var(--ts-spacing-md);
+  padding-right: calc(var(--ts-spacing-md) + 24px);
+  font-family: var(--ts-font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--ts-text);
+  background-color: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  transition: all var(--ts-fast);
+  min-height: 40px;
+  cursor: pointer;
+  appearance: none;
+}
+
+.ts-select:hover:not(:disabled) {
+  border-color: var(--ts-border-hover);
+}
+
+.ts-select:focus {
+  outline: none;
+  border-color: var(--ts-primary);
+  box-shadow: var(--ts-ring);
+}
+
+.ts-select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--ts-surface);
+}
+
+.ts-select-arrow {
+  position: absolute;
+  right: var(--ts-spacing-md);
+  color: var(--ts-text-secondary);
+  pointer-events: none;
+}
+
+/* Error State */
+.ts-select--error {
+  border-color: var(--ts-danger);
+}
+
+.ts-select--error:focus {
+  border-color: var(--ts-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+.ts-select-error {
+  font-size: 0.8125rem;
+  color: var(--ts-danger);
+  line-height: 1.4;
+}
+
+/* Hint Text */
+.ts-select-hint {
+  font-size: 0.8125rem;
+  color: var(--ts-text-tertiary);
+  line-height: 1.4;
+}

@@ -1,0 +1,93 @@
+.ts-theme-toggle {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ts-border);
+  background: var(--ts-surface);
+  border-radius: var(--ts-radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ts-theme-toggle:hover {
+  background: var(--ts-surface-2);
+  border-color: var(--ts-border-hover);
+}
+
+.ts-theme-icon {
+  font-size: 18px;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+  .ts-theme-toggle {
+    width: 32px;
+    height: 32px;
+  }
+
+  .ts-theme-icon {
+    font-size: 16px;
+  }
+}
+
+/* Mobile Landscape (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .ts-theme-toggle {
+    width: 34px;
+    height: 34px;
+  }
+
+  .ts-theme-icon {
+    font-size: 17px;
+  }
+}
+
+/* Tablet Portrait (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .ts-theme-toggle {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+/* Laptop (1280px - 1439px) */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .ts-theme-toggle {
+    width: 38px;
+    height: 38px;
+  }
+
+  .ts-theme-icon {
+    font-size: 19px;
+  }
+}
+
+/* Desktop (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .ts-theme-toggle {
+    width: 40px;
+    height: 40px;
+  }
+
+  .ts-theme-icon {
+    font-size: 20px;
+  }
+}
+
+/* Large Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .ts-theme-toggle {
+    width: 42px;
+    height: 42px;
+  }
+
+  .ts-theme-icon {
+    font-size: 21px;
+  }
+}

@@ -1,0 +1,553 @@
+/**
+ * Attribution Page Styles - Premium Professional Design
+ * Features: Enhanced tabs, elevated cards, smooth animations, dark/light theme
+ */
+
+.tracksure-attribution-page {
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 981px) {
+  .tracksure-grid--4-cols {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-xl);
+}
+}
+
+/* Enhanced Tabs Design */
+.tracksure-tabs {
+  margin-top: var(--ts-spacing-xl);
+}
+
+.tracksure-tabs__list {
+  display: flex;
+  gap: var(--ts-spacing-xs);
+  border-bottom: 2px solid var(--ts-border);
+  margin-bottom: var(--ts-spacing-xl);
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tracksure-tabs__tab {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  padding: var(--ts-spacing-md) var(--ts-spacing-xl);
+  border: none;
+  background: transparent;
+  color: var(--ts-text-secondary);
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  border-bottom: 3px solid transparent;
+  white-space: nowrap;
+  letter-spacing: -0.01em;
+}
+
+.tracksure-tabs__tab:hover {
+  color: var(--ts-text-primary);
+  background: var(--ts-bg-tertiary);
+  border-radius: 8px 8px 0 0;
+}
+
+.tracksure-tabs__tab.is-active {
+  color: var(--ts-primary);
+  font-weight: 600;
+  border-bottom-color: var(--ts-primary);
+  background: var(--ts-bg-secondary);
+  border-radius: 8px 8px 0 0;
+}
+
+.tracksure-tabs__tab .icon {
+  transition: transform 0.2s ease;
+}
+
+.tracksure-tabs__tab.is-active .icon {
+  transform: scale(1.1);
+}
+
+.tracksure-tabs__content {
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Journey Insights Tab */
+.journey-insights-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-xl);
+}
+
+/* Conversion Paths Table Enhancement */
+.conversion-paths-table {
+  overflow-x: auto;
+  border-radius: 8px;
+  border: 1px solid var(--ts-border);
+}
+
+.conversion-path-cell {
+  max-width: 500px;
+  min-width: 300px;
+}
+
+.path-code {
+  display: block;
+  background: var(--ts-bg-tertiary);
+  padding: var(--ts-spacing-xs) var(--ts-spacing-sm);
+  border-radius: 6px;
+  font-family: var(--ts-font-mono);
+  font-size: 13px;
+  color: var(--ts-text-primary);
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.5;
+  border: 1px solid var(--ts-border);
+  transition: all 0.2s ease;
+}
+
+.path-code:hover {
+  background: var(--ts-primary-soft);
+  border-color: var(--ts-primary);
+  color: var(--ts-primary);
+}
+
+/* Device Patterns Grid - Premium Design */
+.device-patterns-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: var(--ts-spacing-lg);
+}
+
+.device-pattern-card {
+  background: linear-gradient(135deg, var(--ts-bg-secondary) 0%, var(--ts-bg-tertiary) 100%);
+  border: 1px solid var(--ts-border);
+  border-radius: 12px;
+  padding: var(--ts-spacing-lg);
+  box-shadow: var(--ts-shadow-sm);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.device-pattern-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, var(--ts-primary), var(--ts-success));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.device-pattern-card:hover {
+  border-color: var(--ts-primary);
+  box-shadow: var(--ts-shadow-lg);
+  transform: translateY(-4px);
+}
+
+.device-pattern-card:hover::before {
+  transform: scaleX(1);
+}
+
+.pattern-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  margin-bottom: var(--ts-spacing-md);
+  padding-bottom: var(--ts-spacing-md);
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.pattern-label {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--ts-text-primary);
+  letter-spacing: -0.01em;
+}
+
+.pattern-metrics {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-sm);
+}
+
+.pattern-metrics .metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--ts-spacing-xs) 0;
+  transition: background 0.2s ease;
+  border-radius: 4px;
+}
+
+.pattern-metrics .metric:hover {
+  background: var(--ts-bg-tertiary);
+  padding-left: var(--ts-spacing-xs);
+  padding-right: var(--ts-spacing-xs);
+}
+
+.metric-label {
+  font-size: 13.5px;
+  color: var(--ts-text-secondary);
+  font-weight: 500;
+}
+
+.metric-value {
+  font-weight: 700;
+  font-size: 14.5px;
+  color: var(--ts-text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Attribution Models Tab - Premium Design */
+.attribution-models-tab {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-xl);
+}
+
+/* Pro Upgrade Banner - Eye-catching Gradient */
+.pro-upgrade-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-lg);
+  padding: var(--ts-spacing-xl);
+  background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+  border-radius: 12px;
+  color: white;
+  box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.pro-upgrade-banner::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transform: translateX(-100%);
+  animation: shimmer 3s infinite;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.pro-upgrade-banner .icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+
+.pro-upgrade-banner strong {
+  font-size: 18px;
+  display: block;
+  margin-bottom: var(--ts-spacing-xs);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.pro-upgrade-banner p {
+  font-size: 14.5px;
+  opacity: 0.95;
+  margin: 0;
+  line-height: 1.6;
+}
+
+.pro-upgrade-banner button {
+  margin-left: auto;
+  flex-shrink: 0;
+  background: white;
+  color: var(--ts-primary);
+  font-weight: 600;
+  padding: var(--ts-spacing-sm) var(--ts-spacing-lg);
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.pro-upgrade-banner button:hover {
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+/* Attribution Tables */
+.attribution-tables {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-xl);
+}
+
+.attribution-model-section {
+  background: var(--ts-bg-secondary);
+  border: 1px solid var(--ts-border);
+  border-radius: 12px;
+  padding: var(--ts-spacing-xl);
+  box-shadow: var(--ts-shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.attribution-model-section:hover {
+  box-shadow: var(--ts-shadow-md);
+  border-color: var(--ts-border-hover);
+}
+
+.attribution-model-section h4 {
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 var(--ts-spacing-lg) 0;
+  color: var(--ts-text-primary);
+  padding-bottom: var(--ts-spacing-md);
+  border-bottom: 2px solid var(--ts-primary);
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+}
+
+.attribution-model-section h4::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(180deg, var(--ts-primary), var(--ts-primary-light));
+  border-radius: 2px;
+}
+
+.attribution-model-section .tracksure-table {
+  border: 1px solid var(--ts-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ========================================
+   Professional Table Styles
+   ======================================== */
+.tracksure-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.tracksure-table thead th {
+  background: var(--ts-bg-tertiary);
+  color: var(--ts-text-secondary);
+  font-weight: 600;
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 12px 16px;
+  border-bottom: 2px solid var(--ts-border);
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  white-space: nowrap;
+}
+
+.tracksure-table thead th:first-child {
+  border-radius: 8px 0 0 0;
+}
+
+.tracksure-table thead th:last-child {
+  border-radius: 0 8px 0 0;
+}
+
+.tracksure-table tbody td {
+  padding: 12px 16px;
+  color: var(--ts-text-primary);
+  border-bottom: 1px solid var(--ts-border);
+  vertical-align: middle;
+  transition: background 0.15s ease;
+}
+
+.tracksure-table tbody tr:hover td {
+  background: var(--ts-bg-tertiary);
+}
+
+.tracksure-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tracksure-table tbody tr:last-child td:first-child {
+  border-radius: 0 0 0 8px;
+}
+
+.tracksure-table tbody tr:last-child td:last-child {
+  border-radius: 0 0 8px 0;
+}
+
+.tracksure-table .text-right {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* Individual Journeys Tab */
+.individual-journeys-tab {
+  min-height: 400px;
+}
+
+.redirect-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ts-spacing-xxl) var(--ts-spacing-xl);
+  text-align: center;
+  gap: var(--ts-spacing-lg);
+  background: linear-gradient(135deg, var(--ts-bg-secondary) 0%, var(--ts-bg-tertiary) 100%);
+  border-radius: 12px;
+  border: 1px solid var(--ts-border);
+}
+
+.redirect-notice .icon {
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-primary-soft);
+  color: var(--ts-primary);
+  border-radius: 16px;
+}
+
+.redirect-notice p {
+  font-size: 16px;
+  color: var(--ts-text-secondary);
+  max-width: 560px;
+  margin: 0;
+  line-height: 1.7;
+}
+
+.card-description {
+  font-size: 14.5px;
+  color: var(--ts-text-secondary);
+  margin: var(--ts-spacing-xs) 0 0 0;
+  line-height: 1.6;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive Design - Enhanced */
+@media (max-width: 1024px) {
+  .tracksure-tabs__tab {
+    padding: var(--ts-spacing-sm) var(--ts-spacing-md);
+    font-size: 14px;
+  }
+
+  .device-patterns-grid {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .device-patterns-grid {
+    grid-template-columns: 1fr;
+    gap: var(--ts-spacing-md);
+  }
+
+  .pro-upgrade-banner {
+    flex-direction: column;
+    text-align: center;
+    padding: var(--ts-spacing-lg);
+  }
+
+  .pro-upgrade-banner button {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .conversion-path-cell {
+    max-width: 250px;
+  }
+
+  .path-code {
+    font-size: 11px;
+  }
+
+  .tracksure-tabs__list {
+    gap: 0;
+  }
+
+  .tracksure-tabs__tab {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
+/* Dark Theme Adjustments - Enhanced */
+[data-theme="dark"] .device-pattern-card {
+  background: linear-gradient(135deg, var(--ts-bg-secondary) 0%, rgba(31, 41, 55, 0.8) 100%);
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+[data-theme="dark"] .device-pattern-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  border-color: var(--ts-primary);
+}
+
+[data-theme="dark"] .pro-upgrade-banner {
+  background: linear-gradient(135deg, #3730A3 0%, #5B21B6 100%);
+  box-shadow: 0 10px 30px rgba(59, 48, 163, 0.4);
+}
+
+[data-theme="dark"] .attribution-model-section {
+  background: var(--ts-bg-primary);
+  border-color: rgba(75, 85, 99, 0.5);
+}
+
+[data-theme="dark"] .attribution-model-section:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="dark"] .path-code {
+  background: rgba(31, 41, 55, 0.8);
+  border-color: rgba(75, 85, 99, 0.6);
+}
+
+[data-theme="dark"] .path-code:hover {
+  background: rgba(79, 70, 229, 0.2);
+}

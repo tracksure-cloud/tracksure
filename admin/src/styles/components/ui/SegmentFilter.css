@@ -1,0 +1,73 @@
+/* ==========================================================================
+   SegmentFilter.css - Global segment selector styling
+   ========================================================================== */
+
+.ts-segment-filter {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+}
+
+.ts-segment-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ts-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0;
+}
+
+.ts-segment-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.ts-segment-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border: 1px solid transparent;
+  border-radius: var(--ts-radius-sm);
+  background: transparent;
+  color: var(--ts-text-subtle);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.ts-segment-icon {
+  font-size: 14px;
+}
+
+.ts-segment-text {
+  display: inline;
+}
+
+.ts-segment-btn:hover {
+  color: var(--ts-text);
+  background: var(--ts-surface-2);
+}
+
+.ts-segment-btn--active {
+  background: rgba(14, 165, 233, 0.1);
+  color: var(--ts-primary);
+  border-color: rgba(14, 165, 233, 0.2);
+}
+
+/* Responsive: hide text on smaller screens */
+@media (max-width: 1024px) {
+  .ts-segment-text {
+    display: none;
+  }
+  
+  .ts-segment-btn {
+    padding: 6px 10px;
+  }
+}

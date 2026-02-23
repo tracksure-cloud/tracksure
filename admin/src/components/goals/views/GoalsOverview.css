@@ -1,0 +1,398 @@
+/**
+ * Goals Overview Dashboard Styles
+ * 
+ * Theme-aware styling for the goals dashboard with:
+ * - KPI cards grid
+ * - Chart visualization
+ * - Top goals list
+ * - Dark/light theme support
+ * - Responsive design
+ * 
+ * @package TrackSure
+ * @since 2.1.0
+ */
+
+/* ========================================
+   Overview Container
+   ======================================== */
+.ts-goals-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-lg);
+}
+
+/* ========================================
+   KPIs Row
+   ======================================== */
+.ts-goals-overview__kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--ts-spacing-md);
+}
+
+/* ========================================
+   Chart Card
+   ======================================== */
+.ts-goals-overview__chart {
+  margin-top: var(--ts-spacing-md);
+}
+
+/* ========================================
+   Premium Chart Container
+   ======================================== */
+.ts-simple-chart {
+  position: relative;
+  padding: var(--ts-spacing-lg) var(--ts-spacing-md) var(--ts-spacing-md);
+}
+
+/* Chart Grid Lines - Background Reference */
+.ts-simple-chart::before {
+  content: '';
+  position: absolute;
+  top: var(--ts-spacing-lg);
+  left: var(--ts-spacing-md);
+  right: var(--ts-spacing-md);
+  height: 280px;
+  background-image: 
+    linear-gradient(to bottom, var(--ts-border-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ts-border-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ts-border-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--ts-border-color) 1px, transparent 1px);
+  background-size: 100% 25%, 100% 25%, 100% 25%, 100% 25%;
+  background-position: 0 0, 0 25%, 0 50%, 0 75%;
+  background-repeat: no-repeat;
+  opacity: 0.3;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ts-simple-chart__bars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  height: 280px;
+  gap: 12px;
+  padding: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.ts-simple-chart__bar-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  height: 100%;
+  justify-content: flex-end;
+  animation: fadeInUp 0.4s ease-out backwards;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animation for each bar */
+.ts-simple-chart__bar-wrapper:nth-child(1) { animation-delay: 0.05s; }
+.ts-simple-chart__bar-wrapper:nth-child(2) { animation-delay: 0.1s; }
+.ts-simple-chart__bar-wrapper:nth-child(3) { animation-delay: 0.15s; }
+.ts-simple-chart__bar-wrapper:nth-child(4) { animation-delay: 0.2s; }
+.ts-simple-chart__bar-wrapper:nth-child(5) { animation-delay: 0.25s; }
+.ts-simple-chart__bar-wrapper:nth-child(6) { animation-delay: 0.3s; }
+.ts-simple-chart__bar-wrapper:nth-child(7) { animation-delay: 0.35s; }
+
+.ts-simple-chart__bar {
+  width: 100%;
+  min-height: 20px;
+  background: linear-gradient(
+    180deg, 
+    rgba(37, 99, 235, 0.9) 0%,
+    rgba(37, 99, 235, 1) 50%,
+    rgba(29, 78, 216, 1) 100%
+  );
+  border-radius: var(--ts-radius-md) var(--ts-radius-md) 0 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 8px;
+  cursor: pointer;
+  box-shadow: 
+    0 -2px 8px rgba(37, 99, 235, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.ts-simple-chart__bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: var(--ts-radius-md) var(--ts-radius-md) 0 0;
+}
+
+.ts-simple-chart__bar:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(16, 185, 129, 0.9) 0%,
+    rgba(16, 185, 129, 1) 50%,
+    rgba(5, 150, 105, 1) 100%
+  );
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 
+    0 -4px 16px rgba(16, 185, 129, 0.3),
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  z-index: 2;
+}
+
+[data-theme="dark"] .ts-simple-chart__bar {
+  background: linear-gradient(
+    180deg,
+    rgba(96, 165, 250, 0.8) 0%,
+    rgba(59, 130, 246, 0.9) 50%,
+    rgba(37, 99, 235, 1) 100%
+  );
+  box-shadow: 
+    0 -2px 12px rgba(96, 165, 250, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+[data-theme="dark"] .ts-simple-chart__bar:hover {
+  background: linear-gradient(
+    180deg,
+    rgba(52, 211, 153, 0.8) 0%,
+    rgba(16, 185, 129, 0.9) 50%,
+    rgba(5, 150, 105, 1) 100%
+  );
+  box-shadow: 
+    0 -4px 20px rgba(52, 211, 153, 0.4),
+    0 4px 16px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.ts-simple-chart__bar-value {
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  opacity: 0.9;
+  transition: all 0.2s ease;
+  line-height: 1;
+}
+
+.ts-simple-chart__bar:hover .ts-simple-chart__bar-value {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.ts-simple-chart__bar-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--ts-text-secondary);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  transition: color 0.2s ease;
+}
+
+.ts-simple-chart__bar-wrapper:hover .ts-simple-chart__bar-label {
+  color: var(--ts-text-primary);
+  font-weight: 600;
+}
+
+/* ========================================
+   Top Goals List
+   ======================================== */
+.ts-goals-overview__top-goals {
+  margin-top: var(--ts-spacing-md);
+}
+
+.ts-top-goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-top-goal {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-md);
+  background: var(--ts-bg);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  transition: all 0.2s ease;
+}
+
+.ts-top-goal:hover {
+  background: var(--ts-surface-hover);
+  border-color: var(--ts-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .ts-top-goal {
+  background: var(--ts-surface-dark);
+}
+
+[data-theme="dark"] .ts-top-goal:hover {
+  background: var(--ts-surface-hover-dark);
+}
+
+.ts-top-goal__rank {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--ts-primary);
+  color: var(--ts-surface);
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ts-top-goal__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.ts-top-goal__name {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ts-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ts-top-goal__type {
+  font-size: 13px;
+  color: var(--ts-text-muted);
+  text-transform: capitalize;
+}
+
+.ts-top-goal__metrics {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+  flex-shrink: 0;
+}
+
+.ts-top-goal__conversions,
+.ts-top-goal__value {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ts-text);
+}
+
+.ts-top-goal__conversions {
+  color: var(--ts-success);
+}
+
+.ts-top-goal__value {
+  color: var(--ts-primary);
+}
+
+/* ========================================
+   Empty State
+   ======================================== */
+.ts-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ts-spacing-xl) var(--ts-spacing-lg);
+  text-align: center;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-empty-state h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0;
+}
+
+.ts-empty-state p {
+  font-size: 14px;
+  color: var(--ts-text-muted);
+  margin: 0;
+  max-width: 400px;
+}
+
+.ts-empty-state--error {
+  color: var(--ts-error);
+}
+
+.ts-empty-state--error h3 {
+  color: var(--ts-error);
+}
+
+/* ========================================
+   Responsive Design
+   ======================================== */
+@media (max-width: 768px) {
+  .ts-goals-overview__kpis {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+
+  .ts-simple-chart::before {
+    height: 200px;
+  }
+
+  .ts-simple-chart__bars {
+    height: 200px;
+  }
+
+  .ts-simple-chart__bar-label {
+    font-size: 10px;
+  }
+
+  .ts-top-goal {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ts-spacing-sm);
+  }
+
+  .ts-top-goal__metrics {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
+
+/* ========================================
+   Accessibility
+   ======================================== */
+@media (prefers-reduced-motion: reduce) {
+  .ts-simple-chart__bar,
+  .ts-top-goal {
+    transition: none;
+  }
+}
+
+@media (prefers-contrast: high) {
+  .ts-simple-chart__bar {
+    border: 2px solid currentColor;
+  }
+
+  .ts-top-goal {
+    border-width: 2px;
+  }
+}

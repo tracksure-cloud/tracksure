@@ -1,0 +1,64 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Source code
+*.php text eol=lf
+*.js text eol=lf
+*.ts text eol=lf
+*.tsx text eol=lf
+*.json text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.xml text eol=lf
+
+# Documentation
+*.md text eol=lf
+*.txt text eol=lf
+
+# Archives
+*.zip binary
+*.tar.gz binary
+
+# Images
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg text eol=lf
+
+# Fonts
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+
+# Exclude files from export (GitHub releases and zip downloads)
+/.github export-ignore
+/.vscode export-ignore
+/.wordpress-org export-ignore
+/node_modules export-ignore
+/admin/node_modules export-ignore
+/admin/src export-ignore
+/tests export-ignore
+/docs export-ignore
+/vendor export-ignore
+/scripts export-ignore
+/build export-ignore
+/.gitignore export-ignore
+/.gitattributes export-ignore
+/.svnignore export-ignore
+/.eslintrc.js export-ignore
+/.stylelintrc.json export-ignore
+/phpcs.xml export-ignore
+/.phpcs.xml.dist export-ignore
+/composer.json export-ignore
+/composer.lock export-ignore
+/package.json export-ignore
+/package-lock.json export-ignore
+/webpack.config.js export-ignore
+/tsconfig.json export-ignore
+*.map export-ignore
+CONTRIBUTING.md export-ignore
+WORDPRESS-ORG-*.md export-ignore
+issues.md export-ignore

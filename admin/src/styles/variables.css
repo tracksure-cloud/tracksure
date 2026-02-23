@@ -1,0 +1,253 @@
+/**
+ * CSS Variables - TrackSure Admin
+ * Centralized design tokens for consistent theming
+ */
+
+:root {
+  /* Primary Colors */
+  --ts-primary: #4F46E5;
+  --ts-primary-dark: #4338CA;
+  --ts-primary-light: #818CF8;
+  --ts-primary-hover: #4338CA;
+  
+  /* Success Colors */
+  --ts-success: #10B981;
+  --ts-success-dark: #059669;
+  --ts-success-light: #34D399;
+  
+  /* Warning Colors */
+  --ts-warning: #F59E0B;
+  --ts-warning-dark: #D97706;
+  --ts-warning-light: #FBBF24;
+  
+  /* Danger Colors */
+  --ts-danger: #EF4444;
+  --ts-danger-dark: #DC2626;
+  --ts-danger-light: #F87171;
+  
+  /* Neutral Colors */
+  --ts-gray-50: #F9FAFB;
+  --ts-gray-100: #F3F4F6;
+  --ts-gray-200: #E5E7EB;
+  --ts-gray-300: #D1D5DB;
+  --ts-gray-400: #9CA3AF;
+  --ts-gray-500: #6B7280;
+  --ts-gray-600: #4B5563;
+  --ts-gray-700: #374151;
+  --ts-gray-800: #1F2937;
+  --ts-gray-900: #111827;
+  
+  /* Chart Colors */
+  --ts-chart-1: #4F46E5;  /* Primary */
+  --ts-chart-2: #10B981;  /* Success */
+  --ts-chart-3: #F59E0B;  /* Warning */
+  --ts-chart-4: #EF4444;  /* Danger */
+  --ts-chart-5: #8B5CF6;  /* Purple */
+  --ts-chart-6: #EC4899;  /* Pink */
+  --ts-chart-7: #14B8A6;  /* Teal */
+  --ts-chart-8: #F97316;  /* Orange */
+  
+  /* Line Chart Colors */
+  --ts-chart-line-1: var(--ts-chart-1);
+  --ts-chart-line-2: var(--ts-chart-2);
+  --ts-chart-line-3: var(--ts-chart-3);
+  
+  /* Bar Chart Colors */
+  --ts-chart-bar-1: var(--ts-chart-1);
+  --ts-chart-bar-2: var(--ts-chart-2);
+  --ts-chart-bar-3: var(--ts-chart-3);
+  
+  /* Pie Chart Colors */
+  --ts-chart-pie-1: var(--ts-chart-1);
+  --ts-chart-pie-2: var(--ts-chart-2);
+  --ts-chart-pie-3: var(--ts-chart-3);
+  --ts-chart-pie-4: var(--ts-chart-4);
+  --ts-chart-pie-5: var(--ts-chart-5);
+  
+  /* Typography */
+  --ts-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --ts-font-mono: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, monospace;
+  
+  /* Font Sizes */
+  --ts-text-xs: 0.75rem;
+  --ts-text-sm: 0.875rem;
+  --ts-text-base: 1rem;
+  --ts-text-lg: 1.125rem;
+  --ts-text-xl: 1.25rem;
+  --ts-text-2xl: 1.5rem;
+  --ts-text-3xl: 1.875rem;
+  --ts-text-4xl: 2.25rem;
+  
+  /* Spacing */
+  --ts-space-1: 0.25rem;
+  --ts-space-2: 0.5rem;
+  --ts-space-3: 0.75rem;
+  --ts-space-4: 1rem;
+  --ts-space-5: 1.25rem;
+  --ts-space-6: 1.5rem;
+  --ts-space-8: 2rem;
+  --ts-space-10: 2.5rem;
+  --ts-space-12: 3rem;
+  --ts-space-16: 4rem;
+  
+  /* Border Radius */
+  --ts-radius-sm: 0.25rem;
+  --ts-radius-md: 0.375rem;
+  --ts-radius-lg: 0.5rem;
+  --ts-radius-xl: 0.75rem;
+  --ts-radius-2xl: 1rem;
+  --ts-radius-full: 9999px;
+  
+  /* Shadows */
+  --ts-shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --ts-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --ts-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --ts-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  
+  /* Z-Index */
+  --ts-z-dropdown: 1000;
+  --ts-z-sticky: 1020;
+  --ts-z-fixed: 1030;
+  --ts-z-modal-backdrop: 1040;
+  --ts-z-modal: 1050;
+  --ts-z-popover: 1060;
+  --ts-z-tooltip: 1070;
+}
+
+/* Dark Theme */
+[data-theme="dark"] {
+  /* Background Colors */
+  --ts-bg-primary: #111827;
+  --ts-bg-secondary: #1F2937;
+  --ts-bg-tertiary: #374151;
+  
+  /* Text Colors */
+  --ts-text-primary: #F9FAFB;
+  --ts-text-secondary: #D1D5DB;
+  --ts-text-tertiary: #9CA3AF;
+  
+  /* Border Colors */
+  --ts-border-color: #374151;
+  --ts-border-color-hover: #4B5563;
+  
+  /* Primary Colors (adjusted for dark mode) */
+  --ts-primary: #6366F1;
+  --ts-primary-hover: #7C3AED;
+  --ts-primary-dark: #4F46E5;
+  --ts-primary-light: #A5B4FC;
+  
+  /* Success Colors */
+  --ts-success: #34D399;
+  --ts-success-dark: #10B981;
+  --ts-success-light: #6EE7B7;
+  
+  /* Warning Colors */
+  --ts-warning: #FBBF24;
+  --ts-warning-dark: #F59E0B;
+  --ts-warning-light: #FCD34D;
+  
+  /* Danger Colors */
+  --ts-danger: #F87171;
+  --ts-danger-dark: #EF4444;
+  --ts-danger-light: #FCA5A5;
+  
+  /* Chart Colors (adjusted for dark backgrounds) */
+  --ts-chart-1: #6366F1;
+  --ts-chart-2: #34D399;
+  --ts-chart-3: #FBBF24;
+  --ts-chart-4: #F87171;
+  --ts-chart-5: #A78BFA;
+  --ts-chart-6: #F472B6;
+  --ts-chart-7: #2DD4BF;
+  --ts-chart-8: #FB923C;
+  
+  /* Soft backgrounds (dark mode) */
+  --ts-primary-soft: rgba(99, 102, 241, 0.15);
+  --ts-success-soft: rgba(52, 211, 153, 0.15);
+  --ts-warning-soft: rgba(251, 191, 36, 0.15);
+  --ts-danger-soft: rgba(248, 113, 113, 0.15);
+  
+  /* Additional UI Tokens */
+  --ts-surface: var(--ts-bg-primary);
+  --ts-surface-hover: var(--ts-bg-secondary);
+  --ts-text: var(--ts-text-primary);
+  --ts-border: var(--ts-border-color);
+  --ts-border-hover: var(--ts-border-color-hover);
+  
+  /* Success Backgrounds (Dark) */
+  --ts-success-bg: rgba(16, 185, 129, 0.1);
+  --ts-success-border: rgba(16, 185, 129, 0.3);
+  --ts-success-text: var(--ts-success-light);
+  
+  /* Warning Backgrounds (Dark) */
+  --ts-warning-bg: rgba(245, 158, 11, 0.1);
+  --ts-warning-border: rgba(245, 158, 11, 0.3);
+  --ts-warning-text: var(--ts-warning-light);
+  
+  /* Primary Backgrounds (Dark) */
+  --ts-primary-bg: rgba(79, 70, 229, 0.1);
+  --ts-primary-border: rgba(79, 70, 229, 0.3);
+  --ts-primary-text: var(--ts-primary-light);
+}
+
+/* Light Theme (default) */
+[data-theme="light"],
+:root {
+  /* Background Colors */
+  --ts-bg-primary: #FFFFFF;
+  --ts-bg-secondary: #F9FAFB;
+  --ts-bg-tertiary: #F3F4F6;
+  
+  /* Text Colors */
+  --ts-text-primary: #111827;
+  --ts-text-secondary: #4B5563;
+  --ts-text-tertiary: #6B7280;
+  
+  /* Border Colors */
+  --ts-border-color: #E5E7EB;
+  --ts-border-color-hover: #D1D5DB;
+  
+  /* Success Soft Background */
+  --ts-success-soft: rgba(16, 185, 129, 0.12);
+  
+  /* Warning Soft Background */
+  --ts-warning-soft: rgba(245, 158, 11, 0.14);
+  
+  /* Danger Soft Background */
+  --ts-danger-soft: rgba(239, 68, 68, 0.12);
+  
+  /* Primary Soft Background */
+  --ts-primary-soft: rgba(79, 70, 229, 0.12);
+  
+  /* Additional UI Tokens */
+  --ts-surface: var(--ts-bg-primary);
+  --ts-surface-hover: var(--ts-bg-secondary);
+  --ts-text: var(--ts-text-primary);
+  --ts-border: var(--ts-border-color);
+  --ts-border-hover: var(--ts-border-color-hover);
+  
+  /* Success Backgrounds */
+  --ts-success-bg: #F0FDF4;
+  --ts-success-border: #86EFAC;
+  --ts-success-text: #166534;
+  
+  /* Warning Backgrounds */
+  --ts-warning-bg: #FFFBEB;
+  --ts-warning-border: #FCD34D;
+  --ts-warning-text: #92400E;
+  
+  /* Primary Backgrounds */
+  --ts-primary-bg: #EEF2FF;
+  --ts-primary-border: #C7D2FE;
+  --ts-primary-text: #3730A3;
+  
+  /* Spacing Aliases */
+  --ts-spacing-xs: var(--ts-space-1);
+  --ts-spacing-sm: var(--ts-space-2);
+  --ts-spacing-md: var(--ts-space-4);
+  --ts-spacing-lg: var(--ts-space-6);
+  --ts-spacing-xl: var(--ts-space-8);
+  
+  /* Transitions */
+  --ts-base: 0.2s ease;
+}

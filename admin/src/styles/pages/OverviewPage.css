@@ -1,0 +1,902 @@
+.ts-page {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.ts-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+.ts-page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--ts-text);
+  margin-bottom: var(--ts-spacing-xs);
+}
+
+.ts-page-description {
+  font-size: 15px;
+  color: var(--ts-text-muted);
+}
+
+.ts-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+/* Hero Metrics - Large, Prominent Cards */
+.ts-hero-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--ts-spacing-xl);
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+/* Detailed Metrics Section */
+.ts-detailed-metrics-section {
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+.ts-section-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: var(--ts-spacing-md);
+  padding-bottom: var(--ts-spacing-xs);
+  border-bottom: 2px solid var(--ts-border);
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+}
+
+.ts-section-title::before {
+  content: '';
+  width: 4px;
+  height: 20px;
+  background: var(--ts-primary);
+  border-radius: 2px;
+}
+
+/* Detailed Metrics Grid - Smaller Cards */
+.ts-detailed-metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--ts-spacing-md);
+}
+
+
+.ts-empty-state {
+  background: var(--ts-surface);
+  border: 2px dashed var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: var(--ts-spacing-xl);
+  text-align: center;
+  margin-top: var(--ts-spacing-xl);
+}
+
+.ts-empty-icon {
+  font-size: 48px;
+  margin-bottom: var(--ts-spacing-md);
+}
+
+.ts-empty-state h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: var(--ts-spacing-sm);
+}
+
+.ts-empty-state p {
+  font-size: 14px;
+  color: var(--ts-text-muted);
+}
+
+/* Chart Section */
+.ts-chart-section {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: var(--ts-spacing-xl);
+  margin-bottom: var(--ts-spacing-xl);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05), 0 10px 15px -5px rgba(0, 0, 0, 0.03);
+  transition: box-shadow 0.3s ease;
+}
+
+.ts-chart-section:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 15px 25px -5px rgba(0, 0, 0, 0.08);
+}
+
+.ts-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--ts-spacing-lg);
+  flex-wrap: wrap;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-chart-header h2 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+}
+
+.ts-metric-toggle {
+  display: inline-flex;
+  gap: 6px;
+  background: var(--ts-bg-secondary);
+  border-radius: var(--ts-radius-md);
+  padding: 4px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.ts-metric-toggle button {
+  position: relative;
+  padding: 8px 16px;
+  border: none;
+  background: transparent;
+  color: var(--ts-text-muted);
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--ts-radius-sm);
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.ts-metric-toggle button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: var(--ts-radius-sm);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.ts-metric-toggle button:hover {
+  background: var(--ts-surface);
+  color: var(--ts-text);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.ts-metric-toggle button:hover::before {
+  opacity: 1;
+}
+
+.ts-metric-toggle button.ts-active {
+  background: var(--ts-primary);
+  color: #ffffff!important;
+  box-shadow: 0 2px 8px rgba(79, 70, 229, 0.25);
+  font-weight: 600;
+}
+
+.ts-metric-toggle button.ts-active::after {
+  content: '';
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  background: white;
+  border-radius: 2px;
+  opacity: 0.8;
+}
+
+.ts-chart-container {
+  width: 100%;
+  margin-top: var(--ts-spacing-lg);
+  position: relative;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Overview Grid (3 columns) */
+.ts-overview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: var(--ts-spacing-lg);
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+.ts-overview-card {
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  padding: var(--ts-spacing-lg);
+}
+
+.ts-overview-card h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: var(--ts-spacing-md);
+}
+
+.ts-table-container {
+  overflow-x: auto;
+}
+
+.ts-simple-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ts-simple-table thead th {
+  text-align: left;
+  padding: var(--ts-spacing-sm) var(--ts-spacing-xs);
+  font-weight: 600;
+  color: var(--ts-text-muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--ts-border);
+}
+
+.ts-simple-table tbody td {
+  padding: var(--ts-spacing-sm) var(--ts-spacing-xs);
+  border-bottom: 1px solid var(--ts-border);
+  color: var(--ts-text);
+}
+
+.ts-simple-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+
+
+.ts-overview-card--no-hover:hover {
+  transform: none;
+  box-shadow: var(--ts-shadow-sm);
+}
+
+/* Table cell page title - renamed to avoid conflict with global .ts-page-title */
+.ts-page-title-cell {
+  color: var(--ts-text) !important;
+  font-weight: 400 !important;
+  font-size: var(--ts-text-sm) !important;
+  letter-spacing: normal !important;
+  line-height: 1.5 !important;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ts-page-path {
+  font-family: 'Courier New', monospace;
+  font-size: 12px;
+  color: var(--ts-text-muted);
+}
+
+.ts-device-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--ts-text-sm);
+  color: var(--ts-text);
+}
+
+.ts-country-cell {
+  font-size: var(--ts-text-sm);
+  color: var(--ts-text);
+}
+
+/* Pagination */
+.ts-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-md);
+  border-top: 1px solid var(--ts-border);
+  margin-top: var(--ts-spacing-sm);
+}
+
+.ts-pagination-info {
+  font-size: var(--ts-text-sm);
+  color: var(--ts-text-muted);
+  font-weight: 500;
+  min-width: 100px;
+  text-align: center;
+}
+
+.ts-btn-sm {
+  padding: 6px 12px;
+  font-size: var(--ts-text-sm);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ts-btn-sm:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.ts-source-name {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+}
+
+.ts-source-icon {
+  font-size: 16px;
+}
+
+.ts-source-medium {
+  color: var(--ts-text-muted);
+  font-size: 12px;
+}
+
+.ts-positive {
+  color: var(--ts-success);
+  font-weight: 500;
+}
+
+.ts-negative {
+  color: var(--ts-danger);
+  font-weight: 500;
+}
+
+/* Device Chart */
+.ts-device-chart {
+  margin-bottom: var(--ts-spacing-lg);
+  padding: var(--ts-spacing-md) 0;
+}
+
+.ts-device-legend {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-xs);
+  padding: var(--ts-spacing-md);
+  background: var(--ts-bg-secondary);
+  border-radius: var(--ts-radius-md);
+  border: 1px solid var(--ts-border);
+}
+
+.ts-device-item {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  padding: var(--ts-spacing-sm);
+  border-radius: var(--ts-radius-sm);
+  transition: all 0.2s ease;
+  cursor: default;
+}
+
+.ts-device-item:hover {
+  background: var(--ts-bg-tertiary);
+  transform: translateX(4px);
+}
+
+.ts-device-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+  border: 2px solid var(--ts-surface);
+}
+
+.ts-device-item:hover .ts-device-dot {
+  transform: scale(1.2);
+}
+
+.ts-device-label {
+  flex: 1;
+  color: var(--ts-text);
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.ts-device-stats {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-device-value {
+  font-weight: 600;
+  color: var(--ts-text);
+  font-size: 14px;
+  min-width: 50px;
+  text-align: right;
+}
+
+.ts-overview-card .ts-device-legend .ts-device-percentage {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 8px;
+  background: var(--ts-primary-soft);
+  color: var(--ts-primary);
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: var(--ts-radius-full);
+  min-width: 45px;
+}
+
+/* Card header enhancement */
+.ts-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: var(--ts-spacing-md);
+}
+
+.ts-card-header h3 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-xs);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ts-text);
+}
+
+.ts-card-subtitle {
+  font-size: 13px;
+  color: var(--ts-text-muted);
+  margin-left: 26px;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+  .ts-page {
+    max-width: 100%;
+  }
+
+  .ts-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--ts-spacing-md);
+    margin-bottom: var(--ts-spacing-lg);
+  }
+
+  .ts-page-title {
+    font-size: 22px;
+  }
+
+  .ts-page-description {
+    font-size: 14px;
+  }
+
+  .ts-kpi-grid,
+  .ts-hero-metrics-grid,
+  .ts-detailed-metrics-grid {
+    grid-template-columns: 1fr;
+    gap: var(--ts-spacing-md);
+    margin-bottom: var(--ts-spacing-lg);
+  }
+
+  .ts-hero-metrics-grid {
+    gap: var(--ts-spacing-lg);
+  }
+
+  .ts-empty-state {
+    padding: var(--ts-spacing-lg);
+  }
+
+  .ts-empty-icon {
+    font-size: 36px;
+  }
+
+  .ts-empty-state h2 {
+    font-size: 16px;
+  }
+
+  .ts-empty-state p {
+    font-size: 13px;
+  }
+
+  .ts-chart-section {
+    padding: var(--ts-spacing-lg);
+  }
+
+  .ts-chart-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ts-metric-toggle {
+    width: 100%;
+  }
+
+  .ts-metric-toggle button {
+    flex: 1;
+    padding: 8px 12px;
+  }
+
+  .ts-overview-grid {
+    grid-template-columns: 1fr;
+    gap: var(--ts-spacing-md);
+  }
+
+  .ts-overview-card {
+    padding: var(--ts-spacing-md);
+  }
+
+  .ts-simple-table {
+    font-size: 12px;
+  }
+
+  .ts-simple-table thead th {
+    font-size: 11px;
+  }
+}
+
+/* Mobile Landscape (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .ts-page-title {
+    font-size: 24px;
+  }
+
+  .ts-kpi-grid,
+  .ts-hero-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ts-detailed-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ts-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tablet Portrait (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .ts-page {
+    max-width: 100%;
+  }
+
+  .ts-page-title {
+    font-size: 26px;
+  }
+
+  .ts-kpi-grid,
+  .ts-hero-metrics-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .ts-detailed-metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .ts-overview-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Tablet Landscape (1025px - 1279px) */
+@media (min-width: 1025px) and (max-width: 1279px) {
+  .ts-page {
+    max-width: 100%;
+  }
+
+  .ts-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+/* Laptop (1280px - 1439px) */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .ts-page {
+    max-width: 1300px;
+  }
+
+  .ts-page-title {
+    font-size: 30px;
+  }
+
+  .ts-page-description {
+    font-size: 16px;
+  }
+
+  .ts-kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .ts-hero-metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .ts-detailed-metrics-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Desktop (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .ts-page {
+    max-width: 1380px;
+  }
+
+  .ts-page-title {
+    font-size: 32px;
+  }
+
+  .ts-page-description {
+    font-size: 16px;
+  }
+
+  .ts-kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Large Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .ts-page {
+    max-width: 1440px;
+  }
+
+  .ts-page-title {
+    font-size: 34px;
+  }
+
+  .ts-page-description {
+    font-size: 17px;
+  }
+
+  .ts-kpi-grid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 28px;
+  }
+
+  .ts-empty-icon {
+    font-size: 56px;
+  }
+
+  .ts-empty-state h2 {
+    font-size: 20px;
+  }
+
+  .ts-empty-state p {
+    font-size: 15px;
+  }
+}
+/* Content tabs for Top Pages section */
+.ts-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.ts-card-header h3 {
+  margin: 0;
+}
+
+.ts-content-tabs {
+  display: flex;
+  gap: 4px;
+  background: var(--ts-surface-2);
+  border-radius: var(--ts-radius-sm);
+  padding: 2px;
+}
+
+.ts-tab-btn {
+  padding: 6px 14px;
+  border: 1px solid transparent;
+  border-radius: var(--ts-radius-sm);
+  background: transparent;
+  color: var(--ts-text-subtle);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.ts-tab-btn:hover {
+  color: var(--ts-text);
+  background: rgba(14, 165, 233, 0.08);
+}
+
+.ts-tab-btn--active {
+  background: var(--ts-surface);
+  color: var(--ts-primary);
+  border-color: var(--ts-border);
+  box-shadow: var(--ts-shadow-sm);
+}
+
+.ts-conv-rate {
+  color: var(--ts-text-subtle);
+}
+
+/* ============================================================================
+   MICRO-INTERACTIONS & POLISH
+   ============================================================================ */
+
+/* Smooth fade-in for KPI grid */
+.ts-kpi-grid {
+  animation: fadeInGrid 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fadeInGrid {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Staggered animation for KPI cards */
+.ts-kpi-card:nth-child(1) { animation-delay: 0ms; }
+.ts-kpi-card:nth-child(2) { animation-delay: 50ms; }
+.ts-kpi-card:nth-child(3) { animation-delay: 100ms; }
+.ts-kpi-card:nth-child(4) { animation-delay: 150ms; }
+.ts-kpi-card:nth-child(5) { animation-delay: 200ms; }
+.ts-kpi-card:nth-child(6) { animation-delay: 250ms; }
+.ts-kpi-card:nth-child(7) { animation-delay: 300ms; }
+.ts-kpi-card:nth-child(8) { animation-delay: 350ms; }
+
+/* Tooltip enhancement for tables */
+.ts-simple-table tbody tr {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ts-simple-table tbody tr:hover {
+  background: var(--ts-bg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Chart section enhancement */
+.ts-chart-section {
+  animation: slideUpFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+@keyframes slideUpFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Metric toggle button pulse on active */
+.ts-metric-toggle button.ts-active {
+  animation: pulse 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Overview card fade-in */
+.ts-overview-card {
+  animation: cardFadeIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  animation-fill-mode: both;
+}
+
+.ts-overview-card:nth-child(1) { animation-delay: 0.3s; }
+.ts-overview-card:nth-child(2) { animation-delay: 0.4s; }
+.ts-overview-card:nth-child(3) { animation-delay: 0.5s; }
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Loading shimmer effect */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
+  }
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
+/* Premium glow effect on hover for primary elements */
+.ts-chart-section::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg, var(--ts-chart-1), var(--ts-chart-2), var(--ts-chart-3));
+  border-radius: var(--ts-radius-lg);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+  filter: blur(10px);
+}
+
+.ts-chart-section:hover::after {
+  opacity: 0.15;
+}
+
+/* Premium focus states */
+.ts-metric-toggle button:focus-visible {
+  outline: 2px solid var(--ts-primary);
+  outline-offset: 2px;
+}
+
+.ts-tab-btn:focus-visible {
+  outline: 2px solid var(--ts-primary);
+  outline-offset: 2px;
+}
+
+/* Smooth page transitions */
+.ts-page {
+  animation: pageLoad 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pageLoad {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Print optimizations */
+@media print {
+  .ts-metric-toggle,
+  .ts-content-tabs,
+  .ts-chart-section:hover::before,
+  .ts-chart-section:hover::after {
+    display: none !important;
+  }
+  
+  .ts-kpi-card,
+  .ts-chart-section,
+  .ts-overview-card {
+    box-shadow: none !important;
+    break-inside: avoid;
+  }
+}

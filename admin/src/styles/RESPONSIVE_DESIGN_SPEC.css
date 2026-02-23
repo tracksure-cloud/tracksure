@@ -1,0 +1,368 @@
+/**
+ * TrackSure Responsive Design System - Laptop-First Approach
+ * 
+ * Strategy: Optimized for WordPress Admin Usage Patterns
+ * - Base styles target laptop screens (1280px-1440px) - PRIMARY USE CASE
+ * - Scale UP with min-width queries for desktop/large desktop
+ * - Scale DOWN with max-width queries for tablet/mobile
+ * 
+ * Why Laptop-First for WordPress Admin:
+ * ✓ 70%+ of WordPress admin users access from laptops
+ * ✓ Admin panels are data-intensive (tables, charts, dashboards)
+ * ✓ Laptop optimization provides better baseline UX
+ * ✓ Mobile is secondary (quick checks, not primary workflow)
+ * ✓ Desktop gets enhancements, not compromises
+ */
+
+/* ============================================================================
+   BREAKPOINT SPECIFICATIONS
+   ============================================================================ */
+
+/**
+ * BASE (Laptop): 1280px - 1439px [DEFAULT - NO MEDIA QUERY]
+ * 
+ * Primary Target: Laptop users (MacBook Air/Pro 13", Dell XPS, ThinkPad, etc.)
+ * Usage: 70% of WordPress admin traffic
+ * 
+ * Design Guidelines:
+ * - Grid: 4 columns for summary cards (8 cards = 2 rows)
+ * - Font Size: 16px base, 14-15px for tables
+ * - Spacing: 24px gaps, 32px padding
+ * - Touch Targets: 36px minimum (mouse-optimized)
+ * - Tables: Full width, 6-8 visible columns
+ * - Sidebar: Always visible, 280px width
+ * - Charts: Optimal size for data density
+ * 
+ * Viewport Examples:
+ * - MacBook Air 13" (1280×800)
+ * - MacBook Pro 13" (1440×900 scaled to 1280×800)
+ * - Dell XPS 13 (1366×768)
+ * - Common laptop displays
+ * 
+ * NO MEDIA QUERY - These are the base styles
+ */
+
+/**
+ * Desktop: 1440px - 1919px
+ * 
+ * Target: Desktop monitors, larger laptops
+ * Usage: 20% of WordPress admin traffic
+ * 
+ * Design Guidelines:
+ * - Grid: Same 4 columns, enhanced spacing
+ * - Font Size: 16-17px base, 15px for tables
+ * - Spacing: 32px gaps, 40px padding
+ * - Touch Targets: 36px (mouse-optimized)
+ * - Tables: More horizontal space, comfortable reading
+ * - Enhanced: More whitespace, larger icons
+ * 
+ * Viewport Examples:
+ * - 24" monitors (1920×1080 scaled)
+ * - 27" iMac (1440p scaled)
+ * - MacBook Pro 15" (1440×900)
+ * 
+ * Media Query: @media (min-width: 1440px)
+ */
+
+/**
+ * Large Desktop: 1920px+
+ * 
+ * Target: 4K monitors, ultra-wide displays
+ * Usage: 5% of WordPress admin traffic
+ * 
+ * Design Guidelines:
+ * - Container: Max-width 1600px, centered
+ * - Grid: Same 4 columns within container
+ * - Font Size: 18px base, 16px for tables (better readability on large displays)
+ * - Spacing: 40px gaps, 48px padding
+ * - Tables: Comfortable column widths
+ * - Charts: Larger, more detailed
+ * 
+ * Viewport Examples:
+ * - 27" 4K monitors (3840×2160)
+ * - 32" ultra-wide (3440×1440)
+ * - Apple Studio Display (5120×2880 scaled)
+ * 
+ * Media Query: @media (min-width: 1920px)
+ */
+
+/**
+ * Tablet Landscape: 1024px - 1279px [SCALE DOWN]
+ * 
+ * Target: iPad Pro, Surface Pro, large tablets
+ * Usage: 3% of WordPress admin traffic
+ * 
+ * Design Guidelines:
+ * - Grid: 2 columns for summary cards (8 cards = 4 rows)
+ * - Font Size: 15px base, 14px for tables
+ * - Spacing: 20px gaps, 24px padding
+ * - Touch Targets: 40px minimum (hybrid touch/mouse)
+ * - Tables: Reduce to 5-6 columns, hide optional columns
+ * - Sidebar: Collapsible or overlay
+ * 
+ * Viewport Examples:
+ * - iPad Pro 12.9" (1366×1024)
+ * - Surface Pro (1368×912)
+ * 
+ * Media Query: @media (max-width: 1279px) and (min-width: 1024px)
+ */
+
+/**
+ * Tablet Portrait: 768px - 1023px [SCALE DOWN]
+ * 
+ * Target: iPad, Android tablets
+ * Usage: 1% of WordPress admin traffic
+ * 
+ * Design Guidelines:
+ * - Grid: 2 columns for summary cards (8 cards = 4 rows)
+ * - Font Size: 15px base, 14px for tables
+ * - Spacing: 20px gaps, 24px padding
+ * - Touch Targets: 40px minimum (touch-optimized)
+ * - Tables: Horizontal scroll, 4-5 core columns visible
+ * - Sidebar: Toggleable overlay
+ * 
+ * Viewport Examples:
+ * - iPad 10.2" (768×1024)
+ * - Small laptops (1024×768)
+ * 
+ * Media Query: @media (max-width: 1023px) and (min-width: 768px)
+ */
+
+/**
+ * Mobile Landscape: 481px - 767px [SCALE DOWN]
+ * 
+ * Target: Phones in landscape mode
+ * Usage: <1% of WordPress admin traffic
+ * 
+ * Design Guidelines:
+ * - Grid: 2 columns for summary cards
+ * - Font Size: 14px base, 13px for tables
+ * - Spacing: 16px gaps, 20px padding
+ * - Touch Targets: 44px minimum (touch-optimized)
+ * - Tables: Horizontal scroll, 3-4 core columns
+ * - Tabs: Full text, compact icons
+ * - Sidebar: Hidden, hamburger menu
+ * 
+ * Viewport Examples:
+ * - iPhone 14 Pro landscape (852×393)
+ * - Galaxy S23 landscape (915×412)
+ * 
+ * Media Query: @media (max-width: 767px) and (min-width: 481px)
+ */
+
+/**
+ * Mobile Portrait: 320px - 480px [SCALE DOWN]
+ * 
+ * Target: Phones in portrait mode
+ * Usage: <1% of WordPress admin traffic
+ * 
+ * Design Guidelines:
+ * - Grid: 1 column for summary cards (8 cards = 8 rows)
+ * - Font Size: 14px base, 13px for tables
+ * - Spacing: 16px gaps, 16px padding
+ * - Touch Targets: 44px minimum (touch-optimized)
+ * - Tables: Horizontal scroll, 2-3 core columns
+ * - Tabs: Icon-only to save space
+ * - Hide: Non-essential features, secondary metrics
+ * - Sidebar: Hidden, hamburger menu
+ * 
+ * Viewport Examples:
+ * - iPhone SE (375×667)
+ * - iPhone 14 (390×844)
+ * - Galaxy S23 (360×780)
+ * 
+ * Media Query: @media (max-width: 480px)
+ */
+
+/* ============================================================================
+   IMPLEMENTATION GUIDELINES (Laptop-First)
+   ============================================================================ */
+
+/**
+ * Order of Media Queries (Laptop-First):
+ * 
+ * 1. Base styles (laptop 1280-1440px) - NO MEDIA QUERY
+ * 2. @media (min-width: 1440px) { } // Desktop - Scale UP
+ * 3. @media (min-width: 1920px) { } // Large desktop - Scale UP
+ * 4. @media (max-width: 1279px) { } // Tablet - Scale DOWN
+ * 5. @media (max-width: 767px) { } // Mobile - Scale DOWN
+ * 6. @media (max-width: 480px) { } // Mobile portrait - Scale DOWN
+ */
+
+/**
+ * Common Responsive Patterns (Laptop-First):
+ * 
+ * Grid Systems:
+ * - Laptop (BASE): 4 columns
+ * - Desktop: 4 columns (enhanced spacing)
+ * - Tablet: 2 columns
+ * - Mobile: 1-2 columns
+ * 
+ * Font Sizes:
+ * - Laptop (BASE): 16px
+ * - Desktop: 16-17px
+ * - Large Desktop: 18px
+ * - Tablet: 15px
+ * - Mobile: 14px
+ * 
+ * Spacing:
+ * - Laptop (BASE): 24-32px
+ * - Desktop: 32-40px
+ * - Large Desktop: 40-48px
+ * - Tablet: 20-24px
+ * - Mobile: 16px
+ * 
+ * Touch Targets:
+ * - Laptop (BASE): 36px (mouse)
+ * - Desktop: 36px (mouse)
+ * - Tablet: 40px (hybrid)
+ * - Mobile: 44px (touch)
+ */
+
+/**
+ * Typography Scale by Device:
+ * 
+ * Laptop (BASE) - 1280-1439px:
+ * - Page Title: 24px
+ * - Section Heading: 18px
+ * - Body Text: 16px
+ * - Table Text: 14-15px
+ * - Small Text: 13px
+ * 
+ * Desktop - 1440-1919px:
+ * - Page Title: 28px
+ * - Section Heading: 20px
+ * - Body Text: 16-17px
+ * - Table Text: 15px
+ * - Small Text: 13px
+ * 
+ * Large Desktop - 1920px+:
+ * - Page Title: 32px
+ * - Section Heading: 24px
+ * - Body Text: 18px
+ * - Table Text: 16px
+ * - Small Text: 14px
+ * 
+ * Tablet - 768-1279px:
+ * - Page Title: 22px
+ * - Section Heading: 17px
+ * - Body Text: 15px
+ * - Table Text: 14px
+ * - Small Text: 12px
+ * 
+ * Mobile - <768px:
+ * - Page Title: 20px
+ * - Section Heading: 16px
+ * - Body Text: 14px
+ * - Table Text: 13px
+ * - Small Text: 12px
+ */
+
+/* ============================================================================
+   EXAMPLE IMPLEMENTATION (Laptop-First)
+   ============================================================================ */
+
+/**
+ * .example-component {
+ *   // Base styles (laptop 1280-1440px) - NO MEDIA QUERY
+ *   padding: 32px;
+ *   font-size: 16px;
+ *   grid-template-columns: repeat(4, 1fr);
+ * 
+ *   // Desktop (1440px+) - Scale UP
+ *   @media (min-width: 1440px) {
+ *     padding: 40px;
+ *     font-size: 17px;
+ *   }
+ * 
+ *   // Large desktop (1920px+) - Scale UP
+ *   @media (min-width: 1920px) {
+ *     max-width: 1600px;
+ *     margin: 0 auto;
+ *     padding: 48px;
+ *     font-size: 18px;
+ *   }
+ * 
+ *   // Tablet (max 1279px) - Scale DOWN
+ *   @media (max-width: 1279px) {
+ *     padding: 24px;
+ *     font-size: 15px;
+ *     grid-template-columns: repeat(2, 1fr);
+ *   }
+ * 
+ *   // Mobile (max 767px) - Scale DOWN
+ *   @media (max-width: 767px) {
+ *     padding: 16px;
+ *     font-size: 14px;
+ *     grid-template-columns: 1fr;
+ *   }
+ * }
+ */
+
+/* ============================================================================
+   THEME SUPPORT
+   ============================================================================ */
+
+/**
+ * Dark/Light Theme Compatibility
+ * 
+ * All responsive styles must support both themes using CSS variables:
+ * 
+ * Colors (theme-aware):
+ * - --ts-bg-primary: Background (white in light, dark in dark)
+ * - --ts-text-primary: Text (dark in light, light in dark)
+ * - --ts-border-color: Borders (gray-200 in light, gray-700 in dark)
+ * - --ts-primary: Primary color (adjusted per theme for contrast)
+ * 
+ * Theme Toggle:
+ * - Uses [data-theme="dark"] or [data-theme="light"] attribute
+ * - All components inherit theme from root
+ * - No hardcoded colors, always use CSS variables
+ * - Ensure WCAG AA contrast ratios in both themes
+ * 
+ * Example:
+ * .ts-summary-card {
+ *   background: var(--ts-bg-primary);
+ *   color: var(--ts-text-primary);
+ *   border: 1px solid var(--ts-border-color);
+ * }
+ * 
+ * [data-theme="dark"] {
+ *   --ts-bg-primary: #111827;
+ *   --ts-text-primary: #F9FAFB;
+ *   --ts-border-color: #374151;
+ * }
+ */
+
+/* ============================================================================
+   TESTING CHECKLIST (Priority Order)
+   ============================================================================ */
+
+/**
+ * Test on these viewport sizes (priority order):
+ * 
+ * ✓ MacBook Air: 1280 × 800 (laptop) [PRIMARY]
+ * ✓ MacBook Pro: 1440 × 900 (desktop)
+ * ✓ iMac: 1920 × 1080 (large desktop)
+ * ✓ iPad Mini: 1024 × 768 (tablet landscape)
+ * ✓ iPad Mini: 768 × 1024 (tablet portrait)
+ * ✓ iPhone 14: 390 × 844 (mobile portrait)
+ * ✓ 4K Display: 2560 × 1440 (large desktop)
+ */
+
+/* ============================================================================
+   USAGE ANALYTICS
+   =================================================================== ========= */
+
+/**
+ * WordPress Admin User Device Distribution:
+ * 
+ * Laptop (1280-1440px):     70% ← PRIMARY TARGET
+ * Desktop (1440-1920px):    20%
+ * Tablet (768-1279px):      4%
+ * Large Desktop (1920px+):  5%
+ * Mobile (<768px):          1%
+ * 
+ * Conclusion: Optimize for laptop first, enhance for desktop,
+ * gracefully degrade for smaller screens
+ */

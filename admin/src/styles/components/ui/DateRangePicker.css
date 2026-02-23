@@ -1,0 +1,228 @@
+.ts-date-picker {
+  position: relative;
+}
+
+.ts-date-picker-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  padding: var(--ts-spacing-sm) var(--ts-spacing-md);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  background: var(--ts-surface);
+  color: var(--ts-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-width: 280px;
+}
+
+.ts-date-picker-trigger:hover {
+  background: var(--ts-surface-2);
+  border-color: var(--ts-border-hover);
+}
+
+.ts-date-picker-range {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ts-date-picker-compare-label {
+  font-size: 11px;
+  opacity: 0.7;
+  font-weight: 400;
+}
+
+.ts-date-picker-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  background: var(--ts-surface);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: var(--ts-shadow-lg);
+  padding: var(--ts-spacing-md);
+  z-index: 1000;
+  min-width: 320px;
+}
+
+.ts-date-picker-presets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-xs);
+  padding-bottom: var(--ts-spacing-md);
+  border-bottom: 1px solid var(--ts-border);
+  margin-bottom: var(--ts-spacing-md);
+}
+
+.ts-date-picker-preset {
+  padding: var(--ts-spacing-sm) var(--ts-spacing-md);
+  border: none;
+  background: transparent;
+  text-align: left;
+  font-size: 14px;
+  color: var(--ts-text);
+  border-radius: var(--ts-radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ts-date-picker-preset:hover {
+  background: var(--ts-surface-2);
+}
+
+/* Compare Mode */
+.ts-date-picker-compare {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-date-picker-compare-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ts-text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.ts-date-picker-compare-options {
+  display: flex;
+  gap: var(--ts-spacing-xs);
+}
+
+.ts-date-picker-compare-option {
+  flex: 1;
+  padding: var(--ts-spacing-sm);
+  border: 1px solid var(--ts-border);
+  background: transparent;
+  text-align: center;
+  font-size: 13px;
+  color: var(--ts-text);
+  border-radius: var(--ts-radius-md);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.ts-date-picker-compare-option:hover {
+  background: var(--ts-surface-2);
+  border-color: var(--ts-border-hover);
+}
+
+.ts-date-picker-compare-option.active {
+  background: var(--ts-primary);
+  color: white;
+  border-color: var(--ts-primary);
+  font-weight: 500;
+}
+
+/* ============================================================================
+   RESPONSIVE DESIGN
+   ============================================================================ */
+
+/* Mobile Portrait (320px - 480px) */
+@media (max-width: 480px) {
+  .ts-date-picker-trigger {
+    min-width: auto;
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+
+  .ts-date-picker-dropdown {
+    left: 0;
+    right: 0;
+    min-width: auto;
+    width: calc(100vw - 32px);
+    padding: 16px;
+  }
+
+  .ts-date-picker-preset {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
+  .ts-date-picker-compare-options {
+    flex-direction: column;
+  }
+  
+  .ts-date-picker-compare-option {
+    flex: auto;
+  }
+}
+
+/* Mobile Landscape (481px - 767px) */
+@media (min-width: 481px) and (max-width: 767px) {
+  .ts-date-picker-trigger {
+    min-width: 240px;
+    padding: 10px 14px;
+  }
+
+  .ts-date-picker-dropdown {
+    min-width: 280px;
+  }
+}
+
+/* Tablet Portrait (768px - 1024px) */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .ts-date-picker-trigger {
+    min-width: 260px;
+  }
+
+  .ts-date-picker-dropdown {
+    min-width: 260px;
+  }
+}
+
+/* Laptop (1280px - 1439px) */
+@media (min-width: 1280px) and (max-width: 1439px) {
+  .ts-date-picker-trigger {
+    min-width: 300px;
+    padding: 10px 16px;
+    font-size: 15px;
+  }
+
+  .ts-date-picker-dropdown {
+    min-width: 300px;
+  }
+
+  .ts-date-picker-preset {
+    font-size: 15px;
+  }
+}
+
+/* Desktop (1440px - 1919px) */
+@media (min-width: 1440px) and (max-width: 1919px) {
+  .ts-date-picker-trigger {
+    min-width: 320px;
+    padding: 12px 18px;
+    font-size: 15px;
+  }
+
+  .ts-date-picker-dropdown {
+    min-width: 320px;
+    padding: 20px;
+  }
+}
+
+/* Large Desktop (1920px+) */
+@media (min-width: 1920px) {
+  .ts-date-picker-trigger {
+    min-width: 340px;
+    padding: 14px 20px;
+    font-size: 16px;
+  }
+
+  .ts-date-picker-dropdown {
+    min-width: 340px;
+    padding: 24px;
+  }
+
+  .ts-date-picker-preset {
+    font-size: 16px;
+    padding: 12px 16px;
+  }
+}

@@ -1,0 +1,46 @@
+/* AppShell - Premium layout */
+
+.ts-app-shell {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100%;
+}
+
+.ts-app-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+}
+
+.ts-app-main {
+  flex: 1;
+  min-width: 0;
+  padding: var(--ts-spacing-xl);
+  overflow: auto;
+  scroll-behavior: smooth;
+  background: transparent;
+}
+
+/* Tighter padding on smaller screens + space for bottom nav */
+@media (max-width: 1024px) {
+  .ts-app-main {
+    padding: var(--ts-spacing-lg);
+    padding-bottom: calc(84px + env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 640px) {
+  .ts-app-main {
+    padding: var(--ts-spacing-lg);
+    padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  }
+}
+
+/* Large desktop comfort */
+@media (min-width: 1600px) {
+  .ts-app-main {
+    padding: 28px;
+  }
+}

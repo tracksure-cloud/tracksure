@@ -1,0 +1,428 @@
+/* Journey Modal Styles */
+
+.ts-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.ts-modal-content {
+  background: var(--ts-surface);
+  border-radius: var(--ts-radius-lg);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  max-width: 90%;
+  max-height: 90vh;
+  width: 900px;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease;
+}
+
+[data-theme='dark'] .ts-modal-content {
+  background: var(--ts-surface, #1f2937);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.ts-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ts-spacing-lg);
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.ts-modal-header h2 {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ts-text);
+}
+
+.ts-modal-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: var(--ts-spacing-xs);
+  border-radius: var(--ts-radius);
+  transition: all 0.2s ease;
+  color: var(--ts-text-muted);
+}
+
+.ts-modal-close:hover {
+  background: var(--ts-surface-2);
+  color: var(--ts-text);
+}
+
+.ts-modal-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--ts-spacing-lg);
+}
+
+.ts-modal-footer {
+  padding: var(--ts-spacing-lg);
+  border-top: 1px solid var(--ts-border);
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--ts-spacing-sm);
+}
+
+/* Journey Summary */
+.ts-journey-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--ts-spacing-md);
+  margin-bottom: var(--ts-spacing-xl);
+}
+
+.ts-journey-stat {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-md);
+  background: var(--ts-surface-2);
+  border-radius: var(--ts-radius);
+  border: 1px solid var(--ts-border);
+}
+
+.ts-stat-label {
+  font-size: 12px;
+  color: var(--ts-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.ts-stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ts-text);
+  line-height: 1;
+}
+
+/* Funnel Visualization */
+.ts-journey-funnel {
+  margin-bottom: var(--ts-spacing-xl);
+  padding: var(--ts-spacing-lg);
+  background: var(--ts-surface-2);
+  border-radius: var(--ts-radius-lg);
+  border: 1px solid var(--ts-border);
+}
+
+.ts-journey-funnel h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  margin: 0 0 var(--ts-spacing-lg) 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ts-text);
+}
+
+.ts-funnel-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-funnel-step {
+  position: relative;
+}
+.ts-funnel-steps> *{
+  padding:10px;
+}
+.ts-funnel-step-header {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  margin-bottom: var(--ts-spacing-xs);
+}
+
+.ts-funnel-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: var(--ts-primary);
+  color: white;
+  border-radius: 50%;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ts-funnel-step-label {
+  flex: 1;
+  font-weight: 500;
+  color: var(--ts-text);
+}
+
+.ts-funnel-step-count {
+  font-weight: 600;
+  color: var(--ts-primary);
+}
+
+.ts-funnel-step-bar {
+  position: relative;
+  height: 8px;
+  background: var(--ts-border);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: var(--ts-spacing-xs);
+}
+
+.ts-funnel-step-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: linear-gradient(90deg, var(--ts-primary-light) 0%, var(--ts-primary) 100%);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.ts-funnel-step-percentage {
+  font-size: 12px;
+  color: var(--ts-text-muted);
+  text-align: right;
+}
+
+/* Session Timeline */
+.ts-journey-timeline h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  margin: 0 0 var(--ts-spacing-lg) 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ts-text);
+}
+
+.ts-sessions-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ts-spacing-md);
+}
+
+.ts-session-card {
+  background: var(--ts-surface-2);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-lg);
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+
+.ts-session-card:hover {
+  border-color: var(--ts-border-hover);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .ts-session-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.ts-session-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--ts-spacing-md);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.ts-session-header:hover {
+  background: var(--ts-surface);
+}
+
+.ts-session-info {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+  flex: 1;
+}
+
+.ts-session-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--ts-primary-light);
+  color: var(--ts-primary);
+  border-radius: 50%;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.ts-session-details {
+  flex: 1;
+}
+
+.ts-session-date {
+  font-weight: 600;
+  color: var(--ts-text);
+  margin-bottom: 4px;
+}
+
+.ts-session-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ts-text-muted);
+}
+
+.ts-session-separator {
+  color: var(--ts-border);
+}
+
+.ts-session-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+}
+
+.ts-session-event-count {
+  font-size: 13px;
+  color: var(--ts-text-muted);
+  font-weight: 500;
+}
+
+/* Session Events */
+.ts-session-events {
+  padding: 0 var(--ts-spacing-md) var(--ts-spacing-md) var(--ts-spacing-md);
+  border-top: 1px solid var(--ts-border);
+  background: var(--ts-surface);
+}
+
+.ts-event-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-md);
+  padding: var(--ts-spacing-sm) 0;
+  border-bottom: 1px solid var(--ts-border);
+}
+
+.ts-event-row:last-child {
+  border-bottom: none;
+}
+
+.ts-event-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: var(--ts-surface-2);
+  border-radius: 50%;
+  flex-shrink: 0;
+  color: var(--ts-primary);
+}
+
+.ts-event-details {
+  flex: 1;
+}
+
+.ts-event-name {
+  font-weight: 500;
+  color: var(--ts-text);
+  margin-bottom: 4px;
+}
+
+.ts-event-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--ts-text-muted);
+}
+
+.ts-event-time {
+  font-size: 13px;
+  color: var(--ts-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Loading & Error States */
+.ts-loading-state,
+.ts-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--ts-spacing-xl);
+  text-align: center;
+  min-height: 300px;
+}
+
+.ts-loading-state p,
+.ts-error-state p {
+  margin-top: var(--ts-spacing-md);
+  color: var(--ts-text-muted);
+}
+
+.ts-error-state h3 {
+  margin: var(--ts-spacing-md) 0 var(--ts-spacing-sm) 0;
+  color: var(--ts-text);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .ts-modal-content {
+    max-width: 100%;
+    max-height: 100vh;
+    width: 100%;
+    border-radius: 0;
+  }
+
+  .ts-journey-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .ts-session-info {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ts-session-meta {
+    flex-wrap: wrap;
+  }
+
+  .ts-event-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ts-event-time {
+    align-self: flex-end;
+  }
+}
