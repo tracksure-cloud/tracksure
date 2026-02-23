@@ -803,29 +803,29 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		);
 
 		// Query goal conversions with revenue (optimized).
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sql = "
-            SELECT 
-                g.goal_id,
-                COUNT(c.conversion_id) as conversions,
-                COALESCE(SUM(c.conversion_value), 0) as total_revenue,
-                COALESCE(AVG(c.conversion_value), 0) as avg_value
-            FROM {$wpdb->prefix}tracksure_goals g
-            LEFT JOIN {$wpdb->prefix}tracksure_conversions c ON (
-                c.goal_id = g.goal_id
-                AND c.converted_at >= %s
-                AND c.converted_at <= %s
-            )
-            WHERE g.goal_id IN ($placeholders)
-            GROUP BY g.goal_id
-        ";
-		// $sql uses $placeholders (built from array_fill with %d) and literal %s placeholders.
-		// All values are bound via $wpdb->prepare() splat below — safe from injection.
-		$query = $wpdb->prepare($sql, ...$query_params);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-
-		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- $query is already prepared above.
-		$results = $wpdb->get_results($query, ARRAY_A);
+		// $placeholders is built from array_fill() with '%d' — safe for interpolation.
+		// The splat operator (...$query_params) prevents PHPCS from counting parameters statically.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+		$results = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT
+					g.goal_id,
+					COUNT(c.conversion_id) as conversions,
+					COALESCE(SUM(c.conversion_value), 0) as total_revenue,
+					COALESCE(AVG(c.conversion_value), 0) as avg_value
+				FROM {$wpdb->prefix}tracksure_goals g
+				LEFT JOIN {$wpdb->prefix}tracksure_conversions c ON (
+					c.goal_id = g.goal_id
+					AND c.converted_at >= %s
+					AND c.converted_at <= %s
+				)
+				WHERE g.goal_id IN ($placeholders)
+				GROUP BY g.goal_id",
+				...$query_params
+			),
+			ARRAY_A
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		// Check for database errors.
 		if ($wpdb->last_error) {
