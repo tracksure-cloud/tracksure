@@ -803,7 +803,7 @@ All with **browser-side** and **server-side (Conversion API)** tracking where su
 **Free Version Support:**
 - 📖 [Documentation](https://tracksure.cloud/docs) – Comprehensive guides and tutorials
 - 💬 [WordPress.org Support Forum](https://wordpress.org/support/plugin/tracksure) – Community support
-- 🐛 [GitHub Issues](https://github.com/tracksure/tracksure) – Bug reports and feature requests
+- 🐛 [GitHub Issues](https://github.com/tracksure-cloud/tracksure) – Bug reports and feature requests
 
 **Pro Version Support:**
 - 📧 **Priority Email Support** – responses within 24 hours (weekdays)
@@ -908,7 +908,7 @@ Users can request data deletion via WordPress Privacy Tools or TrackSure Setting
 
 - [Documentation](https://tracksure.cloud/docs)
 - [Community Forum](https://wordpress.org/support/plugin/tracksure)
-- [GitHub Issues](https://github.com/tracksure/tracksure)
+- [GitHub Issues](https://github.com/tracksure-cloud/tracksure)
 
 **Pro Support:**
 

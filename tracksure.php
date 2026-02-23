@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Plugin Name: TrackSure
+ * Plugin Name: TrackSure Cloud
  * Plugin URI: https://tracksure.cloud
  * Description: Server-side tracking, analytics and pixel manager for WordPress. Boost ROAS with Conversion API (CAPI), recover lost conversions from iOS and cookie blockers, and run privacy-friendly first-party analytics with or without ads.
  * Version: 1.0.0

@@ -2,7 +2,7 @@
 
 > **Complete analytics platform for WordPress.** Track everything, understand your visitors, grow your business—with or without ads.
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/rubait-hasan/tracksure)
+[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/tracksure-cloud/tracksure)
 [![WordPress](https://img.shields.io/badge/WordPress-6.0%2B-blue.svg)](https://wordpress.org/)
 [![PHP](https://img.shields.io/badge/PHP-7.4%2B-purple.svg)](https://php.net/)
 [![License](https://img.shields.io/badge/license-GPL%20v2%2B-green.svg)](LICENSE)
@@ -73,7 +73,7 @@ TrackSure is a production-grade analytics and attribution platform built specifi
 1. **Clone Repository**
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/tracksure.git
+git clone https://github.com/tracksure-cloud/tracksure.git
 cd tracksure
 ```
 
@@ -102,7 +102,7 @@ npm run build:production
 
 ### From Release ZIP
 
-1. Download latest release from [Releases](https://github.com/YOUR-USERNAME/tracksure/releases)
+1. Download latest release from [Releases](https://github.com/tracksure-cloud/tracksure/releases)
 2. WordPress Admin → Plugins → Add New → Upload Plugin
 3. Choose `tracksure.zip` and activate
 
@@ -282,7 +282,7 @@ Contributions are welcome! Please:
 
 ## 🐛 Bug Reports
 
-Found a bug? Please [open an issue](https://github.com/rubait-hasan/tracksure/issues) with:
+Found a bug? Please [open an issue](https://github.com/tracksure-cloud/tracksure/issues) with:
 
 - WordPress version
 - PHP version
@@ -318,9 +318,9 @@ GPL v2 or later. See [LICENSE](LICENSE) for details.
 
 ## 📞 Support
 
-- **Documentation**: [GitHub Wiki](https://github.com/YOUR-USERNAME/tracksure/wiki)
-- **Issues**: [GitHub Issues](https://github.com/YOUR-USERNAME/tracksure/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/YOUR-USERNAME/tracksure/discussions)
+- **Documentation**: [GitHub Wiki](https://github.com/tracksure-cloud/tracksure/wiki)
+- **Issues**: [GitHub Issues](https://github.com/tracksure-cloud/tracksure/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/tracksure-cloud/tracksure/discussions)
 
 ---
 
