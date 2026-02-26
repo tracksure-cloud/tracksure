@@ -1,7 +1,7 @@
 /**
  * Extension Registry Context
  * 
- * Allows Free/Pro modules to register routes, nav items, and widgets.
+ * Allows extension modules to register routes, nav items, and widgets.
  */
 
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';

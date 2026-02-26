@@ -100,5 +100,5 @@ export function withChartWrapper<P extends ChartProps>(
  * - Consistency: All charts have identical loading/empty UX
  * - Maintainability: Update loading/empty logic in one place
  * - Testability: Easier to test chart logic separate from UI states
- * - Extensibility: Pro/Free plugins can wrap with additional features
+ * - Extensibility: Extension plugins can wrap with additional features
  */

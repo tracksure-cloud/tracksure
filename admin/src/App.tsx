@@ -58,15 +58,15 @@ const AppRoutes: React.FC = () => {
   const { routes } = useExtensionRegistry();
 
   // Dynamic component resolution for extensions
-  // Pro/Free/3rd party register components via window.trackSureProComponents, etc.
+  // Extensions register components via window.trackSureExtensionComponents, etc.
   const getExtensionComponent = (componentName: string) => {
-    // Check Pro components
-    const proComponents = window.trackSureProComponents || {};
-    if (proComponents[componentName]) {
-      return proComponents[componentName];
+    // Check extension components (registered by add-on plugins)
+    const extensionComponents = window.trackSureExtensionComponents || {};
+    if (extensionComponents[componentName]) {
+      return extensionComponents[componentName];
     }
 
-    // Check Free components (future)
+    // Check free module components
     const freeComponents = window.trackSureFreeComponents || {};
     if (freeComponents[componentName]) {
       return freeComponents[componentName];

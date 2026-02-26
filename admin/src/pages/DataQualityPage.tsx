@@ -63,7 +63,7 @@ const DataQualityPage: React.FC = () => {
         [config]
     );
     
-    // Get destination metadata (names, icons, order) - supports Free/Pro/3rd-party
+    // Get destination metadata (names, icons, order) - supports all registered destinations
     const enabledDestinationsMeta = useMemo(
         () => getEnabledDestinationsMeta(enabledDestinations),
         [enabledDestinations]

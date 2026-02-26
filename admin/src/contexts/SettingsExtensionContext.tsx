@@ -2,7 +2,7 @@
  * Settings Extension Context
  * 
  * Manages extensible settings, destinations, and integrations.
- * Free/Pro/3rd party can register via window.trackSureExtensions
+ * Extensions and 3rd party can register via window.trackSureExtensions
  */
 
 import React, { createContext, useContext, useState, useCallback, useEffect, ReactNode } from 'react';

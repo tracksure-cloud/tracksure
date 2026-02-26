@@ -1,7 +1,7 @@
 /**
  * Extension Icon API
  * 
- * Utilities for Free/Pro/3rd-party extensions to integrate with TrackSure's icon system.
+ * Utilities for extensions to integrate with TrackSure's icon system.
  * Provides three integration methods:
  * 1. Use core Lucide icons from registry
  * 2. Add custom SVG icons

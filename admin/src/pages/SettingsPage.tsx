@@ -1,7 +1,7 @@
 /**
  * Settings Page - Extensible Dynamic Configuration
  * 
- * Reads settings from extension registry (Free/Pro/3rd party).
+ * Reads settings from extension registry.
  * All fields rendered dynamically from SettingsExtensionContext.
  */
 

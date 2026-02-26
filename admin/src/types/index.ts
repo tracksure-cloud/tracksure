@@ -132,7 +132,7 @@ declare global {
     fluentcart?: Record<string, unknown>;
     surecart?: Record<string, unknown>;
     trackSureExtensions?: Array<Record<string, unknown>>;
-    trackSureProComponents?: Record<string, React.ComponentType>;
+    trackSureExtensionComponents?: Record<string, React.ComponentType>;
     trackSureFreeComponents?: Record<string, React.ComponentType>;
     trackSureComponents?: Record<string, React.ComponentType>;
   }

@@ -2,7 +2,7 @@
  * TrackSure Icon Component
  * 
  * Unified icon system using Lucide React with dark/light theme support.
- * Provides abstraction layer for core, free, pro, and 3rd-party extensions.
+ * Provides abstraction layer for core and 3rd-party extensions.
  * 
  * Tree-shaken imports: Only loads icons actually used in the application.
  * Bundle size: ~35KB (vs ~200KB for all Lucide icons)

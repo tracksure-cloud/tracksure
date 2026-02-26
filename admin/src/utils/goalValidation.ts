@@ -39,7 +39,7 @@ const OPERATORS = [
   'less_than',
   'greater_than_or_equal',
   'less_than_or_equal',
-  'matches_regex', // Pro feature
+  'matches_regex',
 ] as const;
 
 /**

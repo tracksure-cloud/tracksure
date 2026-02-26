@@ -217,9 +217,9 @@ const DestinationsPage: React.FC = () => {
                     {/* Custom Configuration Component (for complex destinations like Google Ads) */}
                     {destination.custom_config ? (
                       (() => {
-                        // Lookup custom component from window.trackSureProComponents
-                        const typedWindow = window as Window & { trackSureProComponents?: Record<string, React.ComponentType<Record<string, unknown>>> };
-                        const CustomConfigComponent = typedWindow.trackSureProComponents?.[destination.custom_config];
+                        // Lookup custom component from extension registry
+                        const typedWindow = window as Window & { trackSureExtensionComponents?: Record<string, React.ComponentType<Record<string, unknown>>> };
+                        const CustomConfigComponent = typedWindow.trackSureExtensionComponents?.[destination.custom_config];
                         
                         if (CustomConfigComponent) {
                           return (
@@ -230,7 +230,7 @@ const DestinationsPage: React.FC = () => {
                             />
                           );
                         } else {
-                          console.warn(`[DestinationsPage] Custom component "${destination.custom_config}" not found in window.trackSureProComponents`);
+                          console.warn(`[DestinationsPage] Custom component "${destination.custom_config}" not found in window.trackSureExtensionComponents`);
                           // Fallback to default field rendering
                           return destination.fields && destination.fields.length > 0 ? (
                             <>

@@ -3,7 +3,7 @@
  * 
  * 100% DYNAMIC - No hardcoded destinations!
  * All metadata comes from server-side PHP registration.
- * Works for Free, Pro, and 3rd-party destinations automatically.
+ * Works for all registered destinations automatically.
  */
 
 import type { IconName } from '../components/ui/Icon';

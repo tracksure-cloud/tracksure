@@ -355,9 +355,9 @@ class TrackSure_Conversion_Recorder
 			$count
 		);
 
-		// Update touchpoints table with canonical attribution weight (last-touch for Free).
+		// Update touchpoints table with canonical attribution weight (default: last-touch).
 		// This field is used by the UI to display attribution weights.
-		// All models are still stored in conversion_attribution table for Pro features.
+		// All models are stored in conversion_attribution table for reporting.
 		$this->update_canonical_attribution_weights($touchpoints, 'last_touch');
 
 		// Multi-touch attribution models — all available in Free.
@@ -369,8 +369,8 @@ class TrackSure_Conversion_Recorder
 	/**
 	 * Update touchpoints table with canonical attribution weights.
 	 *
-	 * For Free: Uses last-touch (100% to last touchpoint, 0% to others)
-	 * For Pro: Could use different canonical model based on settings
+	 * Default: Uses last-touch (100% to last touchpoint, 0% to others).
+	 * The canonical model can be changed via the $canonical_model parameter.
 	 *
 	 * @param array  $touchpoints Touchpoints.
 	 * @param string $canonical_model The canonical attribution model to use.

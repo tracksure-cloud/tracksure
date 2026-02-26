@@ -1,7 +1,7 @@
 /**
  * Extension System Types
  * 
- * Allows Free/Pro/3rd party to extend the admin UI without modifying core.
+ * Allows extensions and 3rd party to extend the admin UI without modifying core.
  */
 
 import { ComponentType } from 'react';

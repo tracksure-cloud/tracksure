@@ -340,22 +340,6 @@ export class TrackSureAPI {
     return this.get('/quality/reconciliation', params);
   }
 
-  // Pro API endpoints (if Pro active)
-  async getProAttribution(params?: QueryParams) {
-    return this.get('/pro/attribution', params);
-  }
-
-  async getProPaths(params?: QueryParams) {
-    return this.get('/pro/paths', params);
-  }
-
-  async getProCohorts(params?: QueryParams) {
-    return this.get('/pro/cohorts', params);
-  }
-
-  async getProDestinations() {
-    return this.get('/pro/destinations');
-  }
 }
 
 /**

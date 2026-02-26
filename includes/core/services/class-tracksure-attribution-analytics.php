@@ -408,8 +408,8 @@ class TrackSure_Attribution_Analytics
     /**
      * Get attribution model comparison.
      *
-     * Free version: Only first-touch and last-touch.
-     * Pro version: Adds linear, time-decay, position-based via filter.
+     * All five attribution models are included.
+     * Extensions can add or remove models via the tracksure_attribution_models filter.
      *
      * @param string $date_start Start date (Y-m-d).
      * @param string $date_end End date (Y-m-d).

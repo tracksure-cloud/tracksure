@@ -253,7 +253,7 @@ class TrackSure_Journey_Engine
 	}
 
 	/**
-	 * Get common converting paths (Pro feature).
+	 * Get common converting paths (extensible via filter).
 	 *
 	 * @param string $start_date Start date.
 	 * @param string $end_date End date.
@@ -265,7 +265,7 @@ class TrackSure_Journey_Engine
 		/**
 		 * Filter common converting paths.
 		 *
-		 * Pro implements path aggregation logic.
+		 * Extensions can implement path aggregation logic.
 		 *
 		 * @since 1.0.0
 		 *
