@@ -372,13 +372,13 @@ class TrackSure_REST_Products_Controller extends TrackSure_REST_Controller {
 		usort(
 			$results,
 			function ( $a, $b ) use ( $order_by_column, $order ) {
-				$aVal = $a->{$order_by_column} ?? 0;
-				$bVal = $b->{$order_by_column} ?? 0;
+				$a_val = $a->{$order_by_column} ?? 0;
+				$b_val = $b->{$order_by_column} ?? 0;
 
 				if ( $order === 'DESC' ) {
-					return $bVal <=> $aVal;
+					return $b_val <=> $a_val;
 				}
-				return $aVal <=> $bVal;
+				return $a_val <=> $b_val;
 			}
 		);
 

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Meta (Facebook) Conversions API destination handler.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for Meta CAPI diagnostics, only fires when WP_DEBUG=true
 // phpcs:disable WordPress.WP.EnqueuedResourceParameters.MissingVersion -- Meta Pixel loaded from Facebook CDN, version managed by Facebook
 
@@ -334,7 +340,10 @@ class TrackSure_Meta_Destination {
 				// Fallback to WooCommerce currency if available and normalization failed.
 				if (typeof window !== 'undefined' && (!cur || cur.length !== 3 || /[^A-Z]/.test(cur))) {
 					try {
-						var wcSettings = (window.wcSettings) || (window.wp && window.wp.data && window.wp.data.select && window.wp.data.select('wc/store') && window.wp.data.select('wc/store').getSettings());
+						var wcSettings = (window.wcSettings)
+							|| (window.wp && window.wp.data && window.wp.data.select
+							&& window.wp.data.select('wc/store')
+							&& window.wp.data.select('wc/store').getSettings());
 						var storeCurrency = wcSettings && wcSettings.currency && wcSettings.currency.code ? String(wcSettings.currency.code).toUpperCase() : null;
 						if (storeCurrency) {
 							cur = storeCurrency;

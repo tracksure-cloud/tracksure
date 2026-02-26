@@ -1,4 +1,10 @@
 <?php
+/**
+ * Goal evaluation engine for conversion matching.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Debug logging and direct DB queries intentionally used for goal evaluation diagnostics
 
 /**
@@ -615,7 +621,8 @@ class TrackSure_Goal_Evaluator {
 			}
 
 			// Check classes if present.
-			for ( $i = 1; $i < count( $pattern_parts ); $i++ ) {
+			$pattern_parts_count = count( $pattern_parts );
+			for ( $i = 1; $i < $pattern_parts_count; $i++ ) {
 				if ( strpos( $actual_selector, '.' . $pattern_parts[ $i ] ) === false ) {
 					return false;
 				}

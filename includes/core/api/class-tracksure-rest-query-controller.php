@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API query controller.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for query diagnostics, only fires when WP_DEBUG=true
 
 /**
@@ -1122,7 +1128,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 					'visitors'    => absint( $row->visitors ?? 0 ),
 				);
 			},
-			$attribution_data ?: array()
+			! empty( $attribution_data ) ? $attribution_data : array()
 		);
 
 		return $this->prepare_success(
@@ -1209,7 +1215,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 					'visitors'    => absint( $row->visitors ?? 0 ),
 				);
 			},
-			$attribution_data ?: array()
+			! empty( $attribution_data ) ? $attribution_data : array()
 		);
 
 		return $this->prepare_success(
@@ -1259,7 +1265,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 					$segment_where = ' AND s.session_number > 1';
 					break;
 				case 'converted':
-					$segment_where = ' AND EXISTS (SELECT 1 FROM ' . $wpdb->prefix . 'tracksure_events' . ' e2 WHERE e2.session_id = s.session_id AND e2.is_conversion = 1)';
+					$segment_where = ' AND EXISTS (SELECT 1 FROM ' . $wpdb->prefix . 'tracksure_events e2 WHERE e2.session_id = s.session_id AND e2.is_conversion = 1)';
 					break;
 			}
 		}
@@ -1436,7 +1442,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 					$segment_where = ' AND s.session_number > 1';
 					break;
 				case 'converted':
-					$segment_where = ' AND EXISTS (SELECT 1 FROM ' . $wpdb->prefix . 'tracksure_events' . ' e2 WHERE e2.session_id = s.session_id AND e2.is_conversion = 1)';
+					$segment_where = ' AND EXISTS (SELECT 1 FROM ' . $wpdb->prefix . 'tracksure_events e2 WHERE e2.session_id = s.session_id AND e2.is_conversion = 1)';
 					break;
 			}
 		}
@@ -1581,7 +1587,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 						'bounce'          => $bounce_formatted,
 					);
 				},
-				$pages ?: array()
+				! empty( $pages ) ? $pages : array()
 			),
 			'breakdowns' => $this->get_pages_breakdowns( $date_start, $date_end, $segment_join, $segment_where ),
 			'message'    => empty( $pages ) ? __( 'No page data yet', 'tracksure' ) : '',
@@ -1690,7 +1696,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 					'revenue'     => (float) $row->revenue,
 				];
 			},
-			$devices ?: []
+			! empty( $devices ) ? $devices : []
 		);
 
 		$formatted_countries = array_map(
@@ -1704,7 +1710,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 					'revenue'      => (float) $row->revenue,
 				];
 			},
-			$countries ?: []
+			! empty( $countries ) ? $countries : []
 		);
 
 		$formatted_sources = array_map(
@@ -1717,7 +1723,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 					'revenue'     => (float) $row->revenue,
 				];
 			},
-			$sources ?: []
+			! empty( $sources ) ? $sources : []
 		);
 
 		return [
@@ -1811,7 +1817,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 						'devices'       => $row->devices,
 					);
 				},
-				$visitors ?: array()
+				! empty( $visitors ) ? $visitors : array()
 			),
 			'total'    => count( $visitors ),
 			'message'  => empty( $visitors ) ? __( 'No visitors found for the selected period.', 'tracksure' ) : '',
@@ -1865,7 +1871,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
 						'recent_conversions' => (int) $row->recent_conversions,
 					);
 				},
-				$active_pages ?: array()
+				! empty( $active_pages ) ? $active_pages : array()
 			),
 			'total_active_users' => array_sum( array_column( $active_pages, 'active_users' ) ),
 			'timestamp'          => gmdate( 'Y-m-d H:i:s' ),

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Utility helper functions.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for utility function diagnostics, only fires when WP_DEBUG=true
 
 /**

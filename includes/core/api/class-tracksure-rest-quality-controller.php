@@ -281,7 +281,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller {
 				'server_events'         => absint( $server_events ),
 				'delivered_events'      => absint( $delivered_events ),
 				'last_failed_event'     => $last_failed ? array(
-					'error'      => sanitize_text_field( $error_message ?: 'Unknown error' ),
+					'error'      => sanitize_text_field( ! empty( $error_message ) ? $error_message : 'Unknown error' ),
 					'created_at' => $last_failed->created_at,
 				) : null,
 				'recommendations'       => $recommendations,

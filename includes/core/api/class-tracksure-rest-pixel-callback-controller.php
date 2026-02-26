@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API pixel callback controller.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Pixel callback endpoint uses direct DB queries for event status updates
 
 /**

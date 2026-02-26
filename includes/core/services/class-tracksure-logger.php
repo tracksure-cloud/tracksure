@@ -1,4 +1,10 @@
 <?php
+/**
+ * Logging service for TrackSure.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Logger service uses direct DB for error storage
 
 /**

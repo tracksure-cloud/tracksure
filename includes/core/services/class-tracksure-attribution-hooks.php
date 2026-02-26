@@ -1,4 +1,10 @@
 <?php
+/**
+ * Attribution hook handlers.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for attribution tracking diagnostics, only fires when WP_DEBUG=true
 
 /**

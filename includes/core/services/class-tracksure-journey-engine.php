@@ -1,4 +1,10 @@
 <?php
+/**
+ * Customer journey engine.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Journey analysis requires direct DB queries for session timeline construction
 
 /**

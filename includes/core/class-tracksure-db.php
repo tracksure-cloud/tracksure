@@ -1,4 +1,10 @@
 <?php
+/**
+ * Database abstraction layer for TrackSure.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for database operation diagnostics, only fires when WP_DEBUG=true
 
 /**
@@ -1277,7 +1283,7 @@ class TrackSure_DB {
 					$segment_where = ' AND s.session_number > 1';
 					break;
 				case 'converted':
-					$segment_where = ' AND EXISTS (SELECT 1 FROM ' . $wpdb->prefix . 'tracksure_events' . ' e2 WHERE e2.session_id = s.session_id AND e2.is_conversion = 1)';
+					$segment_where = ' AND EXISTS (SELECT 1 FROM ' . $wpdb->prefix . 'tracksure_events e2 WHERE e2.session_id = s.session_id AND e2.is_conversion = 1)';
 					break;
 			}
 		}
@@ -1294,7 +1300,11 @@ class TrackSure_DB {
                     (SELECT COUNT(*) FROM {$wpdb->prefix}tracksure_conversions c INNER JOIN {$wpdb->prefix}tracksure_sessions s ON c .
                     	session_id = s.session_id WHERE s.started_at BETWEEN %s AND %s{$segment_where}) as total_conversions,
                     (SELECT COALESCE(SUM(c .
-                    	conversion_value), 0) FROM {$wpdb->prefix}tracksure_conversions c INNER JOIN {$wpdb->prefix}tracksure_sessions s ON c.session_id = s.session_id WHERE s.started_at BETWEEN %s AND %s{$segment_where}) as total_revenue",
+                    	conversion_value), 0)
+                    FROM {$wpdb->prefix}tracksure_conversions c
+                    INNER JOIN {$wpdb->prefix}tracksure_sessions s
+                    ON c.session_id = s.session_id
+                    WHERE s.started_at BETWEEN %s AND %s{$segment_where}) as total_revenue",
 				$start_datetime,
 				$end_datetime,
 				$start_datetime,
@@ -1309,7 +1319,7 @@ class TrackSure_DB {
 			ARRAY_A
 		);
 
-		return $metrics ?: array(
+		return ! empty( $metrics ) ? $metrics : array(
 			'total_visitors'    => 0,
 			'total_sessions'    => 0,
 			'total_events'      => 0,
@@ -1386,15 +1396,15 @@ class TrackSure_DB {
 
 		// Merge all metrics.
 		$metrics = array_merge(
-			$session_metrics ?: array(),
-			$event_metrics ?: array(),
-			$conversion_metrics ?: array()
+			! empty( $session_metrics ) ? $session_metrics : array(),
+			! empty( $event_metrics ) ? $event_metrics : array(),
+			! empty( $conversion_metrics ) ? $conversion_metrics : array()
 		);
 		// Merge all metrics.
 		$metrics = array_merge(
-			$session_metrics ?: array(),
-			$event_metrics ?: array(),
-			$conversion_metrics ?: array()
+			! empty( $session_metrics ) ? $session_metrics : array(),
+			! empty( $event_metrics ) ? $event_metrics : array(),
+			! empty( $conversion_metrics ) ? $conversion_metrics : array()
 		);
 
 		if ( ! $metrics || empty( $metrics['unique_visitors'] ) ) {
@@ -2032,7 +2042,7 @@ class TrackSure_DB {
 			ARRAY_A
 		);
 
-		return $touchpoints ?: array();
+		return ! empty( $touchpoints ) ? $touchpoints : array();
 	}
 
 	// ========================================.

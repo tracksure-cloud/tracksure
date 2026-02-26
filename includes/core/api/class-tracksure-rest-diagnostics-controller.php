@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API diagnostics controller.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Diagnostic endpoint for troubleshooting, uses direct DB queries for system health checks
 
 /**
@@ -316,7 +322,7 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller {
 	public function get_delivery_stats( $request ) {
 		global $wpdb;
 
-		$period = $request->get_param( 'period' ) ?: '7d';
+		$period = $request->get_param( 'period' ) ? $request->get_param( 'period' ) : '7d';
 
 		// Convert period to hours.
 		$hours_map = array(

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Core plugin class for TrackSure.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for core initialization diagnostics, only fires when WP_DEBUG=true
 // phpcs:disable WordPress.Security.NonceVerification.Recommended -- Consent data read from cookies, no state change
 

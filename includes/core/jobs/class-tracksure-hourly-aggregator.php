@@ -1,4 +1,10 @@
 <?php
+/**
+ * Hourly data aggregation background job.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB.UnescapedDBParameter,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Debug logging and direct DB queries required for aggregation
 
 /**
@@ -434,8 +440,8 @@ class TrackSure_Hourly_Aggregator {
 					continue;
 				}
 
-				$utm_source = $event['utm_source'] ?: '';
-				$utm_medium = $event['utm_medium'] ?: '';
+				$utm_source = ! empty( $event['utm_source'] ) ? $event['utm_source'] : '';
+				$utm_medium = ! empty( $event['utm_medium'] ) ? $event['utm_medium'] : '';
 
 				// Process each item in the purchase.
 				foreach ( $ecommerce_data['items'] as $item ) {

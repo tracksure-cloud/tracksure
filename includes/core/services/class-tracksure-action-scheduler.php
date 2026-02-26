@@ -1,4 +1,10 @@
 <?php
+/**
+ * Action scheduler service for cron-based tasks.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for background queue diagnostics, only fires when WP_DEBUG=true
 
 /**
@@ -38,6 +44,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Manages Action Scheduler tasks for TrackSure.
+ *
+ * @since 2.0.0
+ */
 class TrackSure_Action_Scheduler {
 
 

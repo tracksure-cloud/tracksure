@@ -1,4 +1,10 @@
 <?php
+/**
+ * Goal configuration validator.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging and error handler for goal validation diagnostics
 
 /**

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Daily data aggregation background job.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for aggregation job diagnostics, only fires when WP_DEBUG=true
 
 /**

@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API goals controller.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Debug logging and direct DB queries required for goals management
 
 /**
@@ -705,9 +711,11 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 
 		// Accept both parameter naming conventions for compatibility.
 		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) )
-			?: sanitize_text_field( $request->get_param( 'start_date' ) );
+			? sanitize_text_field( $request->get_param( 'date_start' ) )
+			: sanitize_text_field( $request->get_param( 'start_date' ) );
 		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) )
-			?: sanitize_text_field( $request->get_param( 'end_date' ) );
+			? sanitize_text_field( $request->get_param( 'date_end' ) )
+			: sanitize_text_field( $request->get_param( 'end_date' ) );
 
 		// Check cache first (5 minute TTL).
 		$cache_key = 'tracksure_goal_perf_' . $goal_id . '_' . md5( $date_start . $date_end );
@@ -779,8 +787,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 
 		// Parse parameters (accept both naming conventions).
 		$goal_ids_param = $request->get_param( 'goal_ids' );
-		$date_start     = $request->get_param( 'date_start' ) ?: $request->get_param( 'start_date' );
-		$date_end       = $request->get_param( 'date_end' ) ?: $request->get_param( 'end_date' );
+		$date_start     = $request->get_param( 'date_start' ) ? $request->get_param( 'date_start' ) : $request->get_param( 'start_date' );
+		$date_end       = $request->get_param( 'date_end' ) ? $request->get_param( 'date_end' ) : $request->get_param( 'end_date' );
 
 		// Validate goal_ids.
 		if ( empty( $goal_ids_param ) ) {
@@ -930,10 +938,10 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 		global $wpdb;
 
 		$goal_id    = absint( $request->get_param( 'id' ) );
-		$page       = absint( $request->get_param( 'page' ) ) ?: 1;
-		$per_page   = absint( $request->get_param( 'per_page' ) ) ?: 20;
-		$date_start = $request->get_param( 'date_start' ) ?: gmdate( 'Y-m-d', strtotime( '-30 days' ) );
-		$date_end   = $request->get_param( 'date_end' ) ?: gmdate( 'Y-m-d' );
+		$page       = absint( $request->get_param( 'page' ) ) ? absint( $request->get_param( 'page' ) ) : 1;
+		$per_page   = absint( $request->get_param( 'per_page' ) ) ? absint( $request->get_param( 'per_page' ) ) : 20;
+		$date_start = $request->get_param( 'date_start' ) ? $request->get_param( 'date_start' ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$date_end   = $request->get_param( 'date_end' ) ? $request->get_param( 'date_end' ) : gmdate( 'Y-m-d' );
 
 		$offset = ( $page - 1 ) * $per_page;
 
@@ -1042,12 +1050,12 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 			unset( $conversion['event_params'] ); // Remove raw params from response
 
 			// Set defaults for null values.
-			$conversion['source']   = $conversion['source'] ?: '(direct)';
-			$conversion['medium']   = $conversion['medium'] ?: '(none)';
-			$conversion['campaign'] = $conversion['campaign'] ?: '';
-			$conversion['referrer'] = $conversion['referrer'] ?: '';
-			$conversion['device']   = $conversion['device'] ?: 'desktop';
-			$conversion['browser']  = $conversion['browser'] ?: 'unknown';
+			$conversion['source']   = ! empty( $conversion['source'] ) ? $conversion['source'] : '(direct)';
+			$conversion['medium']   = ! empty( $conversion['medium'] ) ? $conversion['medium'] : '(none)';
+			$conversion['campaign'] = ! empty( $conversion['campaign'] ) ? $conversion['campaign'] : '';
+			$conversion['referrer'] = ! empty( $conversion['referrer'] ) ? $conversion['referrer'] : '';
+			$conversion['device']   = ! empty( $conversion['device'] ) ? $conversion['device'] : 'desktop';
+			$conversion['browser']  = ! empty( $conversion['browser'] ) ? $conversion['browser'] : 'unknown';
 		}
 
 		// ========================================.
@@ -1076,9 +1084,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 		global $wpdb;
 
 		$goal_id           = absint( $request->get_param( 'id' ) );
-		$attribution_model = sanitize_text_field( $request->get_param( 'attribution_model' ) ) ?: 'last_touch';
-		$date_start        = $request->get_param( 'date_start' ) ?: gmdate( 'Y-m-d', strtotime( '-30 days' ) );
-		$date_end          = $request->get_param( 'date_end' ) ?: gmdate( 'Y-m-d' );
+		$attribution_model = sanitize_text_field( $request->get_param( 'attribution_model' ) ) ? sanitize_text_field( $request->get_param( 'attribution_model' ) ) : 'last_touch';
+		$date_start        = $request->get_param( 'date_start' ) ? $request->get_param( 'date_start' ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$date_end          = $request->get_param( 'date_end' ) ? $request->get_param( 'date_end' ) : gmdate( 'Y-m-d' );
 
 		// ========================================.
 		// PHASE 2: TRANSIENT CACHE (5 min TTL).
@@ -1419,8 +1427,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 		global $wpdb;
 
 		$goal_id    = absint( $request->get_param( 'id' ) );
-		$date_start = $request->get_param( 'date_start' ) ?: gmdate( 'Y-m-d', strtotime( '-30 days' ) );
-		$date_end   = $request->get_param( 'date_end' ) ?: gmdate( 'Y-m-d' );
+		$date_start = $request->get_param( 'date_start' ) ? $request->get_param( 'date_start' ) : gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$date_end   = $request->get_param( 'date_end' ) ? $request->get_param( 'date_end' ) : gmdate( 'Y-m-d' );
 
 		// Check cache.
 		$cache_key = sprintf(

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Event mapper for platform-specific transformations.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for event mapping diagnostics, only fires when WP_DEBUG=true
 
 /**

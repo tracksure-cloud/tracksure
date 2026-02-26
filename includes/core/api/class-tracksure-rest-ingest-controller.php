@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API ingest controller.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for event ingestion diagnostics, only fires when WP_DEBUG=true
 
 /**
@@ -226,7 +232,7 @@ class TrackSure_REST_Ingest_Controller extends TrackSure_REST_Controller {
 
 		// Rate limiting check.
 		$client_id = $request->get_param( 'client_id' );
-		$client_ip = TrackSure_Utilities::get_client_ip() ?: '';
+		$client_ip = TrackSure_Utilities::get_client_ip() ? TrackSure_Utilities::get_client_ip() : '';
 
 		$rate_limiter = TrackSure_Rate_Limiter::get_instance();
 		if ( ! $rate_limiter->check_rate_limit( $client_id, $client_ip ) ) {
@@ -363,7 +369,7 @@ class TrackSure_REST_Ingest_Controller extends TrackSure_REST_Controller {
 			$client_id = '';
 		}
 
-		$client_ip = TrackSure_Utilities::get_client_ip() ?: '';
+		$client_ip = TrackSure_Utilities::get_client_ip() ? TrackSure_Utilities::get_client_ip() : '';
 
 		$rate_limiter = TrackSure_Rate_Limiter::get_instance();
 		if ( ! $rate_limiter->check_rate_limit( $client_id, $client_ip ) ) {

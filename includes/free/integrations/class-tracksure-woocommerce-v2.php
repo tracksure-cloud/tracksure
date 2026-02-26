@@ -211,10 +211,7 @@ class TrackSure_WooCommerce_V2 {
 					$event_data = $this->adapter->extract_product_data( $product );
 				}
 			}
-		}
-
-		// 2. CHECK: Cart Page (view_cart)
-		elseif ( is_cart() && ! is_checkout() ) {
+		} elseif ( is_cart() && ! is_checkout() ) { // 2. CHECK: Cart Page (view_cart).
 			$cart_data = $this->adapter->extract_cart_data();
 			if ( $cart_data ) {
 				$page_type  = 'cart';
@@ -227,11 +224,10 @@ class TrackSure_WooCommerce_V2 {
 					'coupon'   => isset( $cart_data['coupon_codes'] ) && ! empty( $cart_data['coupon_codes'] ) ? implode( ',', $cart_data['coupon_codes'] ) : '',
 				);
 			}
-		}
+		} elseif ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
+			// 3. CHECK: Checkout Page (begin_checkout) - but NOT thank you page.
+			// Supports both Classic Checkout and WooCommerce Blocks Checkout.
 
-		// 3. CHECK: Checkout Page (begin_checkout) - but NOT thank you page
-		// Supports both Classic Checkout and WooCommerce Blocks Checkout
-		elseif ( is_checkout() && ! is_wc_endpoint_url( 'order-received' ) ) {
 			// WooCommerce Blocks Checkout detection
 			$is_blocks_checkout = function_exists( 'has_block' ) && has_block( 'woocommerce/checkout' );
 
@@ -259,13 +255,11 @@ class TrackSure_WooCommerce_V2 {
 					set_transient( $tracked_key, true, 300 );
 				}
 			}
-		}
-
-		// 4. CHECK: Thank You Page (purchase)
-		// NOTE: Uses separate meta key (_tracksure_purchase_browser_sent) from the server-side
-		// capture_purchase_data() which uses _tracksure_purchase_tracked.
-		// Both fire independently. Deduplication happens at the destination level via shared event_id.
-		elseif ( is_checkout() && is_wc_endpoint_url( 'order-received' ) ) {
+		} elseif ( is_checkout() && is_wc_endpoint_url( 'order-received' ) ) {
+			// 4. CHECK: Thank You Page (purchase).
+			// NOTE: Uses separate meta key (_tracksure_purchase_browser_sent) from the server-side
+			// capture_purchase_data() which uses _tracksure_purchase_tracked.
+			// Both fire independently. Deduplication happens at the destination level via shared event_id.
 			global $wp;
 			$order_id = isset( $wp->query_vars['order-received'] ) ? absint( $wp->query_vars['order-received'] ) : 0;
 
@@ -293,10 +287,8 @@ class TrackSure_WooCommerce_V2 {
 					}
 				}
 			}
-		}
-
-		// 5. CHECK: My Account Page (account_page_view) - only for logged-in users
-		elseif ( is_account_page() && is_user_logged_in() ) {
+		} elseif ( is_account_page() && is_user_logged_in() ) {
+			// 5. CHECK: My Account Page (account_page_view) - only for logged-in users.
 			// Detect specific account section
 			global $wp;
 			$account_section = 'dashboard'; // Default

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Attribution analytics service.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Attribution analytics requires direct DB queries for aggregated insights
 
 /**
@@ -492,7 +498,7 @@ class TrackSure_Attribution_Analytics {
 						'avg_credit'  => round( (float) $row['avg_credit'], 1 ),
 					);
 				},
-				$sources ?: array()
+				! empty( $sources ) ? $sources : array()
 			);
 		}
 

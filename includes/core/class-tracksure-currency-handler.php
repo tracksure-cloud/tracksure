@@ -1,4 +1,10 @@
 <?php
+/**
+ * Currency conversion handler.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for currency conversion diagnostics, only fires when WP_DEBUG=true
 
 /**
@@ -79,9 +85,9 @@ class TrackSure_Currency_Handler {
 	 * 2. Non-standard formats (TL, EURO, US$, etc.) → ISO codes
 	 * 3. Platform-specific regulations (VEF→USD, BGN→EUR)
 	 *
-	 * @param string $code        Currency code (BDT, USD, €, etc.)
-	 * @param string $platform    Optional platform for validation (meta, ga4, google_ads, etc.)
-	 * @return string ISO 4217 compliant code
+	 * @param string $code        Currency code (BDT, USD, €, etc.).
+	 * @param string $platform    Optional platform for validation (meta, ga4, google_ads, etc.).
+	 * @return string ISO 4217 compliant code.
 	 */
 	public function normalize( $code, $platform = null ) {
 		$code = strtoupper( trim( $code ) );
@@ -117,8 +123,8 @@ class TrackSure_Currency_Handler {
 	/**
 	 * Apply currency mappings (symbols → ISO, regulations, etc.)
 	 *
-	 * @param string $code Currency code
-	 * @return string Normalized code
+	 * @param string $code Currency code.
+	 * @return string Normalized code.
 	 */
 	private function apply_mappings( $code ) {
 		$mappings = $this->config->get_currency_mappings();
@@ -133,8 +139,8 @@ class TrackSure_Currency_Handler {
 	/**
 	 * Check if currency is supported by platform.
 	 *
-	 * @param string $code     ISO currency code
-	 * @param string $platform Platform name (meta, ga4, google_ads, etc.)
+	 * @param string $code     ISO currency code.
+	 * @param string $platform Platform name (meta, ga4, google_ads, etc.).
 	 * @return bool
 	 */
 	public function is_supported_by_platform( $code, $platform ) {
@@ -151,8 +157,8 @@ class TrackSure_Currency_Handler {
 	/**
 	 * Get fallback currency for platform.
 	 *
-	 * @param string $platform Platform name
-	 * @return string Fallback currency code
+	 * @param string $platform Platform name.
+	 * @return string Fallback currency code.
 	 */
 	private function get_platform_fallback( $platform ) {
 		$fallbacks = array(
@@ -173,7 +179,7 @@ class TrackSure_Currency_Handler {
 	/**
 	 * Validate ISO 4217 currency code format.
 	 *
-	 * @param string $code Currency code
+	 * @param string $code Currency code.
 	 * @return bool
 	 */
 	private function is_valid_iso_code( $code ) {
@@ -184,8 +190,8 @@ class TrackSure_Currency_Handler {
 	/**
 	 * Get all supported currencies for a platform.
 	 *
-	 * @param string $platform Platform name
-	 * @return array Array of currency codes
+	 * @param string $platform Platform name.
+	 * @return array Array of currency codes.
 	 */
 	public function get_supported_currencies( $platform ) {
 		return $this->config->get_platform_currencies( $platform );
@@ -194,8 +200,8 @@ class TrackSure_Currency_Handler {
 	/**
 	 * Get currency symbol for ISO code.
 	 *
-	 * @param string $code ISO currency code
-	 * @return string Currency symbol (or code if symbol not found)
+	 * @param string $code ISO currency code.
+	 * @return string Currency symbol (or code if symbol not found).
 	 */
 	public function get_symbol( $code ) {
 		$symbols = $this->config->get_currency_symbols();

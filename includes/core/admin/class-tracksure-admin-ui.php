@@ -1,4 +1,10 @@
 <?php
+/**
+ * Admin UI handler for TrackSure.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for admin UI diagnostics, only fires when WP_DEBUG=true
 
 /**
@@ -217,7 +223,7 @@ class TrackSure_Admin_UI {
 						$currency_symbol = html_entity_decode( $fc_symbol );
 					}
 				}
-			} catch ( \Exception $e ) {
+			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				// Fallback to USD if FluentCart API fails.
 			}
 		} elseif ( function_exists( 'edd_get_currency' ) ) {

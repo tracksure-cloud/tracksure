@@ -1,4 +1,10 @@
 <?php
+/**
+ * Consent API endpoint functions.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging for consent plugin integration diagnostics
 
 /**

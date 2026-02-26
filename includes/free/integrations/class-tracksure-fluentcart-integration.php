@@ -1,4 +1,10 @@
 <?php
+/**
+ * FluentCart integration module.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,WordPress.Security.ValidatedSanitizedInput -- Debug logging and FluentCart data extraction requires direct DB access
 
 /**
@@ -371,13 +377,9 @@ class TrackSure_FluentCart_Integration {
 			// Try direct property access first
 			if ( isset( $cart->cart_data ) ) {
 				$cart_data_json = $cart->cart_data;
-			}
-			// Try getAttribute method (Laravel Eloquent)
-			elseif ( method_exists( $cart, 'getAttribute' ) ) {
+			} elseif ( method_exists( $cart, 'getAttribute' ) ) { // Try getAttribute method (Laravel Eloquent).
 				$cart_data_json = $cart->getAttribute( 'cart_data' );
-			}
-			// Try getAttributes method for protected attributes array
-			elseif ( method_exists( $cart, 'getAttributes' ) ) {
+			} elseif ( method_exists( $cart, 'getAttributes' ) ) { // Try getAttributes method for protected attributes array.
 				$attrs = $cart->getAttributes();
 				if ( isset( $attrs['cart_data'] ) ) {
 					$cart_data_json = $attrs['cart_data'];

@@ -1,4 +1,10 @@
 <?php
+/**
+ * GA4 setup guide configuration helper.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging for GA4 setup guide diagnostics
 
 /**
@@ -71,7 +77,8 @@ class TrackSure_GA4_Setup_Guide {
 		?>
 		<div class="notice notice-info is-dismissible tracksure-ga4-setup-guide">
 			<h2 style="margin-top: 10px;">🚀 TrackSure + GA4: 5 Required Setup Steps</h2>
-			<p><strong>Good news:</strong> TrackSure is already tracking <strong>all events automatically</strong> (purchase, begin_checkout, view_item, add_to_cart, page_view, etc.). No code needed! ✅</p>
+			<p><strong>Good news:</strong> TrackSure is already tracking <strong>all events automatically</strong>
+			(purchase, begin_checkout, view_item, add_to_cart, page_view, etc.). No code needed! ✅</p>
 			<p><strong>Important:</strong> You must complete these <strong>5 manual steps in Google Analytics Admin UI</strong> to see data in reports:</p>
 
 			<ol style="margin-left: 20px; line-height: 1.8;">
@@ -143,10 +150,14 @@ class TrackSure_GA4_Setup_Guide {
 				<li>✅ Consent Mode V2 (GDPR/CCPA compliance with Complianz, CookieYes, etc.)</li>
 			</ul>
 
-			<p><strong>Summary:</strong> TrackSure handles <strong>100% of tracking code</strong> automatically. You just need to configure <strong>GA4 Admin UI</strong> (conversions, data retention, custom dimensions) to see data in reports. The 5 steps above take ~15 minutes total.</p>
+			<p><strong>Summary:</strong> TrackSure handles <strong>100% of tracking code</strong> automatically.
+			You just need to configure <strong>GA4 Admin UI</strong>
+			(conversions, data retention, custom dimensions) to see data in reports.
+			The 5 steps above take ~15 minutes total.</p>
 
 			<p style="margin-top: 15px;">
-				<a href="<?php echo esc_url( 'https://analytics.google.com/analytics/web/#/p' . str_replace( 'G-', '', $measurement_id ) . '/admin' ); ?>" target="_blank" class="button button-primary">
+				<a href="<?php echo esc_url( 'https://analytics.google.com/analytics/web/#/p' . str_replace( 'G-', '', $measurement_id ) . '/admin' ); ?>"
+					target="_blank" class="button button-primary">
 					Open GA4 Admin → Complete Setup (15 min)
 				</a>
 				<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?action=tracksure_dismiss_ga4_guide' ), 'dismiss_ga4_guide' ) ); ?>" class="button">
@@ -343,12 +354,12 @@ class TrackSure_GA4_Setup_Guide {
 						'title'       => 'Create Audiences for Remarketing',
 						'time'        => '5 minutes',
 						'critical'    => false,
-						'description' => 'GA4 Admin → Audiences → Create custom audience', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- False positive: 'exclude' is documentation text for GA4 audiences, not a WP_Query parameter
+						'description' => 'GA4 Admin → Audiences → Create custom audience', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 						'audiences'   => array(
 							array(
 								'name'    => 'Cart Abandoners',
 								'include' => 'add_to_cart (last 7 days)',
-								'exclude' => 'purchase (last 7 days)', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude -- False positive: 'exclude' is array key for GA4 audience configuration, not WP_Query parameter
+								'exclude' => 'purchase (last 7 days)', // phpcs:ignore WordPressVIPMinimum.Performance.WPQueryParams.PostNotIn_exclude
 							),
 							array(
 								'name'    => 'Purchasers (30 days)',
@@ -410,7 +421,9 @@ class TrackSure_GA4_Setup_Guide {
 					'Debug mode (auto-enabled for .local domains)',
 					'Consent Mode V2 (GDPR/CCPA compliance with Complianz, CookieYes, etc.)',
 				),
-				'summary'           => 'TrackSure handles 100% of tracking code automatically. You just need to configure GA4 Admin UI (conversions, data retention, custom dimensions) to see data in reports. The 5 steps above take ~15 minutes total.',
+				'summary'           => 'TrackSure handles 100% of tracking code automatically. '
+					. 'You just need to configure GA4 Admin UI (conversions, data retention, custom dimensions) '
+					. 'to see data in reports. The 5 steps above take ~15 minutes total.',
 				'note'              => 'Wait 24-48 hours after completing setup for data to appear in GA4 standard reports (Realtime shows data immediately).',
 			),
 			200

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Checkout event tracking handler.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging for checkout tracking diagnostics
 
 /**
@@ -15,6 +21,11 @@
 
 defined( 'ABSPATH' ) || exit;
 
+/**
+ * Handles checkout tracking for WooCommerce and other e-commerce platforms.
+ *
+ * @since 2.0.0
+ */
 class TrackSure_Checkout_Tracking {
 
 

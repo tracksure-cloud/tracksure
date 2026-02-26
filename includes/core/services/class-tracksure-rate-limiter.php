@@ -1,4 +1,10 @@
 <?php
+/**
+ * Rate limiting service for API protection.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery -- Rate limiter requires direct DB for real-time spam protection
 
 /**

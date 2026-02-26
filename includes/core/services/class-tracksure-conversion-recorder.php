@@ -1,4 +1,10 @@
 <?php
+/**
+ * Conversion recording service.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for conversion tracking diagnostics, only fires when WP_DEBUG=true
 
 /**
@@ -88,6 +94,7 @@ class TrackSure_Conversion_Recorder {
 	 *
 	 * @param array $conversion_data Conversion data.
 	 * @return int|false Conversion ID on success, false on failure.
+	 * @throws Exception If conversion insert, touchpoint linking, or attribution fails.
 	 */
 	public function record_conversion( $conversion_data ) {
 		global $wpdb;
@@ -125,7 +132,7 @@ class TrackSure_Conversion_Recorder {
 			$this->lookback_days
 		);
 
-		if ( empty( $touchpoints ) ) {
+		if ( empty( $touchpoints ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 			// Still record conversion, but with null attribution.
 		}
 

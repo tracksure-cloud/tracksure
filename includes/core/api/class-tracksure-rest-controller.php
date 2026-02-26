@@ -193,8 +193,8 @@ abstract class TrackSure_REST_Controller extends WP_REST_Controller {
 	 * @return array Associative array with 'page', 'per_page', 'offset'.
 	 */
 	protected function get_pagination_params( $request ) {
-		$page     = max( 1, absint( $request->get_param( 'page' ) ?: 1 ) );
-		$per_page = max( 1, absint( $request->get_param( 'per_page' ) ?: 20 ) );
+		$page     = max( 1, absint( $request->get_param( 'page' ) ? $request->get_param( 'page' ) : 1 ) );
+		$per_page = max( 1, absint( $request->get_param( 'per_page' ) ? $request->get_param( 'per_page' ) : 20 ) );
 		$offset   = ( $page - 1 ) * $per_page;
 
 		return array(

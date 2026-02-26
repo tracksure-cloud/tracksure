@@ -1,4 +1,10 @@
 <?php
+/**
+ * FluentCart e-commerce platform adapter.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.Security.NonceVerification,WordPress.DB.DirectDatabaseQuery,PluginCheck.Security.DirectDB -- Debug logging + cookie access + direct DB queries for FluentCart integration, $wpdb->prefix safe
 
 /**
@@ -144,6 +150,7 @@ class TrackSure_FluentCart_Adapter implements TrackSure_Ecommerce_Adapter {
 		// Try to load filteredOrderItems (preferred - filters out certain types).
 		if ( method_exists( $order, 'filteredOrderItems' ) ) {
 			try {
+				// phpcs:ignore WordPress.NamingConventions.ValidVariableName.UsedPropertyNotSnakeCase -- FluentCart API property.
 				$items = $order->filteredOrderItems;
 				// If not loaded, trigger lazy load
 				if ( ! $items || ( is_object( $items ) && ! method_exists( $items, 'count' ) ) ) {
@@ -257,8 +264,8 @@ class TrackSure_FluentCart_Adapter implements TrackSure_Ecommerce_Adapter {
 					ARRAY_A
 				);
 
-				if ( $variation_data ) {
-					// Variation data found
+				if ( $variation_data ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
+					// Variation data found.
 				}
 			}
 		}
@@ -293,9 +300,8 @@ class TrackSure_FluentCart_Adapter implements TrackSure_Ecommerce_Adapter {
 					$item_variant = implode( ', ', $variant_parts );
 				}
 			}
-		}
-		// PRIORITY 2: Get from product detail (FluentCart stores in separate table)
-		elseif ( $product_id && is_object( $product ) && method_exists( $product, 'detail' ) ) {
+		} elseif ( $product_id && is_object( $product ) && method_exists( $product, 'detail' ) ) {
+			// PRIORITY 2: Get from product detail (FluentCart stores in separate table).
 			try {
 				$detail = $product->detail;  // Laravel Eloquent relationship
 
@@ -457,19 +463,13 @@ class TrackSure_FluentCart_Adapter implements TrackSure_Ecommerce_Adapter {
 		if ( isset( $item->id ) && $item->id > 0 ) {
 			$variation_id = (int) $item->id;
 			$item_id      = (string) $item->id;
-		}
-		// Priority 2: Check for variation_id field
-		elseif ( isset( $item->variation_id ) && $item->variation_id > 0 ) {
+		} elseif ( isset( $item->variation_id ) && $item->variation_id > 0 ) { // Priority 2: Check for variation_id field.
 			$variation_id = (int) $item->variation_id;
 			$item_id      = (string) $item->variation_id;
-		}
-		// Priority 3: Check for object_id field
-		elseif ( isset( $item->object_id ) && $item->object_id > 0 ) {
+		} elseif ( isset( $item->object_id ) && $item->object_id > 0 ) { // Priority 3: Check for object_id field.
 			$variation_id = (int) $item->object_id;
 			$item_id      = (string) $item->object_id;
-		}
-		// Priority 4: Fall back to product_id (parent product)
-		elseif ( isset( $item->product_id ) ) {
+		} elseif ( isset( $item->product_id ) ) { // Priority 4: Fall back to product_id (parent product).
 			$item_id = (string) $item->product_id;
 		} elseif ( isset( $item->post_id ) ) {
 			$item_id = (string) $item->post_id;
@@ -907,7 +907,7 @@ class TrackSure_FluentCart_Adapter implements TrackSure_Ecommerce_Adapter {
 		// Cart data is retrieved via Cart Model or passed from hooks - no warning needed.
 
 		// Log warnings if any classes are missing.
-		if ( ! empty( $missing ) ) {
+		if ( ! empty( $missing ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 			// FluentCart API compatibility issues detected - missing classes logged during development.
 		}
 	}

@@ -369,7 +369,10 @@ class TrackSure_Free {
 				'readonly'    => false,
 				'default'     => false,
 				'label'       => __( 'GA4 Consent Mode V2', 'tracksure' ),
-				'description' => __( 'Enable Google Consent Mode V2. Tracking is allowed by default. When a consent plugin is installed (Complianz, CookieYes, etc.), user choices are respected automatically.', 'tracksure' ),
+				'description' => __(
+					'Enable Google Consent Mode V2. Tracking is allowed by default. When a consent plugin is installed (Complianz, CookieYes, etc.), user choices are respected automatically.',
+					'tracksure'
+				),
 				'category'    => 'destinations',
 				'group'       => 'ga4',
 				'in_rest'     => true,

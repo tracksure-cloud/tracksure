@@ -1,4 +1,10 @@
 <?php
+/**
+ * Touchpoint recording service for attribution.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Touchpoint recording requires direct DB queries for attribution tracking
 
 /**

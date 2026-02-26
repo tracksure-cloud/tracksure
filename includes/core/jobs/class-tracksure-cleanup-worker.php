@@ -1,4 +1,10 @@
 <?php
+/**
+ * Background cleanup worker for stale data.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Debug logging + direct DB queries required for cleanup operations, $wpdb->prefix is safe
 
 /**

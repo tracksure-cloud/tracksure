@@ -1,4 +1,10 @@
 <?php
+/**
+ * REST API settings controller.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for settings diagnostics, only fires when WP_DEBUG=true
 
 /**

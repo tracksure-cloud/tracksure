@@ -1,4 +1,10 @@
 <?php
+/**
+ * Integrations manager for e-commerce platforms.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging only fires when WP_DEBUG is true
 
 /**

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Session management service.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for session lifecycle diagnostics, only fires when WP_DEBUG=true
 
 /**

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Geolocation lookup service.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery -- Debug logging + direct DB queries for geolocation caching
 
 /**
@@ -115,6 +121,9 @@ class TrackSure_Geolocation {
 	 * 4. Remote API providers (ipapi.co, ip-api.com, WordPress.com)
 	 *
 	 * Results are cached in memory + transients (24 hours).
+	 *
+	 * @param string $ip IP address.
+	 * @return array Location data with country, region, and city keys.
 	 */
 	public function get_location_from_ip( $ip ) {
 		// Validate IP address.
@@ -365,7 +374,7 @@ class TrackSure_Geolocation {
 					'city'    => null,
 				);
 			}
-		} catch ( \Exception $e ) {
+		} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 			// MaxMind lookup failed — fall through to remote providers.
 		}
 

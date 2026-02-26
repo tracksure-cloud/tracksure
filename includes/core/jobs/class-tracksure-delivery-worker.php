@@ -1,4 +1,10 @@
 <?php
+/**
+ * Outbox delivery worker for server-side events.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Debug logging + direct DB queries required for delivery queue, $wpdb->prefix is safe
 
 /**
@@ -53,6 +59,12 @@ class TrackSure_Delivery_Worker {
 	 * @var int
 	 */
 	const MAX_DELIVERY_RETRIES = 9;
+
+	/**
+	 * Max retry count.
+	 *
+	 * @var int
+	 */
 	private $max_retries       = self::MAX_DELIVERY_RETRIES;
 
 	/**

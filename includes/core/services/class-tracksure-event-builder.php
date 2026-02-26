@@ -1,4 +1,10 @@
 <?php
+/**
+ * Event builder for constructing normalized events.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for event building diagnostics, only fires when WP_DEBUG=true
 
 /**

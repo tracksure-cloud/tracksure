@@ -1,4 +1,10 @@
 <?php
+/**
+ * Google Analytics 4 destination handler.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.Security.NonceVerification -- Debug logging + cookie/query param access for GA4 integration
 // phpcs:disable WordPress.WP.EnqueuedResourceParameters.MissingVersion -- GA4 gtag.js loaded from Google CDN, version managed by Google
 
@@ -441,7 +447,7 @@ class TrackSure_GA4_Destination {
 			if ( ! empty( $user_properties ) ) {
 				$payload['user_properties'] = $user_properties;
 			}
-		} else {
+		} else { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedElse
 			// Consent denied - anonymize user data but STILL send event.
 			// Remove user_id (prevents cross-device tracking).
 			// Remove user_properties (prevents audience targeting with PII).

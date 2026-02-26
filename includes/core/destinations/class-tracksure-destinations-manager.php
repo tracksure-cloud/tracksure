@@ -1,4 +1,10 @@
 <?php
+/**
+ * Destinations manager for analytics platforms.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for destination routing diagnostics, only fires when WP_DEBUG=true
 
 /**

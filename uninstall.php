@@ -1,4 +1,10 @@
 <?php
+/**
+ * Uninstall TrackSure plugin.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.DB.DirectDatabaseQuery -- Direct database queries required for uninstall cleanup
 // Exit if accessed directly.
 if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {

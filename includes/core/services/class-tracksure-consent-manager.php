@@ -1,4 +1,10 @@
 <?php
+/**
+ * Cookie consent management service.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging for consent management diagnostics
 
 /**
@@ -294,11 +300,9 @@ class TrackSure_Consent_Manager {
 				if ( isset( $data[ $consent_key ] ) && ( $data[ $consent_key ] === 'yes' || $data[ $consent_key ] === true || $data[ $consent_key ] === 1 || $data[ $consent_key ] === '1' ) ) {
 					return true;
 				}
-			} else {
-				// String search format (for simple cookies like OneTrust)
-				if ( false !== strpos( $data, $consent_key ) ) {
-					return true;
-				}
+			} elseif ( false !== strpos( $data, $consent_key ) ) {
+				// String search format (for simple cookies like OneTrust).
+				return true;
 			}
 		}
 
@@ -783,7 +787,7 @@ class TrackSure_Consent_Manager {
 			try {
 				$consent = \Borlabs\Cookie\System\Consent\ConsentManager::getInstance();
 				return $consent->hasConsent( 'statistics' );
-			} catch ( \Exception $e ) {
+			} catch ( \Exception $e ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedCatch
 				// Fallback to cookie check.
 			}
 		}

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Event recorder service for persisting tracking events.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Debug logging + direct DB queries required for event recording, $wpdb->prefix is safe
 
 /**
@@ -283,9 +289,7 @@ class TrackSure_Event_Recorder {
 				$conversion_value = (float) $event_params['value'];
 			} elseif ( isset( $event_params['order_total'] ) ) {
 				$conversion_value = (float) $event_params['order_total'];
-			}
-			// Fallback to root level (server-side events).
-			elseif ( isset( $event_data['value'] ) ) {
+			} elseif ( isset( $event_data['value'] ) ) { // Fallback to root level (server-side events).
 				$conversion_value = (float) $event_data['value'];
 			} elseif ( isset( $event_data['order_total'] ) ) {
 				$conversion_value = (float) $event_data['order_total'];
@@ -338,7 +342,9 @@ class TrackSure_Event_Recorder {
 			} )() : gmdate( 'Y-m-d H:i:s' ),
 			'created_at'        => gmdate( 'Y-m-d H:i:s' ), // Server processing time (UTC)
 			'page_url'          => isset( $enriched_data['page_url'] ) ? esc_url_raw( $enriched_data['page_url'] ) : null,
-			'page_path'         => isset( $enriched_data['page_path'] ) ? sanitize_text_field( $enriched_data['page_path'] ) : ( isset( $enriched_data['page_url'] ) ? wp_parse_url( $enriched_data['page_url'], PHP_URL_PATH ) : null ),
+			'page_path'         => isset( $enriched_data['page_path'] )
+				? sanitize_text_field( $enriched_data['page_path'] )
+				: ( isset( $enriched_data['page_url'] ) ? wp_parse_url( $enriched_data['page_url'], PHP_URL_PATH ) : null ),
 			'page_title'        => isset( $enriched_data['page_title'] ) ? sanitize_text_field( $enriched_data['page_title'] ) : null,
 			'referrer'          => isset( $enriched_data['referrer'] ) ? esc_url_raw( $enriched_data['referrer'] ) : null,
 			'user_agent'        => ! empty( $enriched_data['user_agent'] ) ? sanitize_text_field( $enriched_data['user_agent'] ) : null,
@@ -636,18 +642,16 @@ class TrackSure_Event_Recorder {
 			if ( empty( $enriched['os'] ) ) {
 				$enriched['os'] = $this->detect_os( $enriched['user_agent'] );
 			}
-		} else {
+		} elseif ( ! empty( $session ) ) {
 			// No user_agent (server-side event) → Use session data as fallback.
-			if ( ! empty( $session ) ) {
-				if ( empty( $enriched['device_type'] ) && ! empty( $session['device_type'] ) ) {
-					$enriched['device_type'] = $session['device_type'];
-				}
-				if ( empty( $enriched['browser'] ) && ! empty( $session['browser'] ) ) {
-					$enriched['browser'] = $session['browser'];
-				}
-				if ( empty( $enriched['os'] ) && ! empty( $session['os'] ) ) {
-					$enriched['os'] = $session['os'];
-				}
+			if ( empty( $enriched['device_type'] ) && ! empty( $session['device_type'] ) ) {
+				$enriched['device_type'] = $session['device_type'];
+			}
+			if ( empty( $enriched['browser'] ) && ! empty( $session['browser'] ) ) {
+				$enriched['browser'] = $session['browser'];
+			}
+			if ( empty( $enriched['os'] ) && ! empty( $session['os'] ) ) {
+				$enriched['os'] = $session['os'];
 			}
 		}
 
@@ -752,41 +756,23 @@ class TrackSure_Event_Recorder {
 		// Chromium Edge (Edg or EdgA for Android).
 		if ( preg_match( '/Edg[\/A]/i', $user_agent ) ) {
 			return 'Edge';
-		}
-		// Opera
-		elseif ( preg_match( '/OPR\//i', $user_agent ) || preg_match( '/Opera/i', $user_agent ) ) {
+		} elseif ( preg_match( '/OPR\//i', $user_agent ) || preg_match( '/Opera/i', $user_agent ) ) { // Opera.
 			return 'Opera';
-		}
-		// Brave
-		elseif ( preg_match( '/Brave/i', $user_agent ) ) {
+		} elseif ( preg_match( '/Brave/i', $user_agent ) ) { // Brave.
 			return 'Brave';
-		}
-		// Vivaldi
-		elseif ( preg_match( '/Vivaldi/i', $user_agent ) ) {
+		} elseif ( preg_match( '/Vivaldi/i', $user_agent ) ) { // Vivaldi.
 			return 'Vivaldi';
-		}
-		// UC Browser.
-		elseif ( preg_match( '/UCBrowser/i', $user_agent ) ) {
+		} elseif ( preg_match( '/UCBrowser/i', $user_agent ) ) { // UC Browser.
 			return 'UC Browser';
-		}
-		// Samsung Internet.
-		elseif ( preg_match( '/SamsungBrowser/i', $user_agent ) ) {
+		} elseif ( preg_match( '/SamsungBrowser/i', $user_agent ) ) { // Samsung Internet.
 			return 'Samsung Internet';
-		}
-		// Chrome (must check after Chromium-based browsers).
-		elseif ( preg_match( '/Chrome/i', $user_agent ) && ! preg_match( '/Edge/i', $user_agent ) ) {
+		} elseif ( preg_match( '/Chrome/i', $user_agent ) && ! preg_match( '/Edge/i', $user_agent ) ) { // Chrome (must check after Chromium-based browsers).
 			return 'Chrome';
-		}
-		// Safari (must check after Chrome since Chrome includes Safari in UA).
-		elseif ( preg_match( '/Safari/i', $user_agent ) && ! preg_match( '/Chrome/i', $user_agent ) ) {
+		} elseif ( preg_match( '/Safari/i', $user_agent ) && ! preg_match( '/Chrome/i', $user_agent ) ) { // Safari (must check after Chrome since Chrome includes Safari in UA).
 			return 'Safari';
-		}
-		// Firefox
-		elseif ( preg_match( '/Firefox|FxiOS/i', $user_agent ) ) {
+		} elseif ( preg_match( '/Firefox|FxiOS/i', $user_agent ) ) { // Firefox.
 			return 'Firefox';
-		}
-		// Internet Explorer.
-		elseif ( preg_match( '/MSIE|Trident/i', $user_agent ) ) {
+		} elseif ( preg_match( '/MSIE|Trident/i', $user_agent ) ) { // Internet Explorer.
 			return 'Internet Explorer';
 		}
 
@@ -877,8 +863,8 @@ class TrackSure_Event_Recorder {
 	}
 
 
-	/*
-	Compiled bot regex pattern (cached across calls within the same request).
+	/**
+	 * Compiled bot regex pattern (cached across calls within the same request).
 	 *
 	 * @var string|null
 	 */
@@ -1242,7 +1228,9 @@ class TrackSure_Event_Recorder {
 			'page_context'    => array(
 				'page_url'      => isset( $enriched_data['page_url'] ) ? $enriched_data['page_url'] : null,
 				'page_title'    => isset( $enriched_data['page_title'] ) ? $enriched_data['page_title'] : null,
-				'page_path'     => isset( $enriched_data['page_path'] ) ? $enriched_data['page_path'] : ( isset( $enriched_data['page_url'] ) ? wp_parse_url( $enriched_data['page_url'], PHP_URL_PATH ) : null ),
+				'page_path'     => isset( $enriched_data['page_path'] )
+					? $enriched_data['page_path']
+					: ( isset( $enriched_data['page_url'] ) ? wp_parse_url( $enriched_data['page_url'], PHP_URL_PATH ) : null ),
 				'page_referrer' => isset( $enriched_data['referrer'] ) ? $enriched_data['referrer'] : null,
 			),
 			'session_context' => array(

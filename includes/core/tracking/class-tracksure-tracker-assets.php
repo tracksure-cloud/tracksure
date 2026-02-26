@@ -1,4 +1,10 @@
 <?php
+/**
+ * Frontend tracking script asset loader.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.DirectDatabaseQuery,WordPress.DB.PreparedSQL.InterpolatedNotPrepared,PluginCheck.Security.DirectDB -- Debug logging + direct DB queries for goals, $wpdb->prefix is safe
 
 /**
@@ -185,7 +191,8 @@ class TrackSure_Tracker_Assets {
 		$goals = array_map(
 			function ( $goal ) {
 				if ( isset( $goal['conditions'] ) && is_string( $goal['conditions'] ) ) {
-					$goal['conditions'] = json_decode( $goal['conditions'], true ) ?: array();
+					$decoded_conditions = json_decode( $goal['conditions'], true );
+					$goal['conditions'] = ! empty( $decoded_conditions ) ? $decoded_conditions : array();
 				}
 				if ( isset( $goal['match_logic'] ) && is_string( $goal['match_logic'] ) ) {
 					$goal['match_logic'] = json_decode( $goal['match_logic'], true );

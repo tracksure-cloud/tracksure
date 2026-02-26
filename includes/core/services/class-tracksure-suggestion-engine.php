@@ -1,4 +1,10 @@
 <?php
+/**
+ * Setup suggestion engine for guided configuration.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions,WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Debug logging intentionally used for suggestion diagnostics, only fires when WP_DEBUG=true
 
 /**

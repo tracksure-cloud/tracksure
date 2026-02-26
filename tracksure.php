@@ -3,7 +3,7 @@
 /**
  * Plugin Name: TrackSure Cloud
  * Plugin URI: https://tracksure.cloud
- * Description: Server-side tracking, analytics and pixel manager for WordPress. Boost ROAS with Conversion API (CAPI), recover lost conversions from iOS and cookie blockers, and run privacy-friendly first-party analytics with or without ads.
+ * Description: Server-side tracking, analytics and pixel manager for WordPress. Boost ROAS with Conversion API (CAPI), recover lost conversions from ad blockers, and run first-party analytics.
  * Version: 1.0.0
  * Author: TrackSure Team
  * Author URI: https://profiles.wordpress.org/tracksure/
@@ -202,6 +202,8 @@ final class TrackSure {
 		flush_rewrite_rules();
 	}
 }
+
+// phpcs:disable Universal.Files.SeparateFunctionsFromOO.Mixed -- Standard WordPress plugin pattern: main class + helper functions.
 
 /**
  * Get main plugin instance.

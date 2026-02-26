@@ -103,8 +103,6 @@ class TrackSure_Currency_Config {
 			'USD$'    => 'USD',
 			'CA$'     => 'CAD',
 			'AU$'     => 'AUD',
-			'NZ$'     => 'NZD',
-			'HK$'     => 'HKD',
 			'SG$'     => 'SGD',
 			'DOLLAR'  => 'USD',
 			'DOLLARS' => 'USD',
@@ -172,8 +170,8 @@ class TrackSure_Currency_Config {
 	 * - LinkedIn: ~20 currencies
 	 * - Pinterest: ~30 currencies
 	 *
-	 * @param string $platform Platform name
-	 * @return array Supported currency codes
+	 * @param string $platform Platform name.
+	 * @return array Supported currency codes.
 	 */
 	public function get_platform_currencies( $platform ) {
 		$currencies = array(
@@ -483,8 +481,8 @@ class TrackSure_Currency_Config {
 	/**
 	 * Get all platforms that support a specific currency.
 	 *
-	 * @param string $currency_code ISO currency code
-	 * @return array Platform names that support this currency
+	 * @param string $currency_code ISO currency code.
+	 * @return array Platform names that support this currency.
 	 */
 	public function get_platforms_for_currency( $currency_code ) {
 		$currency_code = strtoupper( $currency_code );

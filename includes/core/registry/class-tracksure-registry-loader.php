@@ -1,4 +1,10 @@
 <?php
+/**
+ * Module registry loader.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging for registry loading diagnostics
 
 /**

@@ -1,4 +1,10 @@
 <?php
+/**
+ * Event bridge for cross-system event routing.
+ *
+ * @package TrackSure
+ */
+
 // phpcs:disable WordPress.PHP.DevelopmentFunctions -- Debug logging intentionally used for event routing diagnostics, only fires when WP_DEBUG=true
 
 /**
@@ -131,7 +137,7 @@ class TrackSure_Event_Bridge {
 
 				// If the destination returned a script string (legacy support), we should try to enqueue it.
 				// But optimally, destinations should enqueue themselves.
-				if ( ! empty( $init_script ) && is_string( $init_script ) ) {
+				if ( ! empty( $init_script ) && is_string( $init_script ) ) { // phpcs:ignore Generic.CodeAnalysis.EmptyStatement.DetectedIf
 					// Add legacy script as inline script to jquery or a core handle if possible.
 					// Since we can't easily guess a handle, we'll log a warning and fallback to echo with a comment,
 					// BUT we strongly prefer wp_add_inline_script.
