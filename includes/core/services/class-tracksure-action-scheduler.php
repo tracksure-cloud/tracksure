@@ -18,9 +18,11 @@
  * Both tiers are fully functional. TrackSure does NOT require WooCommerce or any
  * external plugin. WP-Cron is the default and works reliably on all hosting.
  *
- * For shared hosting, consider adding this to wp-config.php for reliable scheduling:
- *   define('DISABLE_WP_CRON', true);
- *   Then set a real system cron: * * * * * wget -q -O /dev/null https://yoursite.com/wp-cron.php
+ * Zero configuration required: The Event Recorder calls spawn_cron() after each
+ * outbox write, which sends a non-blocking loopback request to wp-cron.php.
+ * This ensures delivery starts within ~60 seconds on ANY hosting — shared, VPS,
+ * dedicated, nginx, Apache, LiteSpeed — without the user editing wp-config.php
+ * or setting up system cron jobs.
  *
  * Architecture:
  * 1. Browser/Server events → Event Recorder → outbox table (immediate, per-request)
@@ -128,7 +130,8 @@ class TrackSure_Action_Scheduler
 	 *
 	 * WP-Cron is page-load dependent: it runs when a visitor hits the site
 	 * after the scheduled interval has passed. For busy sites this is fine.
-	 * For low-traffic sites, consider a system cron hitting wp-cron.php.
+	 * For low-traffic sites, spawn_cron() (called from Event Recorder after
+	 * each outbox write) nudges cron to run immediately after events are queued.
 	 */
 	private function schedule_wp_cron_tasks()
 	{

@@ -96,15 +96,37 @@ class TrackSure_Delivery_Worker
 	}
 
 	/**
+	 * Safe time-box ceiling in seconds.
+	 *
+	 * The worker stops processing new items after this many seconds
+	 * to avoid hitting PHP's max_execution_time on shared hosting.
+	 * Remaining outbox items are picked up on the next cron run.
+	 *
+	 * @var int
+	 */
+	const TIME_BOX_SECONDS = 20;
+
+	/**
 	 * Process outbox queue.
 	 *
-	 * ✅ OPTIMIZED: Handles destinations array with per-destination status tracking
+	 *  OPTIMIZED: Handles destinations array with per-destination status tracking
+	 *  TIME-BOXED: Stops after TIME_BOX_SECONDS to avoid timeout on shared hosting
 	 *
 	 * @param int $batch_size Batch size.
 	 */
 	public function process_outbox($batch_size = 50)
 	{
 		global $wpdb;
+
+		// TIME-BOXING: Record start time so we stop before PHP's max_execution_time.
+		// On shared hosting max_execution_time can be as low as 30s. We leave a safety
+		// margin so WordPress shutdown hooks and DB writes still complete after we stop.
+		$start_time = microtime(true);
+		$max_ini    = (int) ini_get('max_execution_time');
+		$time_limit = ($max_ini > 0 && $max_ini < self::TIME_BOX_SECONDS + 10)
+			? max(5, $max_ini - 10)  // Leave 10s margin for cleanup
+			: self::TIME_BOX_SECONDS;
+
 		// Get pending/processing items (destinations array schema).
 		$items = $wpdb->get_results(
 			$wpdb->prepare(
@@ -129,6 +151,15 @@ class TrackSure_Delivery_Worker
 		$item_states         = array(); // outbox_id => { destinations_status, all_completed, has_failures }
 
 		foreach ($items as $item) {
+			// TIME-BOX CHECK: Stop processing new items if we're running out of time.
+			// Remaining items stay in 'pending' status and are picked up on the next run.
+			if ((microtime(true) - $start_time) > $time_limit) {
+				if (defined('WP_DEBUG') && WP_DEBUG) {
+					error_log("[TrackSure] Delivery Worker: Time-boxed after {$time_limit}s — remaining items deferred to next run.");
+				}
+				break;
+			}
+
 			$payload = ! empty($item->payload) ? json_decode($item->payload, true) : array();
 			if (! $payload) {
 				$this->mark_failed_new_schema($item->outbox_id, 'Invalid payload JSON');
@@ -206,6 +237,14 @@ class TrackSure_Delivery_Worker
 
 		// PHASE 2: Send batches to each destination.
 		foreach ($destination_batches as $destination => $batch_entries) {
+			// TIME-BOX CHECK: HTTP calls are the slowest part. Stop before timeout.
+			if ((microtime(true) - $start_time) > $time_limit) {
+				if (defined('WP_DEBUG') && WP_DEBUG) {
+					error_log("[TrackSure] Delivery Worker: Time-boxed during delivery — remaining destinations deferred.");
+				}
+				break;
+			}
+
 			/**
 			 * Try batch delivery first (Meta CAPI supports up to 1000 events per call).
 			 *

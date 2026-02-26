@@ -372,6 +372,18 @@ class TrackSure_Event_Recorder
 			}
 		}
 
+		// PROMPT DELIVERY: Nudge WP-Cron to run immediately after queuing.
+		// spawn_cron() fires a non-blocking HTTP loopback to wp-cron.php,
+		// which triggers the delivery worker in a separate PHP process.
+		// WordPress auto-throttles this to once per WP_CRON_LOCK_TIMEOUT (60s),
+		// so calling it on every event is safe — no extra HTTP calls are made
+		// if cron was already spawned within the last 60 seconds.
+		// This ensures events are delivered within ~60s even on low-traffic sites
+		// without requiring system cron configuration or wp-config.php edits.
+		if (! $is_conversion) {
+			spawn_cron();
+		}
+
 		/**
 		 * Fires after an event is recorded.
 		 *
@@ -1195,6 +1207,9 @@ class TrackSure_Event_Recorder
 		if (! $result && defined('WP_DEBUG') && WP_DEBUG) {
 			error_log("[TrackSure] Event Recorder: Failed to queue to outbox - event_id={$event_data['event_id']}, error=" . $wpdb->last_error);
 		}
+
+		// Invalidate cached outbox count so stats reflect the new item.
+		wp_cache_delete('tracksure_outbox_pending_count', 'tracksure');
 	}
 
 	/**
