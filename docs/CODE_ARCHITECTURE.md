@@ -25,7 +25,7 @@ tracksure/
 ├── includes/                        # All PHP code
 │   ├── core/                        # ⚡ CORE ENGINE (shared by all modules)
 │   │   ├── class-tracksure-core.php          # Service container & module registry
-│   │   ├── class-tracksure-db.php            # Database layer (CRUD for 14 tables)
+│   │   ├── class-tracksure-db.php            # Database layer (CRUD for 15 tables)
 │   │   ├── class-tracksure-installer.php     # Database schema creation
 │   │   ├── class-tracksure-hooks.php         # Hook registry
 │   │   ├── class-tracksure-event-bridge.php  # Browser ↔ Server coordination
@@ -39,10 +39,10 @@ tracksure/
 │   │   │   ├── class-tracksure-admin-ui.php        # React admin wrapper
 │   │   │   └── class-tracksure-admin-extensions.php # Extension registry
 │   │   │
-│   │   ├── api/                      # REST API (14 controllers + 1 public API)
+│   │   ├── api/                      # REST API (12 controllers + 1 public API)
 │   │   │   ├── class-tracksure-rest-api.php                    # Main API class
 │   │   │   ├── class-tracksure-rest-controller.php             # Base controller
-│   │   │   ├── class-tracksure-rest-ingest-controller.php      # /ingest (browser events)
+│   │   │   ├── class-tracksure-rest-ingest-controller.php      # /collect (browser events)
 │   │   │   ├── class-tracksure-rest-events-controller.php      # /events CRUD
 │   │   │   ├── class-tracksure-rest-query-controller.php       # /query (analytics)
 │   │   │   ├── class-tracksure-rest-settings-controller.php    # /settings
@@ -77,7 +77,7 @@ tracksure/
 │   │   │   ├── class-tracksure-registry-loader.php  # JSON loader
 │   │   │   └── class-tracksure-registry-cache.php   # Cache layer
 │   │   │
-│   │   ├── services/                 # Business logic services (20 classes)
+│   │   ├── services/                 # Business logic services (22 classes)
 │   │   │   ├── class-tracksure-session-manager.php       # Session tracking
 │   │   │   ├── class-tracksure-event-recorder.php        # Event storage
 │   │   │   ├── class-tracksure-event-builder.php         # Event construction
@@ -96,8 +96,10 @@ tracksure/
 │   │   │   ├── class-tracksure-rate-limiter.php          # Rate limiting
 │   │   │   ├── class-tracksure-geolocation.php           # IP → Country
 │   │   │   ├── class-tracksure-action-scheduler.php      # Cron scheduling
-│   │   │   ├── class-tracksure-suggestion-engine.php     # AI suggestions
-│   │   │   └── class-tracksure-trusted-proxy-helper.php  # Proxy IP handling
+│   │   │   ├── class-tracksure-suggestion-engine.php        # AI suggestions
+│   │   │   ├── class-tracksure-trusted-proxy-helper.php    # Proxy IP handling
+│   │   │   ├── class-tracksure-url-normalizer.php          # URL normalization
+│   │   │   └── class-tracksure-attribution-analytics.php   # Attribution analytics
 │   │   │
 │   │   ├── tracking/                 # Frontend tracking
 │   │   │   ├── class-tracksure-tracker-assets.php   # Enqueue tracking script
@@ -136,14 +138,23 @@ tracksure/
 │   │   └── styles/                   # CSS/SCSS
 │   │
 │   ├── dist/                         # Production build (IN production zip)
-│   │   └── tracksure-admin.js        # Minified bundle
+│   │   ├── runtime.js                # Webpack module loader (loaded first)
+│   │   ├── vendors.js                # Core vendors (axios, react-query, etc.)
+│   │   ├── react-router.js           # React Router chunk
+│   │   ├── lucide.js                 # Lucide icons (tree-shaken)
+│   │   ├── common.js                 # Shared code across pages
+│   │   ├── recharts.js               # Charting library (lazy-loaded)
+│   │   └── tracksure-admin.js        # Main app entry point
 │   │
 │   ├── package.json                  # Admin dependencies
 │   └── webpack.config.js             # Build configuration
 │
 ├── assets/                           # Public assets
 │   ├── js/
-│   │   └── tracksure-web.js          # Browser tracking SDK
+│   │   ├── ts-web.js                 # Browser tracking SDK
+│   │   ├── ts-currency.js            # Currency detection helper
+│   │   ├── ts-minicart.js            # Mini-cart event tracking
+│   │   └── consent-listeners.js      # Consent change listeners
 │   ├── css/
 │   └── images/
 │
@@ -315,9 +326,9 @@ Coordinates browser-side and server-side event tracking:
 ┌─────────────────────────────────────────────────────────────┐
 │                      User's Browser                          │
 │  ┌────────────────────────────────────────────────────────┐ │
-│  │  TrackSure Web SDK (tracksure-web.js)                  │ │
+│  │  TrackSure Web SDK (ts-web.js)                  │ │
 │  │  - Tracks page views, clicks, form submissions         │ │
-│  │  - Sends to: POST /wp-json/tracksure/v1/ingest         │ │
+│  │  - Sends to: POST /wp-json/ts/v1/collect         │ │
 │  │  - Fires: fbq('track', 'PageView') [Meta Pixel]        │ │
 │  │  - Fires: gtag('event', 'page_view') [GA4 gtag]        │ │
 │  └────────────────────────────────────────────────────────┘ │
@@ -558,7 +569,7 @@ class TrackSure_GA4_Destination {
 
 ## 🗄️ **Database Architecture**
 
-TrackSure uses **14 custom database tables** for analytics:
+TrackSure uses **15 custom database tables** for analytics:
 
 ### **Core Tables**
 
@@ -600,7 +611,7 @@ TrackSure uses **14 custom database tables** for analytics:
 
 ## 🎣 **Hook System**
 
-TrackSure provides **100+ WordPress hooks** for customization:
+TrackSure provides **80+ WordPress hooks** for customization:
 
 ### **Action Hooks**
 
@@ -685,7 +696,7 @@ class TrackSure_Admin_UI {
 
         // Pass data to React
         wp_localize_script('tracksure-admin', 'trackSureAdmin', array(
-            'apiUrl' => rest_url('tracksure/v1'),
+            'apiUrl' => rest_url('ts/v1'),
             'nonce' => wp_create_nonce('wp_rest'),
             'currentUser' => wp_get_current_user(),
         ));
@@ -701,12 +712,12 @@ React components use REST API:
 // admin/src/services/api.ts
 export async function getOverview(dateStart: string, dateEnd: string) {
   const response = await fetch(
-    `/wp-json/tracksure/v1/query/overview?date_start=${dateStart}&date_end=${dateEnd}`,
+    `/wp-json/ts/v1/query/overview?date_start=${dateStart}&date_end=${dateEnd}`,
     {
       headers: {
         "X-WP-Nonce": trackSureAdmin.nonce,
       },
-    }
+    },
   );
   return response.json();
 }
@@ -988,17 +999,19 @@ $order = array(
 ### **For Senior Developers**
 
 1. Architecture (this file) ✅
-2. Database schema: [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)
-3. REST API: [REST_API_REFERENCE.md](REST_API_REFERENCE.md)
-4. Hooks: [HOOKS_AND_FILTERS.md](HOOKS_AND_FILTERS.md)
-5. Event system: [EVENT_SYSTEM.md](EVENT_SYSTEM.md)
+2. Event system: [EVENT_SYSTEM.md](EVENT_SYSTEM.md)
+3. Database schema: [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md)
+4. REST API: [REST_API_REFERENCE.md](REST_API_REFERENCE.md)
+5. Hooks: [HOOKS_AND_FILTERS.md](HOOKS_AND_FILTERS.md)
+6. Plugin API: [PLUGIN_API.md](PLUGIN_API.md)
 
 ### **For Third-Party Developers**
 
-1. Module system: [MODULE_SYSTEM.md](MODULE_SYSTEM.md)
-2. Adding integrations: [ADDING-INTEGRATIONS.md](ADDING-INTEGRATIONS.md)
-3. Public API: [PLUGIN_API.md](PLUGIN_API.md)
-4. Custom events: [CUSTOM_EVENTS.md](CUSTOM_EVENTS.md)
+1. Module development: [MODULE_DEVELOPMENT.md](MODULE_DEVELOPMENT.md)
+2. Adapter / integration development: [ADAPTER_DEVELOPMENT.md](ADAPTER_DEVELOPMENT.md)
+3. Custom events: [CUSTOM_EVENTS.md](CUSTOM_EVENTS.md)
+4. Plugin API: [PLUGIN_API.md](PLUGIN_API.md)
+5. Destination development: [DESTINATION_DEVELOPMENT.md](DESTINATION_DEVELOPMENT.md)
 
 ---
 
@@ -1010,5 +1023,5 @@ $order = array(
 
 ---
 
-**Last Updated**: January 17, 2026  
+**Last Updated**: February 26, 2026  
 **Version**: 1.0.0

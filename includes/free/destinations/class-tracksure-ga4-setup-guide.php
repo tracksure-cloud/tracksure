@@ -213,9 +213,9 @@ class TrackSure_GA4_Setup_Guide
 	 */
 	public function register_rest_routes()
 	{
-		// GET /wp-json/tracksure/v1/ga4-setup-guide
+		// GET /wp-json/ts/v1/ga4-setup-guide
 		register_rest_route(
-			'tracksure/v1',
+			'ts/v1',
 			'/ga4-setup-guide',
 			array(
 				'methods'             => 'GET',
@@ -226,9 +226,9 @@ class TrackSure_GA4_Setup_Guide
 			)
 		);
 
-		// POST /wp-json/tracksure/v1/ga4-setup-guide/dismiss
+		// POST /wp-json/ts/v1/ga4-setup-guide/dismiss
 		register_rest_route(
-			'tracksure/v1',
+			'ts/v1',
 			'/ga4-setup-guide/dismiss',
 			array(
 				'methods'             => 'POST',

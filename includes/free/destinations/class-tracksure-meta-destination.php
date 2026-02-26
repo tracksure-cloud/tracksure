@@ -106,7 +106,12 @@ class TrackSure_Meta_Destination
 		$this->register_browser_destination();
 
 		// Register with Delivery Worker (server-side CAPI).
+		// Individual delivery (fallback for immediate/conversion events).
 		add_filter('tracksure_deliver_mapped_event', array($this, 'send'), 10, 3);
+
+		// Batch delivery (Meta CAPI supports up to 1000 events per HTTP call).
+		// Reduces HTTP overhead from N calls to 1 call per processing cycle.
+		add_filter('tracksure_deliver_batch', array($this, 'send_batch'), 10, 3);
 	}
 
 	/**
@@ -168,13 +173,15 @@ class TrackSure_Meta_Destination
 		$inline_script .= "  t.src=v;s=b.getElementsByTagName(e)[0];\n";
 		$inline_script .= "  s.parentNode.insertBefore(t,s)\n";
 		$inline_script .= "}(window, document,'script','https://connect.facebook.net/en_US/fbevents.js');\n";
-		$inline_script .= "fbq('init', '" . esc_js($pixel_id) . "', {$user_data_json});\n";
-		$inline_script .= "fbq('track', 'PageView');";
+		// IMPORTANT: Do NOT fire fbq('track', 'PageView') here!
+		// The Event Bridge fires PageView with eventID for proper CAPI deduplication.
+		// Firing it here without eventID would cause double-counting in Meta.
+		$inline_script .= "fbq('init', '" . esc_js($pixel_id) . "', {$user_data_json});";
 
 		// Add inline script using WordPress enqueue system.
 		wp_add_inline_script('tracksure-meta-pixel', $inline_script, 'before');
 
-		// Add noscript fallback.
+		// Add noscript fallback (for users with JS disabled — no dedup needed).
 		add_action(
 			'wp_footer',
 			function () use ($pixel_id) {
@@ -240,9 +247,20 @@ class TrackSure_Meta_Destination
 			}
 		}
 
-		// External ID (user ID or session ID for guests).
+		// External ID (user ID for logged-in, client_id for guests).
+		// Using client_id (persistent UUID cookie) for guests significantly improves
+		// cross-device matching and EMQ score for anonymous visitors.
+		// IMPORTANT: Hash values with SHA-256 to match the CAPI-side enrich_user_data()
+		// so browser pixel and server events use the same external_id for deduplication.
 		if (is_user_logged_in()) {
-			$data['external_id'] = (string) get_current_user_id();
+			$data['external_id'] = hash('sha256', (string) get_current_user_id());
+		} elseif (isset($_COOKIE['_ts_cid']) && ! empty($_COOKIE['_ts_cid'])) {
+			// Guest visitor: use TrackSure's persistent client_id (UUID cookie).
+			// Hash it to match the CAPI-side hashing in enrich_user_data() for dedup consistency.
+			$client_id = sanitize_text_field(wp_unslash($_COOKIE['_ts_cid']));
+			if (! empty($client_id)) {
+				$data['external_id'] = hash('sha256', $client_id);
+			}
 		}
 
 		return $data;
@@ -261,25 +279,30 @@ class TrackSure_Meta_Destination
 	public function get_browser_event_mapper()
 	{
 		return "function(trackSureEvent) {
-            // Meta Standard Events (9 total - ALL others must use trackCustom)
+            // Meta Standard Events — keep in sync with CAPI registry (events.json).
+            // All others must use trackCustom.
             var standardEventMap = {
                 'page_view': 'PageView',
                 'add_to_cart': 'AddToCart',
                 'begin_checkout': 'InitiateCheckout',
                 'purchase': 'Purchase',
                 'view_item': 'ViewContent',
+                'view_item_list': 'ViewContent',
                 'add_payment_info': 'AddPaymentInfo',
                 'form_submit': 'Lead',
+                'contact': 'Contact',
                 'search': 'Search',
                 'add_to_wishlist': 'AddToWishlist'
             };
             
-            // Meta Custom Events (require ts_ prefix and trackCustom)
-            // ONLY events with explicit Meta mappings in registry
+            // Meta Custom Events (use trackCustom).
+            // Values are the exact Meta event name — must match CAPI registry
+            // for proper browser/server deduplication.
             var customEventMap = {
-                'view_cart': true,
-                'login': true,
-                'account_page_view': true
+                'view_cart': 'ts_view_cart',
+                'login': 'ts_login',
+                'account_page_view': 'ts_account_view',
+                'refund': 'Refund'
             };
             
             // Check if this is a standard Meta event
@@ -290,8 +313,8 @@ class TrackSure_Meta_Destination
                 // Standard event - use Meta's native name
                 isCustomEvent = false;
             } else if (customEventMap[trackSureEvent.event_name]) {
-                // Custom event with explicit Meta mapping
-                metaEventName = 'ts_' + trackSureEvent.event_name;
+                // Custom event — use exact name from registry for dedup parity
+                metaEventName = customEventMap[trackSureEvent.event_name];
                 isCustomEvent = true;
             } else {
                 // Event NOT mapped to Meta - return null to skip
@@ -413,7 +436,10 @@ class TrackSure_Meta_Destination
 		}
 
 		// Enrich user_data with fbp/fbc cookies and hash PII.
-		$user_data = $this->enrich_user_data($mapped_event['user_data']);
+		// CRITICAL: Pass client_id from mapped event root so enrich_user_data()
+		// can set external_id for guest users (client_id is NOT inside user_data).
+		$client_id = isset($mapped_event['client_id']) ? $mapped_event['client_id'] : '';
+		$user_data = $this->enrich_user_data($mapped_event['user_data'], $client_id);
 
 		// Build custom_data with proper contents array for Meta.
 		$custom_data = $this->build_custom_data($mapped_event['custom_data'], $mapped_event['event_name']);
@@ -482,6 +508,117 @@ class TrackSure_Meta_Destination
 	}
 
 	/**
+	 * Send batch of events to Meta Conversions API.
+	 *
+	 * Meta CAPI supports up to 1000 events per HTTP call.
+	 * Batching reduces HTTP overhead from N calls to 1 call.
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param array|false $result Default result (false = no handler).
+	 * @param string      $destination Destination ID.
+	 * @param array       $mapped_events Array of pre-mapped events.
+	 * @return array|false Array of per-event results keyed by index, or false if not our destination.
+	 */
+	public function send_batch($result, $destination, $mapped_events)
+	{
+		if ($destination !== 'meta') {
+			return $result;
+		}
+
+		// Skip if CAPI not configured.
+		if (empty($this->settings['access_token'])) {
+			// Return success for all events (not an error, just not configured).
+			return array_fill(0, count($mapped_events), array(
+				'success' => true,
+				'error'   => 'Meta CAPI access token not configured',
+			));
+		}
+
+		if (empty($mapped_events)) {
+			return array();
+		}
+
+		// Build batched payload. Meta CAPI accepts up to 1000 events in data array.
+		// We cap at 100 per batch to keep payload size reasonable and timeout risk low.
+		$max_batch_size = 100;
+		$results        = array();
+		$chunks         = array_chunk($mapped_events, $max_batch_size, true);
+
+		// Cache consent check once per batch (consent state doesn't change within a request).
+		$consent_manager = $this->core->get_service('consent_manager');
+		$consent_granted = $consent_manager ? $consent_manager->is_tracking_allowed() : true;
+
+		// Pre-build LDU fields based on consent.
+		$ldu_options = $consent_granted ? array() : array('LDU');
+
+		foreach ($chunks as $chunk) {
+			$data_entries = array();
+			$chunk_indices = array_keys($chunk);
+
+			foreach ($chunk as $index => $mapped_event) {
+				// Enrich user_data with hashing and cookie fallbacks.
+				// Pass client_id for guest external_id resolution.
+				$client_id   = isset($mapped_event['client_id']) ? $mapped_event['client_id'] : '';
+				$user_data   = $this->enrich_user_data($mapped_event['user_data'], $client_id);
+				$custom_data = $this->build_custom_data($mapped_event['custom_data'], $mapped_event['event_name']);
+
+				$entry = array(
+					'event_name'                    => $mapped_event['event_name'],
+					'event_time'                    => $mapped_event['event_time'],
+					'event_id'                       => $mapped_event['event_id'],
+					'event_source_url'              => isset($mapped_event['event_source_url']) ? $mapped_event['event_source_url'] : home_url(),
+					'action_source'                 => 'website',
+					'user_data'                     => $user_data,
+					'custom_data'                   => $custom_data,
+					'data_processing_options'       => $ldu_options,
+					'data_processing_options_country' => 0,
+					'data_processing_options_state' => 0,
+				);
+
+				$data_entries[] = $entry;
+			}
+
+			$payload = array('data' => $data_entries);
+
+			// Add test event code if configured.
+			if (! empty($this->settings['test_event_code'])) {
+				$payload['test_event_code'] = $this->settings['test_event_code'];
+			}
+
+			// Send batched CAPI request (increased timeout for batch).
+			$response = $this->send_capi_request($payload, 30);
+
+			if (is_wp_error($response)) {
+				// All events in this chunk failed.
+				$error = $response->get_error_message();
+				foreach ($chunk_indices as $idx) {
+					$results[$idx] = array('success' => false, 'error' => $error);
+				}
+				continue;
+			}
+
+			$body = wp_remote_retrieve_body($response);
+			$data = json_decode($body, true);
+
+			if (isset($data['error'])) {
+				$error = $data['error']['message'] ?? 'Unknown Meta CAPI error';
+				foreach ($chunk_indices as $idx) {
+					$results[$idx] = array('success' => false, 'error' => $error);
+				}
+				continue;
+			}
+
+			// Success — all events in chunk were accepted.
+			foreach ($chunk_indices as $idx) {
+				$results[$idx] = array('success' => true);
+			}
+		}
+
+		return $results;
+	}
+
+	/**
 	 * Enrich and format user data for Meta CAPI.
 	 *
 	 * RESPONSIBILITY: Meta Destination handles ALL Meta-specific formatting
@@ -490,10 +627,11 @@ class TrackSure_Meta_Destination
 	 * - Adds IP and user agent if missing
 	 * - Filters out invalid fields (Meta CAPI only accepts specific fields)
 	 *
-	 * @param array $user_data Raw user data from Event Mapper (unhashed).
+	 * @param array  $user_data Raw user data from Event Mapper (unhashed).
+	 * @param string $client_id TrackSure client_id (UUID) from event root, for guest external_id.
 	 * @return array Meta CAPI formatted user data.
 	 */
-	private function enrich_user_data($user_data)
+	private function enrich_user_data($user_data, $client_id = '')
 	{
 		// BUILD Meta-compliant user_data object from scratch.
 		// ONLY include fields Meta Conversions API accepts.
@@ -528,14 +666,16 @@ class TrackSure_Meta_Destination
 			'state'      => 'st',
 			'zip'        => 'zp',
 			'country'    => 'country',
+			'address'    => 'ad',
 		);
 
 		foreach ($hash_fields as $raw_field => $meta_field) {
 			if (! empty($user_data[$raw_field])) {
 				$value = trim($user_data[$raw_field]);
 
-				// For email, phone, names, cities: lowercase before hashing.
-				if (in_array($raw_field, array('email', 'first_name', 'last_name', 'city', 'state', 'country'))) {
+				// Per Meta docs: lowercase ALL text fields before hashing.
+				// Includes email, names, city, state, country, zip (international zips have letters), address.
+				if (in_array($raw_field, array('email', 'first_name', 'last_name', 'city', 'state', 'country', 'zip', 'address'))) {
 					$value = strtolower($value);
 				}
 
@@ -574,9 +714,22 @@ class TrackSure_Meta_Destination
 				: 'WordPress/' . get_bloginfo('version') . '; ' . home_url();
 		}
 
-		// Add external_id if not present and user is logged in.
-		if (empty($enriched['external_id']) && is_user_logged_in()) {
-			$enriched['external_id'] = (string) get_current_user_id();
+		// Add external_id if not present.
+		// For logged-in users: use WP user ID (SHA-256 hashed to match browser pixel).
+		// For guests: use TrackSure's persistent client_id (UUID) for cross-device matching.
+		// This dramatically improves EMQ for the 60-80% of visitors who are not logged in.
+		// IMPORTANT: Must match the browser pixel's external_id from get_advanced_matching_data()
+		// so Meta can deduplicate browser pixel events and CAPI events correctly.
+		if (empty($enriched['external_id'])) {
+			if (is_user_logged_in()) {
+				$enriched['external_id'] = hash('sha256', (string) get_current_user_id());
+			} elseif (! empty($client_id)) {
+				// Use client_id passed from mapped event (always available, even in cron/batch).
+				$enriched['external_id'] = hash('sha256', $client_id);
+			} elseif (isset($_COOKIE['_ts_cid']) && ! empty($_COOKIE['_ts_cid'])) {
+				// Fallback: read from cookie (only works during same HTTP request).
+				$enriched['external_id'] = hash('sha256', sanitize_text_field(wp_unslash($_COOKIE['_ts_cid'])));
+			}
 		}
 
 		return $enriched;
@@ -606,6 +759,7 @@ class TrackSure_Meta_Destination
 			'predicted_ltv',
 			'status',
 			'search_string',
+			'order_id',
 		);
 
 		foreach ($allowed_params as $param) {
@@ -687,13 +841,13 @@ class TrackSure_Meta_Destination
 	}
 
 	/**
-
 	 * Send request to Meta Conversions API.
 	 *
 	 * @param array $payload Payload.
+	 * @param int   $timeout Request timeout in seconds (default 10, use 30 for batches).
 	 * @return array|WP_Error Response.
 	 */
-	private function send_capi_request($payload)
+	private function send_capi_request($payload, $timeout = 10)
 	{
 		$pixel_id     = sanitize_text_field($this->settings['pixel_id']);
 		$access_token = sanitize_text_field($this->settings['access_token']);
@@ -706,7 +860,7 @@ class TrackSure_Meta_Destination
 				'method'  => 'POST',
 				'headers' => array('Content-Type' => 'application/json'),
 				'body'    => wp_json_encode($payload),
-				'timeout' => 10,
+				'timeout' => $timeout,
 			)
 		);
 	}

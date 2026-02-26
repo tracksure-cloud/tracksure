@@ -138,7 +138,7 @@ class TrackSure_Event_Builder
 			'server_fired'   => $server_fired,
 			'client_id'      => $client_id,
 			'session_id'     => $session_id,
-			'timestamp'      => current_time('mysql'),
+			'timestamp'      => current_time('mysql', true),
 			'event_params'   => array(),
 			'user_data'      => array(),
 			'ecommerce_data' => array(),

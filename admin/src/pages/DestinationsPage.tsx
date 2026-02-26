@@ -176,7 +176,7 @@ const DestinationsPage: React.FC = () => {
       <div className="ts-destinations-grid">
         {destinations.length === 0 ? (
           <div className="ts-empty-state">
-            <p>{__('No destinations available. Install TrackSure Pro for more options.')}</p>
+            <p>{__('No destinations configured. Add a destination to start sending events to your marketing platforms.')}</p>
           </div>
         ) : (
           destinations.map((destination) => {

@@ -47,12 +47,10 @@ const PageLoader: React.FC = () => (
 interface AppProps {
   config: {
     apiUrl: string;
-    apiToken: string;
     nonce: string;
     siteUrl: string;
     timezone: string;
     dateFormat: string;
-    isPro: boolean;
   };
 }
 

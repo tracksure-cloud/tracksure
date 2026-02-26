@@ -305,7 +305,7 @@ class TrackSure_FluentCart_Integration
 		$script .= '  }';
 		$script .= '})();';
 
-		wp_add_inline_script('tracksure-web', $script, 'after');
+		wp_add_inline_script('ts-web', $script, 'after');
 	}
 
 	/**
@@ -894,7 +894,7 @@ class TrackSure_FluentCart_Integration
 		if ($is_async_request) {
 			// Store in transient for next page load (fallback)
 			$user_id       = get_current_user_id();
-			$guest_id      = $user_id ? $user_id : (isset($_COOKIE['tracksure_client_id']) ? sanitize_text_field(wp_unslash($_COOKIE['tracksure_client_id'])) : wp_generate_uuid4());
+			$guest_id      = $user_id ? $user_id : (isset($_COOKIE['_ts_cid']) ? sanitize_text_field(wp_unslash($_COOKIE['_ts_cid'])) : wp_generate_uuid4());
 			$transient_key = 'tracksure_fc_browser_events_' . md5($guest_id);
 			$stored_events = get_transient($transient_key);
 			if (! is_array($stored_events)) {
@@ -925,7 +925,7 @@ class TrackSure_FluentCart_Integration
 	{
 		// Load events from transient (for AJAX-triggered events)
 		$user_id       = get_current_user_id();
-		$guest_id      = $user_id ? $user_id : (isset($_COOKIE['tracksure_client_id']) ? sanitize_text_field(wp_unslash($_COOKIE['tracksure_client_id'])) : '');
+		$guest_id      = $user_id ? $user_id : (isset($_COOKIE['_ts_cid']) ? sanitize_text_field(wp_unslash($_COOKIE['_ts_cid'])) : '');
 		$transient_key = 'tracksure_fc_browser_events_' . md5($guest_id);
 		$stored_events = get_transient($transient_key);
 		if (is_array($stored_events) && ! empty($stored_events)) {

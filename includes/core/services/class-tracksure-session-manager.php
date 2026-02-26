@@ -88,8 +88,8 @@ class TrackSure_Session_Manager
 	public function get_client_id_from_browser()
 	{
 		// Try to get from cookie that JavaScript should set.
-		if (isset($_COOKIE['tracksure_client_id'])) {
-			$client_id = sanitize_text_field(wp_unslash($_COOKIE['tracksure_client_id']));
+		if (isset($_COOKIE['_ts_cid'])) {
+			$client_id = sanitize_text_field(wp_unslash($_COOKIE['_ts_cid']));
 			if (TrackSure_Utilities::is_valid_uuid_v4($client_id)) {
 				return $client_id;
 			}
@@ -101,13 +101,13 @@ class TrackSure_Session_Manager
 			@session_start(); // Suppress warnings if headers already sent
 		}
 
-		if (isset($_SESSION['tracksure_client_id']) && TrackSure_Utilities::is_valid_uuid_v4(sanitize_text_field(wp_unslash($_SESSION['tracksure_client_id'])))) {
-			return sanitize_text_field(wp_unslash($_SESSION['tracksure_client_id']));
+		if (isset($_SESSION['_ts_cid']) && TrackSure_Utilities::is_valid_uuid_v4(sanitize_text_field(wp_unslash($_SESSION['_ts_cid'])))) {
+			return sanitize_text_field(wp_unslash($_SESSION['_ts_cid']));
 		}
 
 		// Generate new UUID v4 and store in session.
-		$client_id                       = $this->generate_uuid();
-		$_SESSION['tracksure_client_id'] = $client_id;
+		$client_id                = $this->generate_uuid();
+		$_SESSION['_ts_cid'] = $client_id;
 
 		return $client_id;
 	}
@@ -124,8 +124,8 @@ class TrackSure_Session_Manager
 	public function get_session_id_from_browser()
 	{
 		// Try to get from cookie that JavaScript should set.
-		if (isset($_COOKIE['tracksure_session_id'])) {
-			$session_id = sanitize_text_field(wp_unslash($_COOKIE['tracksure_session_id']));
+		if (isset($_COOKIE['_ts_sid'])) {
+			$session_id = sanitize_text_field(wp_unslash($_COOKIE['_ts_sid']));
 			if (TrackSure_Utilities::is_valid_uuid_v4($session_id)) {
 				return $session_id;
 			}
@@ -137,13 +137,13 @@ class TrackSure_Session_Manager
 			@session_start(); // Suppress warnings if headers already sent
 		}
 
-		if (isset($_SESSION['tracksure_session_id']) && TrackSure_Utilities::is_valid_uuid_v4(sanitize_text_field(wp_unslash($_SESSION['tracksure_session_id'])))) {
-			return sanitize_text_field(wp_unslash($_SESSION['tracksure_session_id']));
+		if (isset($_SESSION['_ts_sid']) && TrackSure_Utilities::is_valid_uuid_v4(sanitize_text_field(wp_unslash($_SESSION['_ts_sid'])))) {
+			return sanitize_text_field(wp_unslash($_SESSION['_ts_sid']));
 		}
 
 		// Generate new UUID v4 and store in session.
-		$session_id                       = $this->generate_uuid();
-		$_SESSION['tracksure_session_id'] = $session_id;
+		$session_id                = $this->generate_uuid();
+		$_SESSION['_ts_sid'] = $session_id;
 
 		return $session_id;
 	}
@@ -266,6 +266,17 @@ class TrackSure_Session_Manager
 
 		// Fire session_start event.
 		if ($db_session_id) {
+			// Ensure session_id UUID is available in hook data for touchpoint recording.
+			$session_data['session_id'] = $session_id;
+
+			//  FIX: Merge resolved attribution into session_data for hooks.
+			// Without this, touchpoints receive NULL utm_source for non-UTM traffic
+			// (organic search, social, AI referral, direct) because the hook was
+			// passing the original unresolved session_data instead of the resolved one.
+			$session_data['utm_source']  = $new_session_data['utm_source'] ?? $session_data['utm_source'] ?? null;
+			$session_data['utm_medium']  = $new_session_data['utm_medium'] ?? $session_data['utm_medium'] ?? null;
+			$session_data['utm_campaign'] = $new_session_data['utm_campaign'] ?? $session_data['utm_campaign'] ?? null;
+
 			/**
 			 * Fires when a new session starts.
 			 *
@@ -275,7 +286,7 @@ class TrackSure_Session_Manager
 			 *
 			 * @param int    $db_session_id Session database ID.
 			 * @param int    $visitor_id Visitor ID.
-			 * @param array  $session_data Session context data (utm_*, referrer, etc).
+			 * @param array  $session_data Session context data (utm_*, referrer, session_id, etc).
 			 * @param bool   $is_returning Is returning visitor.
 			 * @param int    $session_number Session sequence number.
 			 */

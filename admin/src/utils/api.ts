@@ -185,10 +185,6 @@ export class TrackSureAPI {
     return this.put('/settings', settings);
   }
 
-  async regenerateToken() {
-    return this.post('/settings/regenerate-token');
-  }
-
   async getEnabledDestinations() {
     return this.get('/settings/destinations');
   }
@@ -295,6 +291,11 @@ export class TrackSureAPI {
 
   async getGoalSources(goalId: number, params?: QueryParams) {
     return this.get(`/goals/${goalId}/sources`, params);
+  }
+
+  /** Fetch aggregated device & browser distribution for a goal (server-side). */
+  async getGoalDevices(goalId: number, params?: QueryParams) {
+    return this.get(`/goals/${goalId}/devices`, params);
   }
 
   async createGoal(goalData: Record<string, unknown>) {

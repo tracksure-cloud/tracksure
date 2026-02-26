@@ -235,9 +235,9 @@ const TrafficSourcesPage: React.FC = () => {
               >
                 <option value="last_touch">{__('Last-Touch')}</option>
                 <option value="first_touch">{__('First-Touch')}</option>
-                <option value="linear" disabled>{__('Linear (Pro)')}</option>
-                <option value="time_decay" disabled>{__('Time-Decay (Pro)')}</option>
-                <option value="position_based" disabled>{__('Position-Based (Pro)')}</option>
+                <option value="linear">{__('Linear')}</option>
+                <option value="time_decay">{__('Time-Decay')}</option>
+                <option value="position_based">{__('Position-Based')}</option>
               </select>
             </div>
             <span className="ts-help-text">{__('Choose how to attribute conversions to traffic sources')}</span>

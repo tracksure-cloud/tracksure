@@ -128,8 +128,8 @@ export const SettingsExtensionProvider: React.FC<SettingsExtensionProviderProps>
     const globalExtensions = window.trackSureExtensions;
     
     if (globalExtensions && Array.isArray(globalExtensions)) {
-      globalExtensions.forEach((ext: TrackSureExtension) => {
-        registerExtension(ext);
+      globalExtensions.forEach((ext) => {
+        registerExtension(ext as unknown as TrackSureExtension);
       });
     }
   }, [registerExtension]);

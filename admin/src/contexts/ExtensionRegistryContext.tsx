@@ -90,7 +90,7 @@ export const ExtensionRegistryProvider: React.FC<ExtensionRegistryProviderProps>
     }
 
     // Process each extension
-    globalExtensions.forEach((ext: Record<string, unknown>) => {
+    globalExtensions.forEach((ext) => {
       // Convert pages array to routes
       const extPages = ext.pages as Array<Record<string, unknown>> | undefined;
       if (extPages && Array.isArray(extPages)) {

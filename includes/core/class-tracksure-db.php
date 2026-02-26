@@ -5,7 +5,7 @@
  *
  * TrackSure Database Layer
  *
- * Provides CRUD operations for all 10 database tables.
+ * Provides CRUD operations for all 14 database tables.
  * Handles UUID binary conversions, session management, event recording.
  *
  * Direct database queries required for custom analytics tables.

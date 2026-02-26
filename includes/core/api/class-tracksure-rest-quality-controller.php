@@ -69,7 +69,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	{
 		// Get dynamic enum from Destinations Manager (includes all Free/Pro/3rd-party).
 		$core                 = TrackSure_Core::get_instance();
-		$destinations_manager = $core->get_service('destinations');
+		$destinations_manager = $core->get_service('destinations_manager');
 		$destination_ids      = $destinations_manager ? $destinations_manager->get_enabled_destination_ids() : array();
 
 		// Always include 'all' option.
@@ -155,7 +155,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 		$destinations = array();
 		if ('all' === $destination) {
 			$core                 = TrackSure_Core::get_instance();
-			$destinations_manager = $core->get_service('destinations');
+			$destinations_manager = $core->get_service('destinations_manager');
 			if ($destinations_manager) {
 				$destinations = $destinations_manager->get_enabled_destination_ids();
 			}

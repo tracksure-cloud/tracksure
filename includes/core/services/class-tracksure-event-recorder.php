@@ -422,8 +422,14 @@ class TrackSure_Event_Recorder
 			'utm_campaign',
 			'utm_term',
 			'utm_content',
-			'gclid',
-			'fbclid',
+			'gclid',      // Google Ads
+			'fbclid',     // Meta/Facebook Ads
+			'msclkid',    // Microsoft/Bing Ads
+			'ttclid',     // TikTok Ads
+			'twclid',     // Twitter/X Ads
+			'li_fat_id',  // LinkedIn Ads
+			'irclickid',  // Impact Radius
+			'ScCid',      // Snapchat Ads
 		);
 
 		foreach ($attribution_fields as $field) {

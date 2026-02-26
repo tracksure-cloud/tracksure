@@ -95,6 +95,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goal, onClos
   const [sourcesData, setSourcesData] = useState<SourceData[]>([]);
   const [devicesData, setDevicesData] = useState<DeviceData[]>([]);
   const [analyticsLoading, setAnalyticsLoading] = useState(true);
+  const [devicesLoading, setDevicesLoading] = useState(false);
 
   // Fetch overview data
   useEffect(() => {
@@ -170,36 +171,6 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goal, onClos
         setConversions(response.conversions || []);
         setTotal(response.total || 0);
         
-        // Extract device data from conversions
-        const deviceMap = new Map<string, { browser: Map<string, number>, total: number }>();
-        (response.conversions || []).forEach(c => {
-          const device = c.device || 'desktop';
-          const browser = c.browser || 'unknown';
-          
-          if (!deviceMap.has(device)) {
-            deviceMap.set(device, { browser: new Map(), total: 0 });
-          }
-          
-          const deviceData = deviceMap.get(device)!;
-          deviceData.total++;
-          deviceData.browser.set(browser, (deviceData.browser.get(browser) || 0) + 1);
-        });
-        
-        const totalConversions = response.conversions?.length || 0;
-        const devices: DeviceData[] = [];
-        deviceMap.forEach((data, device) => {
-          data.browser.forEach((count, browser) => {
-            devices.push({
-              device,
-              browser,
-              conversions: count,
-              percentage: totalConversions > 0 ? (count / totalConversions) * 100 : 0,
-            });
-          });
-        });
-        
-        setDevicesData(devices.sort((a, b) => b.conversions - a.conversions));
-        
       } catch (err: unknown) {
         const message = err instanceof Error ? err.message : __('Failed to load conversions', 'tracksure');
         setError(message);
@@ -210,6 +181,38 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goal, onClos
     
     fetchTimeline();
   }, [goal.goal_id, dateRange, currentPage, config, activeTab]);
+
+  // Fetch device/browser stats from server (only when devices tab is active).
+  // Uses the dedicated /devices endpoint for full-dataset aggregation.
+  useEffect(() => {
+    if (activeTab !== 'devices') {return;}
+    
+    const fetchDevices = async () => {
+      setDevicesLoading(true);
+      
+      try {
+        const api = new TrackSureAPI(config);
+        const response = await api.getGoalDevices(goal.goal_id, {
+          date_start: dateRange.start.toLocaleDateString('en-CA'),
+          date_end: dateRange.end.toLocaleDateString('en-CA'),
+        }) as { devices: DeviceData[]; total: number };
+        
+        setDevicesData((response.devices || []).map(d => ({
+          device: d.device || 'desktop',
+          browser: d.browser || 'unknown',
+          conversions: d.conversions || 0,
+          percentage: d.percentage || 0,
+        })));
+        
+      } catch (err: unknown) {
+        console.error('[GoalDetailsModal] Failed to fetch devices:', err);
+      } finally {
+        setDevicesLoading(false);
+      }
+    };
+    
+    fetchDevices();
+  }, [goal.goal_id, dateRange, config, activeTab]);
 
   // Get unique sources for filter
   const sources = useMemo(() => {
@@ -231,7 +234,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goal, onClos
       let comparison = 0;
       
       if (sortBy === 'date') {
-        comparison = new Date(a.converted_at).getTime() - new Date(b.converted_at).getTime();
+        comparison = new Date(a.converted_at.replace(' ', 'T') + 'Z').getTime() - new Date(b.converted_at.replace(' ', 'T') + 'Z').getTime();
       } else if (sortBy === 'value') {
         comparison = (a.value || 0) - (b.value || 0);
       } else if (sortBy === 'page') {
@@ -650,7 +653,7 @@ export const GoalDetailsModal: React.FC<GoalDetailsModalProps> = ({ goal, onClos
   };
 
   const renderDevicesTab = () => {
-    if (isLoading) {
+    if (devicesLoading) {
       return (
         <div className="ts-loading">
           <Icon name="Loader" size={24} />

@@ -53,11 +53,8 @@ const IntegrationsPage: React.FC = () => {
           // Use enabledKey if provided, fallback to tracksure_integration.id_enabled
           const enabledKey = integration.enabledKey || `tracksure_${integration.id}_enabled`;
           
-          // Get detection status from API response (added by PHP filter) - only if autoDetect is defined
-          const detectionKey = integration.autoDetect ? `${integration.id}_detected` : null;
-          const autoDetected = detectionKey && (typeof response.data === 'object' && response.data !== null && detectionKey in response.data)
-            ? Boolean(response.data[detectionKey])
-            : false;
+          // Detection status is resolved server-side and passed in the integration metadata
+          const autoDetected = Boolean(integration.detected);
           
           intSettings[integration.id] = {
             enabled: (typeof response.data === 'object' && response.data !== null && enabledKey in response.data)
@@ -168,7 +165,7 @@ const IntegrationsPage: React.FC = () => {
       <div className="ts-integrations-grid">
         {settingsExtension.integrations.length === 0 ? (
           <div className="ts-empty-state">
-            <p>{__('No integrations available. Install TrackSure Pro for more options.')}</p>
+            <p>{__('No integrations configured. Integrations allow TrackSure to track events from your installed plugins.')}</p>
           </div>
         ) : (
           settingsExtension.integrations.map((integration) => {

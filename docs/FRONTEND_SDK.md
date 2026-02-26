@@ -1,6 +1,6 @@
 # 🌐 TrackSure Frontend SDK Documentation
 
-**Complete guide to the TrackSure browser tracking SDK (tracksure-web.js)**
+**Complete guide to the TrackSure browser tracking SDK (ts-web.js)**
 
 ---
 
@@ -25,7 +25,7 @@
 
 ## 📖 **Overview**
 
-TrackSure Frontend SDK (`tracksure-web.js`) is a lightweight (~5KB gzipped), production-grade browser tracking library that provides:
+TrackSure Frontend SDK (`ts-web.js`) is a lightweight (~5KB gzipped), production-grade browser tracking library that provides:
 
 ✅ **Complete Engagement Tracking**: Page views, clicks, scrolls, forms, video, downloads  
 ✅ **Performance & UX Metrics**: Page timing, rage clicks, dead clicks, bounce detection  
@@ -36,9 +36,23 @@ TrackSure Frontend SDK (`tracksure-web.js`) is a lightweight (~5KB gzipped), pro
 ✅ **Universal Compatibility**: Safari ITP, ad blockers, private mode, mobile
 
 **Version**: 2.0.0  
-**File**: `assets/js/tracksure-web.js`  
+**File**: `assets/js/ts-web.js`  
 **Size**: ~5KB (gzipped), ~15KB (uncompressed)  
 **Dependencies**: None (vanilla JavaScript)
+
+### **All Frontend Script Handles**
+
+TrackSure enqueues multiple scripts on the frontend. `ts-web` is the core SDK; the others extend it:
+
+| Handle                 | File                                | Dependencies                  | Purpose                                                 |
+| ---------------------- | ----------------------------------- | ----------------------------- | ------------------------------------------------------- |
+| `ts-web`               | `assets/js/ts-web.js`               | none                          | Core tracking SDK                                       |
+| `ts-currency`          | `assets/js/ts-currency.js`          | none                          | Currency detection for e-commerce                       |
+| `ts-minicart`          | `assets/js/ts-minicart.js`          | `ts-web`, `ts-currency`       | Mini-cart / add-to-cart tracking                        |
+| `ts-consent-listeners` | `assets/js/consent-listeners.js`    | `ts-web`                      | CMP integration (listens for consent changes)           |
+| `ts-goal-constants`    | `admin/tracksure-goal-constants.js` | none                          | Goal trigger type constants                             |
+| `ts-goals`             | `admin/tracking-goals.js`           | `ts-goal-constants`, `ts-web` | Client-side goal evaluation                             |
+| `ts-checkout`          | _(inline script)_                   | none                          | Injects hidden fields for server-side checkout tracking |
 
 ---
 
@@ -62,12 +76,12 @@ If you need manual control:
 
 ```html
 <!-- Load SDK -->
-<script src="/wp-content/plugins/tracksure/assets/js/tracksure-web.js"></script>
+<script src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
 
 <!-- Configure -->
 <script>
   window.trackSureConfig = {
-    endpoint: "/wp-json/tracksure/v1/ingest",
+    endpoint: "/wp-json/ts/v1/collect",
     trackingEnabled: true,
     sessionTimeout: 30, // minutes
     batchSize: 10,
@@ -86,7 +100,7 @@ git clone https://github.com/your-repo/tracksure.git
 
 # Build custom SDK
 cd tracksure/assets/js
-# Modify tracksure-web.js
+# Modify ts-web.js
 # Minify (optional)
 npm run build
 ```
@@ -100,7 +114,7 @@ Configuration is passed via `window.trackSureConfig` object:
 ```javascript
 window.trackSureConfig = {
   // Required
-  endpoint: "/wp-json/tracksure/v1/ingest",
+  endpoint: "/wp-json/ts/v1/collect",
 
   // Tracking control
   trackingEnabled: true, // Master switch
@@ -120,23 +134,23 @@ window.trackSureConfig = {
 
 ### **Configuration Options**
 
-| Option            | Type    | Default                        | Description                             |
-| ----------------- | ------- | ------------------------------ | --------------------------------------- |
-| `endpoint`        | string  | `/wp-json/tracksure/v1/ingest` | Event ingestion endpoint                |
-| `trackingEnabled` | boolean | `true`                         | Master tracking switch                  |
-| `respectDNT`      | boolean | `false`                        | Honor Do Not Track browser setting      |
-| `sessionTimeout`  | number  | `30`                           | Session timeout in minutes              |
-| `batchSize`       | number  | `10`                           | Maximum events per batch                |
-| `batchTimeout`    | number  | `2000`                         | Max wait time before sending batch (ms) |
-| `debug`           | boolean | `false`                        | Enable debug console logging            |
+| Option            | Type    | Default                  | Description                             |
+| ----------------- | ------- | ------------------------ | --------------------------------------- |
+| `endpoint`        | string  | `/wp-json/ts/v1/collect` | Event ingestion endpoint                |
+| `trackingEnabled` | boolean | `true`                   | Master tracking switch                  |
+| `respectDNT`      | boolean | `false`                  | Honor Do Not Track browser setting      |
+| `sessionTimeout`  | number  | `30`                     | Session timeout in minutes              |
+| `batchSize`       | number  | `10`                     | Maximum events per batch                |
+| `batchTimeout`    | number  | `2000`                   | Max wait time before sending batch (ms) |
+| `debug`           | boolean | `false`                  | Enable debug console logging            |
 
 ### **WordPress Integration**
 
 WordPress uses `wp_localize_script()` to inject configuration:
 
 ```php
-wp_localize_script('tracksure-web', 'trackSureConfig', [
-    'endpoint' => rest_url('tracksure/v1/ingest'),
+wp_localize_script('ts-web', 'trackSureConfig', [
+    'endpoint' => rest_url('ts/v1/collect'),
     'trackingEnabled' => get_option('tracksure_tracking_enabled', true),
     'sessionTimeout' => get_option('tracksure_session_timeout', 30),
     'batchSize' => 10,
@@ -206,7 +220,7 @@ Unique client ID persists across sessions:
 const clientId = trackSure.getClientId();
 // Example: "a1b2c3d4-e5f6-7890-abcd-ef1234567890"
 
-// Stored in localStorage as 'tracksure_client_id'
+// Stored in localStorage as '_ts_cid'
 ```
 
 **Custom client ID**:
@@ -575,7 +589,7 @@ trackSure.setClientId("custom-uuid");
 trackSure.resetClientId();
 ```
 
-**Storage**: `localStorage` key `tracksure_client_id`  
+**Storage**: `localStorage` + cookie `_ts_cid` (400-day max-age)  
 **Format**: UUID v4  
 **Persistence**: Permanent (unless cleared)
 
@@ -592,9 +606,14 @@ const sessionId = trackSure.getSessionId();
 trackSure.newSession();
 ```
 
-**Storage**: `localStorage` key `tracksure_session_id`  
+**Storage**: `sessionStorage` + cookie fallback `_ts_sid`  
 **Format**: UUID v4  
 **Persistence**: 30 minutes (default) of inactivity
+
+> **Additional session storage keys**:
+>
+> - `_ts_ss` — session start timestamp (sessionStorage)
+> - `_ts_la` — last activity timestamp (sessionStorage, used for timeout detection)
 
 ### **User ID**
 
@@ -808,18 +827,23 @@ function onConsentDenied() {
 }
 ```
 
-### **Cookie-less Tracking**
+### **Dual-Storage Strategy**
 
-TrackSure uses `localStorage` (not cookies):
+TrackSure uses `localStorage`/`sessionStorage` as **primary** storage with **cookie fallbacks** for cross-page persistence:
 
 ```javascript
-// Uses localStorage
-localStorage.getItem("tracksure_client_id");
-localStorage.getItem("tracksure_session_id");
+// Primary: localStorage / sessionStorage
+localStorage.getItem("_ts_cid"); // Client ID (persistent)
+sessionStorage.getItem("_ts_sid"); // Session ID (per-tab)
 
-// NOT cookies
-// No cookie banner required for TrackSure alone
+// Fallback: first-party cookies (same values)
+// _ts_cid cookie (400-day max-age, SameSite=Lax)
+// _ts_sid cookie (session-scoped, SameSite=Lax)
 ```
+
+> **Note**: Because first-party cookies **are** set as fallbacks, a cookie consent banner
+> may still be required depending on your jurisdiction (e.g., EU ePrivacy Directive).
+> Use the Consent API (above) to defer tracking until consent is granted.
 
 ### **Data Anonymization**
 
@@ -1078,7 +1102,7 @@ console.log(window.trackSureConfig.trackingEnabled);
 2. **Check network tab**:
 
 - Open DevTools → Network tab
-- Look for POST to `/wp-json/tracksure/v1/ingest`
+- Look for POST to `/wp-json/ts/v1/collect`
 - Check response status (should be 200)
 
 3. **Check console for errors**:
@@ -1091,7 +1115,7 @@ window.trackSureDebug = true; // Enable debug mode
 
 ```javascript
 console.log(window.trackSureConfig.endpoint);
-// Should be '/wp-json/tracksure/v1/ingest'
+// Should be '/wp-json/ts/v1/collect'
 ```
 
 ---
@@ -1111,7 +1135,7 @@ console.log(window.trackSureConfig.endpoint);
 
 ```html
 <!-- Should only appear once -->
-<script src="/wp-content/plugins/tracksure/assets/js/tracksure-web.js"></script>
+<script src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
 ```
 
 2. **Verify event_id generation**:
@@ -1141,7 +1165,7 @@ window.trackSureDebug = true;
 1. **Check localStorage**:
 
 ```javascript
-console.log(localStorage.getItem("tracksure_session_id"));
+console.log(localStorage.getItem("_ts_sid"));
 // Should return UUID
 ```
 
@@ -1192,10 +1216,7 @@ trackSure.disableAutoTracking("scroll");
 3. **Lazy load SDK**:
 
 ```html
-<script
-  defer
-  src="/wp-content/plugins/tracksure/assets/js/tracksure-web.js"
-></script>
+<script defer src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
 ```
 
 ---
@@ -1214,7 +1235,7 @@ trackSure.disableAutoTracking("scroll");
     <!-- TrackSure automatically tracks page view -->
     <h1>Welcome</h1>
 
-    <script src="/wp-content/plugins/tracksure/assets/js/tracksure-web.js"></script>
+    <script src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
   </body>
 </html>
 ```
@@ -1306,10 +1327,13 @@ function onUserLogout() {
 ## 📖 **See Also**
 
 - **[REST_API_REFERENCE.md](REST_API_REFERENCE.md)** - Backend API documentation
+- **[EVENT_SYSTEM.md](EVENT_SYSTEM.md)** - Server-side event pipeline (where SDK events land)
+- **[PLUGIN_API.md](PLUGIN_API.md)** - PHP API counterpart to the Browser SDK
+- **[CUSTOM_EVENTS.md](CUSTOM_EVENTS.md)** - Registering & tracking custom events
 - **[CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)** - System architecture
 - **[DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md)** - Debugging tracking issues
-- **[ADDING-INTEGRATIONS.md](ADDING-INTEGRATIONS.md)** - Custom integrations
+- **[ADAPTER_DEVELOPMENT.md](ADAPTER_DEVELOPMENT.md)** - Custom integrations
 
 ---
 
-**Need Help?** Check the [Troubleshooting](#troubleshooting) section or review the code in `assets/js/tracksure-web.js`!
+**Need Help?** Check the [Troubleshooting](#troubleshooting) section or review the code in `assets/js/ts-web.js`!

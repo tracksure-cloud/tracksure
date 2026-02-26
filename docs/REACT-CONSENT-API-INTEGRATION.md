@@ -6,7 +6,7 @@
 
 ## 📡 **REST API Endpoints**
 
-All endpoints are available at `/wp-json/tracksure/v1/consent/*`
+All endpoints are available at `/wp-json/ts/v1/consent/*`
 
 ### **1. GET /consent/status** - Get Consent Configuration & Status
 
@@ -38,7 +38,7 @@ export function useConsentStatus() {
   return useQuery({
     queryKey: ["consent", "status"],
     queryFn: async () => {
-      const res = await fetch("/wp-json/tracksure/v1/consent/status", {
+      const res = await fetch("/wp-json/ts/v1/consent/status", {
         credentials: "include", // Include WordPress auth cookies
       });
       if (!res.ok) throw new Error("Failed to fetch consent status");
@@ -127,7 +127,7 @@ export function ConsentWarningBanner() {
   const { data } = useQuery({
     queryKey: ["consent", "warning"],
     queryFn: async () => {
-      const res = await fetch("/wp-json/tracksure/v1/consent/warning", {
+      const res = await fetch("/wp-json/ts/v1/consent/warning", {
         credentials: "include",
       });
       return res.json();
@@ -135,7 +135,7 @@ export function ConsentWarningBanner() {
   });
 
   const handleDismiss = async () => {
-    await fetch("/wp-json/tracksure/v1/consent/warning/dismiss", {
+    await fetch("/wp-json/ts/v1/consent/warning/dismiss", {
       method: "POST",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
@@ -220,7 +220,7 @@ export function useDismissConsentWarning() {
 
   return useMutation({
     mutationFn: async () => {
-      const res = await fetch("/wp-json/tracksure/v1/consent/warning/dismiss", {
+      const res = await fetch("/wp-json/ts/v1/consent/warning/dismiss", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
@@ -276,7 +276,7 @@ function EventConsentBadge({ eventId }: { eventId: string }) {
   const { data } = useQuery({
     queryKey: ["consent", "metadata"],
     queryFn: async () => {
-      const res = await fetch("/wp-json/tracksure/v1/consent/metadata", {
+      const res = await fetch("/wp-json/ts/v1/consent/metadata", {
         credentials: "include",
       });
       return res.json();
@@ -417,7 +417,7 @@ The REST API uses WordPress's built-in authentication:
    // WordPress provides nonce via wp_localize_script
    const nonce = window.wpApiSettings?.nonce;
 
-   fetch("/wp-json/tracksure/v1/consent/status", {
+   fetch("/wp-json/ts/v1/consent/status", {
      credentials: "include",
      headers: {
        "X-WP-Nonce": nonce, // Optional - WordPress handles this automatically
@@ -470,7 +470,7 @@ export function App() {
 // src/hooks/useConsentAPI.ts
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 
-const CONSENT_API_BASE = "/wp-json/tracksure/v1/consent";
+const CONSENT_API_BASE = "/wp-json/ts/v1/consent";
 
 export function useConsentStatus() {
   return useQuery({
@@ -540,22 +540,22 @@ export function useConsentMetadata() {
 ```bash
 # Get consent status
 curl -X GET \
-  'https://yoursite.com/wp-json/tracksure/v1/consent/status' \
+  'https://yoursite.com/wp-json/ts/v1/consent/status' \
   --cookie 'wordpress_logged_in_cookie=...'
 
 # Get consent warning
 curl -X GET \
-  'https://yoursite.com/wp-json/tracksure/v1/consent/warning' \
+  'https://yoursite.com/wp-json/ts/v1/consent/warning' \
   --cookie 'wordpress_logged_in_cookie=...'
 
 # Dismiss consent warning
 curl -X POST \
-  'https://yoursite.com/wp-json/tracksure/v1/consent/warning/dismiss' \
+  'https://yoursite.com/wp-json/ts/v1/consent/warning/dismiss' \
   --cookie 'wordpress_logged_in_cookie=...'
 
 # Get consent metadata
 curl -X GET \
-  'https://yoursite.com/wp-json/tracksure/v1/consent/metadata' \
+  'https://yoursite.com/wp-json/ts/v1/consent/metadata' \
   --cookie 'wordpress_logged_in_cookie=...'
 ```
 
@@ -563,17 +563,17 @@ curl -X GET \
 
 ```javascript
 // Get consent status
-fetch("/wp-json/tracksure/v1/consent/status", { credentials: "include" })
+fetch("/wp-json/ts/v1/consent/status", { credentials: "include" })
   .then((res) => res.json())
   .then(console.log);
 
 // Get consent warning
-fetch("/wp-json/tracksure/v1/consent/warning", { credentials: "include" })
+fetch("/wp-json/ts/v1/consent/warning", { credentials: "include" })
   .then((res) => res.json())
   .then(console.log);
 
 // Dismiss warning
-fetch("/wp-json/tracksure/v1/consent/warning/dismiss", {
+fetch("/wp-json/ts/v1/consent/warning/dismiss", {
   method: "POST",
   credentials: "include",
 })

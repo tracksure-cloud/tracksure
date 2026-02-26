@@ -255,7 +255,7 @@ const ProductsPage: React.FC = () => {
         <div className="metric-card">
           <div className="metric-label">{__('Purchases')}</div>
           <div className="metric-value">{totalPurchases.toLocaleString()}</div>
-          <div className="metric-subtitle">{__('completed transactions')}</div>
+          <div className="metric-subtitle">{__('items purchased')}</div>
         </div>
         <div className="metric-card">
           <div className="metric-label">{__('Avg Conversion Rate')}</div>

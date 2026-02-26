@@ -20,7 +20,7 @@
 
 	// Configuration from wp_localize_script.
 	const config = window.trackSureConfig || {};
-	const endpoint = config.endpoint || '/wp-json/tracksure/v1/ingest';
+	const endpoint = config.endpoint || '/wp-json/ts/v1/collect';
 	const trackingEnabled = config.trackingEnabled === true || config.trackingEnabled === '1' || config.trackingEnabled === 1;
 	const sessionTimeout = (config.sessionTimeout || 30) * 60 * 1000;
 	const batchSize = config.batchSize || 10;
@@ -64,11 +64,11 @@
 	let registry = null;
 	let registryLoadAttempted = false;
 
-	// Storage keys.
-	const STORAGE_CLIENT_ID = 'tracksure_client_id';
-	const STORAGE_SESSION_ID = 'tracksure_session_id';
-	const STORAGE_SESSION_START = 'tracksure_session_start';
-	const STORAGE_LAST_ACTIVITY = 'tracksure_last_activity';
+	// Storage keys (neutral names to avoid ad-blocker keyword matching).
+	const STORAGE_CLIENT_ID = '_ts_cid';
+	const STORAGE_SESSION_ID = '_ts_sid';
+	const STORAGE_SESSION_START = '_ts_ss';
+	const STORAGE_LAST_ACTIVITY = '_ts_la';
 
 	/**
 	 * Check if tracking is still enabled server-side.
@@ -120,7 +120,7 @@
 		registryLoadAttempted = true;
 
 		try {
-			const registryEndpoint = config.registryEndpoint || '/wp-json/tracksure/v1/registry';
+			const registryEndpoint = config.registryEndpoint || '/wp-json/ts/v1/registry';
 			const response = await fetch(registryEndpoint, {
 				method: 'GET',
 				credentials: 'same-origin',
@@ -475,7 +475,7 @@
 		
 		// Fallback: check cookie if localStorage failed
 		if (!clientId) {
-			const match = document.cookie.match(/tracksure_client_id=([^;]+)/);
+			const match = document.cookie.match(/_ts_cid=([^;]+)/);
 			if (match) {
 				clientId = match[1];
 				// Try to restore to localStorage
@@ -498,14 +498,13 @@
 			}
 		}
 		
-		// Always update cookie for PHP to read
-		// Safari ITP: Max 7 days for client-side cookies, Partitioned for Chrome CHIPS
+		// Always update cookie for PHP to read (refreshed every page load)
 		try {
 			const secure = window.location.protocol === 'https:' ? '; Secure' : '';
-			// Safari ITP caps client-side cookies at 7 days, so we use that limit
-			// Add Partitioned attribute for Chrome's CHIPS (Cookies Having Independent Partitioned State)
-			const maxAge = 7 * 24 * 60 * 60; // 7 days (Safari ITP limit)
-			document.cookie = 'tracksure_client_id=' + clientId + '; path=/; max-age=' + maxAge + '; SameSite=Lax' + secure + '; Partitioned';
+			// 400 days = Chrome's max-age cap. Safari ITP enforces 7 days regardless.
+			// Cookie is refreshed on every page load, so the real expiry is "last visit + 400d".
+			const maxAge = 400 * 24 * 60 * 60; // 400 days (Chrome maximum)
+			document.cookie = '_ts_cid=' + clientId + '; path=/; max-age=' + maxAge + '; SameSite=Lax' + secure;
 		} catch (e) {
 			// Cookie blocked (ad blocker, privacy mode), still use in-memory ID for this session
 			if (window.trackSureDebug) {
@@ -535,7 +534,7 @@
 		
 		// Fallback: check cookie if sessionStorage unavailable or empty
 		if (!sessionId) {
-			const match = document.cookie.match(/tracksure_session_id=([^;]+)/);
+			const match = document.cookie.match(/_ts_sid=([^;]+)/);
 			if (match) {
 				sessionId = match[1];
 				
@@ -575,7 +574,7 @@
 			const secure = window.location.protocol === 'https:' ? '; Secure' : '';
 			// Calculate expiry time for session timeout
 			const maxAge = Math.floor(sessionTimeout / 1000); // Convert ms to seconds
-			document.cookie = 'tracksure_session_id=' + sessionId + '; path=/; max-age=' + maxAge + '; SameSite=Lax' + secure;
+			document.cookie = '_ts_sid=' + sessionId + '; path=/; max-age=' + maxAge + '; SameSite=Lax' + secure;
 		} catch (e) {
 			// Cookie blocked - tracking may be limited
 			if (window.trackSureDebug) {
@@ -1433,7 +1432,7 @@
 	 */
 	function confirmPixelFired(eventId, destination) {
 		try {
-			const callbackEndpoint = config.endpoint.replace('/ingest', '/pixel-callback');
+			const callbackEndpoint = config.endpoint.replace('/collect', '/cb');
 			const payload = {
 				event_id: eventId,
 				destination: destination,

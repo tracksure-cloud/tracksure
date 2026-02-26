@@ -55,7 +55,6 @@ delete_option('tracksure_keep_data_on_uninstall');
 delete_option('tracksure_version');
 delete_option('tracksure_db_version');
 delete_option('tracksure_public_token');
-delete_option('tracksure_api_token');
 delete_option('tracksure_needs_permalink_flush'); // ADD: Cleanup activation flag
 delete_option('tracksure_permalinks_flushed'); // ADD: Old flag cleanup
 delete_option('tracksure_registered_modules'); // ADD: Module registry cleanup

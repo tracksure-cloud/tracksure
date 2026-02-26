@@ -376,7 +376,7 @@ class TrackSure_Suggestion_Engine
 	{
 		// Get quality score from Quality Controller (if available).
 		$quality_controller = new TrackSure_REST_Quality_Controller();
-		$request            = new WP_REST_Request('GET', '/tracksure/v1/quality/signal');
+		$request            = new WP_REST_Request('GET', '/ts/v1/quality/signal');
 		$request->set_param('destination', 'meta');
 
 		$response = $quality_controller->get_signal_quality($request);

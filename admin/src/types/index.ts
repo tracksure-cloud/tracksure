@@ -7,13 +7,10 @@ import type { IconName } from '../components/ui/Icon';
 export interface TrackSureConfig {
   apiUrl: string;
   rest_url: string;
-  apiToken: string;
   nonce: string;
   siteUrl: string;
   timezone: string;
   dateFormat: string;
-  isPro: boolean;
-  upgradeUrl?: string;
   enabledDestinations?: string[];
   isEcommerce?: boolean;
   destinationsMetadata?: Record<string, {
@@ -115,8 +112,6 @@ declare global {
     trackSureConfig?: {
       apiUrl: string;
       nonce: string;
-      isPro?: boolean;
-      proUpgradeUrl?: string;
       trackingEnabled?: boolean;
       endpoint?: string;
       sessionTimeout?: number;

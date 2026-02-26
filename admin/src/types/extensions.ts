@@ -49,9 +49,8 @@ export interface DestinationConfig {
   enabled: boolean;
   enabledKey?: string; // Schema key for enable/disable toggle (e.g., 'meta_capi_enabled')
   custom_config?: string; // Name of custom React component (e.g., 'GoogleAdsDestinationConfig')
-  fields: SettingField[]; // Changed from configFields
-  testFunction?: (config: Record<string, unknown>) => Promise<{ success: boolean; message: string }>; // Added config param
-  requiresPro?: boolean;
+  fields: SettingField[];
+  testFunction?: (config: Record<string, unknown>) => Promise<{ success: boolean; message: string }>;
   order?: number;
 }
 
@@ -65,11 +64,9 @@ export interface IntegrationConfig {
   icon?: string;
   enabled: boolean;
   enabledKey?: string; // Schema key for enable/disable toggle (e.g., 'woo_integration_enabled')
-  autoDetect?: () => boolean;
-  autoDetectFunction?: () => boolean; // Added for backward compatibility
-  fields: SettingField[]; // Changed from configFields
+  detected?: boolean; // Whether the auto-detected plugin is currently active (resolved server-side)
+  fields: SettingField[];
   events?: string[]; // Events this integration tracks
-  requiresPro?: boolean;
   order?: number;
 }
 
@@ -82,7 +79,6 @@ export interface DashboardWidget {
   title: string;
   component: ComponentType<Record<string, unknown>>;
   order?: number;
-  requiresPro?: boolean;
 }
 
 /**
@@ -96,7 +92,6 @@ export interface CustomPage {
   component: ComponentType<Record<string, unknown>>;
   navGroup?: string;
   order?: number;
-  requiresPro?: boolean;
 }
 
 /**

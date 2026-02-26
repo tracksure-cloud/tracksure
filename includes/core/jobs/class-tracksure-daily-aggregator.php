@@ -205,6 +205,9 @@ class TrackSure_Daily_Aggregator
 		// Invalidate transient caches for this date.
 		$this->invalidate_caches_for_date($date);
 
+		// Record last successful daily aggregation time (UTC) for stale-aggregation safety net.
+		update_option('tracksure_last_daily_agg', gmdate('Y-m-d H:i:s'), false);
+
 		return true;
 	}
 

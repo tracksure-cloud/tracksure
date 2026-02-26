@@ -76,18 +76,26 @@ const PARAMETER_OPTIONS: Record<string, Array<{ value: string; label: string; ex
   ],
   custom_event: [
     { value: 'event_name', label: 'Event Name', example: 'calculator_completed', description: 'Custom event identifier' },
+    { value: 'page_url', label: 'Page URL', example: '/pricing', description: 'Full page URL where event fires' },
+    { value: 'page_path', label: 'Page Path', example: '/products', description: 'URL path only (without domain)' },
+    { value: 'page_title', label: 'Page Title', example: 'Pricing', description: 'Browser page title when event fires' },
+    { value: 'referrer', label: 'Referrer URL', example: 'https://google.com', description: 'Referring page URL' },
   ],
 };
 
 // Operator options
 const OPERATOR_OPTIONS = [
   { value: 'equals', label: 'Equals', description: 'Exact match (case-sensitive)' },
+  { value: 'not_equals', label: 'Not equals', description: 'Does not exactly match' },
   { value: 'contains', label: 'Contains', description: 'Partial match (most flexible)' },
+  { value: 'not_contains', label: 'Does not contain', description: 'Excludes partial match' },
   { value: 'starts_with', label: 'Starts with', description: 'Begins with the value' },
   { value: 'ends_with', label: 'Ends with', description: 'Finishes with the value' },
   { value: 'matches_regex', label: 'Matches regex', description: 'Advanced pattern matching' },
   { value: 'greater_than', label: 'Greater than', description: 'For numbers only' },
+  { value: 'greater_than_or_equal', label: 'Greater than or equal', description: 'For numbers only' },
   { value: 'less_than', label: 'Less than', description: 'For numbers only' },
+  { value: 'less_than_or_equal', label: 'Less than or equal', description: 'For numbers only' },
 ];
 
 export const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
@@ -118,6 +126,23 @@ export const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
 
   const getParameterInfo = (paramValue: string) => {
     return availableParams.find(p => p.value === paramValue);
+  };
+
+  /**
+   * Whether a condition is using a custom data key (typed by user).
+   * Custom data keys are any param not found in the predefined list.
+   */
+  const isCustomParam = (paramValue: string) => {
+    return paramValue !== '' && paramValue !== '__custom__' &&
+      !availableParams.some(p => p.value === paramValue);
+  };
+
+  /** Whether the Custom Data Key sentinel is selected or in use. */
+  const getSelectValue = (paramValue: string) => {
+    if (isCustomParam(paramValue)) {
+      return '__custom__';
+    }
+    return paramValue;
   };
 
   return (
@@ -153,8 +178,16 @@ export const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
                   Parameter
                 </label>
                 <select
-                  value={condition.param}
-                  onChange={(e) => updateCondition(index, 'param', e.target.value)}
+                  value={getSelectValue(condition.param)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '__custom__') {
+                      // Clear param so the text input takes over
+                      updateCondition(index, 'param', '');
+                    } else {
+                      updateCondition(index, 'param', val);
+                    }
+                  }}
                   style={{
                     width: '100%',
                     padding: '8px 12px',
@@ -169,10 +202,36 @@ export const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
                       {param.label}
                     </option>
                   ))}
+                  {triggerType === 'custom_event' && (
+                    <option value="__custom__">✏️ Custom Data Key...</option>
+                  )}
                 </select>
+                {/* Custom data key text input for custom_event */}
+                {triggerType === 'custom_event' && (getSelectValue(condition.param) === '__custom__' || isCustomParam(condition.param)) && (
+                  <input
+                    type="text"
+                    value={isCustomParam(condition.param) ? condition.param : ''}
+                    onChange={(e) => updateCondition(index, 'param', e.target.value)}
+                    placeholder="e.g. product_id, amount, category"
+                    style={{
+                      width: '100%',
+                      padding: '8px 12px',
+                      borderRadius: '6px',
+                      border: '1px solid #d1d5db',
+                      fontSize: '14px',
+                      marginTop: '6px',
+                      background: '#fefce8',
+                    }}
+                  />
+                )}
                 {paramInfo && (
                   <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#6b7280' }}>
                     {paramInfo.description}
+                  </p>
+                )}
+                {triggerType === 'custom_event' && isCustomParam(condition.param) && (
+                  <p style={{ margin: '4px 0 0', fontSize: '12px', color: '#92400e' }}>
+                    Matches key &ldquo;<strong>{condition.param}</strong>&rdquo; from fireCustomEvent() data
                   </p>
                 )}
               </div>
@@ -330,6 +389,38 @@ export const ConditionBuilder: React.FC<ConditionBuilderProps> = ({
               </li>
             ))}
           </ul>
+          {triggerType === 'custom_event' && (
+            <div style={{
+              marginTop: '12px',
+              padding: '12px',
+              background: '#fefce8',
+              borderRadius: '6px',
+              border: '1px solid #fde68a',
+            }}>
+              <strong style={{ color: '#92400e' }}>💡 Custom Data Keys</strong>
+              <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#78350f' }}>
+                Select &ldquo;Custom Data Key&rdquo; to match any key from your event data. For example:
+              </p>
+              <pre style={{
+                margin: '6px 0 0',
+                padding: '8px',
+                background: '#fffbeb',
+                borderRadius: '4px',
+                fontSize: '11px',
+                color: '#78350f',
+                whiteSpace: 'pre-wrap',
+              }}>
+{`window.trackSureGoals.fireCustomEvent('purchase', {
+  product_id: 'sku-123',
+  amount: '49.99',
+  category: 'software'
+});`}
+              </pre>
+              <p style={{ margin: '6px 0 0', fontSize: '12px', color: '#78350f' }}>
+                Then use <strong>product_id</strong>, <strong>amount</strong>, or <strong>category</strong> as custom data keys in your conditions.
+              </p>
+            </div>
+          )}
         </details>
       )}
     </div>

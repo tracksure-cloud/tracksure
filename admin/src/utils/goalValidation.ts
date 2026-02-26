@@ -209,28 +209,6 @@ export function formatValidationErrors(errors: string[]): string {
 }
 
 /**
- * Check if goal has Pro features.
- * 
- * @param goalData - Goal data to check
- * @returns True if goal uses Pro features
- */
-export function hasProFeatures(goalData: Partial<GoalFormData>): boolean {
-  // Check for Pro operators
-  if (goalData.conditions) {
-    const hasProOperator = goalData.conditions.some(
-      (c: GoalCondition) => c.operator === 'matches_regex'
-    );
-    if (hasProOperator) {
-      return true;
-    }
-  }
-
-  // Note: Pro features determined by conditions operator only in new schema
-
-  return false;
-}
-
-/**
  * Sanitize goal data before submission.
  * 
  * @param goalData - Raw goal data

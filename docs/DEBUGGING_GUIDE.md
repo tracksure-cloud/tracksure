@@ -25,7 +25,7 @@ TrackSure includes a diagnostics endpoint:
 
 ```bash
 # Via REST API
-curl http://yoursite.com/wp-json/tracksure/v1/diagnostics/system
+curl http://yoursite.com/wp-json/ts/v1/diagnostics/system
 
 # Or visit in browser (must be admin)
 http://yoursite.com/wp-admin/admin.php?page=tracksure-diagnostics
@@ -57,7 +57,7 @@ wp plugin list | grep tracksure
 SHOW TABLES LIKE 'wp_tracksure_%';
 ```
 
-**Expected**: 14 tables
+**Expected**: 15 tables
 
 **3. Check recent events**:
 
@@ -152,7 +152,7 @@ error_log('DB error: ' . $wpdb->last_error);
 | Cause              | Solution                                                    |
 | ------------------ | ----------------------------------------------------------- |
 | Hook not firing    | Check if WooCommerce/integration is active                  |
-| Consent denied     | Check consent cookie: `tracksure_consent`                   |
+| Consent denied     | Check consent cookie: `_ts_consent`                         |
 | DB permissions     | Grant INSERT permission on `wp_tracksure_*` tables          |
 | Service not loaded | Check `$core->get_service('event_recorder')` returns object |
 
@@ -280,10 +280,10 @@ console.log(window.trackSure);
 View page source and search for:
 
 ```html
-<script src="/wp-content/plugins/tracksure/assets/js/tracksure-web.js"></script>
+<script src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
 <script>
   trackSure.init({
-    apiUrl: "https://yoursite.com/wp-json/tracksure/v1",
+    apiUrl: "https://yoursite.com/wp-json/ts/v1",
     ...
   });
 </script>
@@ -314,7 +314,7 @@ trackSure.track("test_event", {
   test_param: "test_value",
 });
 
-// Check network tab for POST to /wp-json/tracksure/v1/ingest
+// Check network tab for POST to /wp-json/ts/v1/collect
 ```
 
 **Solutions**:
@@ -372,7 +372,7 @@ npm run build
 **Step 3: Check REST API**
 
 ```bash
-curl http://yoursite.com/wp-json/tracksure/v1/
+curl http://yoursite.com/wp-json/ts/v1/
 # Expected: JSON response with routes
 ```
 
@@ -386,7 +386,7 @@ console.log(trackSureAdmin.nonce);
 // Should be a long alphanumeric string
 
 // Test API call
-fetch("/wp-json/tracksure/v1/query/overview", {
+fetch("/wp-json/ts/v1/query/overview", {
   headers: {
     "X-WP-Nonce": trackSureAdmin.nonce,
   },
@@ -745,14 +745,14 @@ NONCE=$(curl -c cookies.txt -b cookies.txt -X POST "http://yoursite.com/wp-login
   -d "log=admin&pwd=password" 2>/dev/null | grep -oP 'nonce=[0-9a-f]+' | cut -d= -f2)
 
 # Call API
-curl -b cookies.txt "http://yoursite.com/wp-json/tracksure/v1/query/overview?date_start=2026-01-01&date_end=2026-01-31" \
+curl -b cookies.txt "http://yoursite.com/wp-json/ts/v1/query/overview?date_start=2026-01-01&date_end=2026-01-31" \
   -H "X-WP-Nonce: $NONCE"
 ```
 
 **2. Ingest test event**:
 
 ```bash
-curl -X POST "http://yoursite.com/wp-json/tracksure/v1/ingest" \
+curl -X POST "http://yoursite.com/wp-json/ts/v1/collect" \
   -H "Content-Type: application/json" \
   -d '{
     "event_name": "page_view",
@@ -766,7 +766,7 @@ curl -X POST "http://yoursite.com/wp-json/tracksure/v1/ingest" \
 **3. Get specific event**:
 
 ```bash
-curl "http://yoursite.com/wp-json/tracksure/v1/events/evt_abc123" \
+curl "http://yoursite.com/wp-json/ts/v1/events/evt_abc123" \
   -H "X-WP-Nonce: $NONCE"
 ```
 
@@ -780,7 +780,7 @@ curl "http://yoursite.com/wp-json/tracksure/v1/events/evt_abc123" \
 **Request 1: Overview**
 
 ```
-GET {{base_url}}/wp-json/tracksure/v1/query/overview
+GET {{base_url}}/wp-json/ts/v1/query/overview
 Headers:
   X-WP-Nonce: {{nonce}}
 Params:
@@ -791,7 +791,7 @@ Params:
 **Request 2: Ingest Event**
 
 ```
-POST {{base_url}}/wp-json/tracksure/v1/ingest
+POST {{base_url}}/wp-json/ts/v1/collect
 Headers:
   Content-Type: application/json
 Body (JSON):
@@ -827,8 +827,8 @@ location.reload();
 2. Go to **Network** tab
 3. Filter by "tracksure"
 4. Look for:
-   - `tracksure-web.js` (SDK load)
-   - `POST /wp-json/tracksure/v1/ingest` (event tracking)
+   - `ts-web.js` (SDK load)
+   - `POST /wp-json/ts/v1/collect` (event tracking)
    - Status codes (200 = success, 4xx/5xx = error)
 
 ### Test SDK Manually
@@ -848,7 +848,7 @@ trackSure.track("test_event", {
 });
 
 // 4. Check if sent (Network tab)
-// Should see POST to /wp-json/tracksure/v1/ingest
+// Should see POST to /wp-json/ts/v1/collect
 
 // 5. Force page view
 trackSure.trackPageView();
@@ -922,11 +922,11 @@ error_log("TrackSure memory used: {$memory_used} MB");
 Before asking for help, check:
 
 - [ ] **Debug logs** - Any errors in `wp-content/debug.log`?
-- [ ] **Database tables** - All 14 tables exist?
+- [ ] **Database tables** - All 15 tables exist?
 - [ ] **Recent events** - Any events in last hour?
 - [ ] **Outbox** - Pending deliveries stuck?
 - [ ] **WP-Cron** - Delivery worker scheduled?
-- [ ] **REST API** - `/wp-json/tracksure/v1/` responds?
+- [ ] **REST API** - `/wp-json/ts/v1/` responds?
 - [ ] **Browser console** - Any JavaScript errors?
 - [ ] **Consent** - Tracking allowed?
 - [ ] **Destinations** - API keys configured?
@@ -976,5 +976,11 @@ Before asking for help, check:
 ```
 
 ---
+
+**See Also**:
+
+- [EVENT_SYSTEM.md](EVENT_SYSTEM.md) — Understand the event pipeline you're debugging
+- [PLUGIN_API.md](PLUGIN_API.md) — PHP & JavaScript API reference
+- [CUSTOM_EVENTS.md](CUSTOM_EVENTS.md) — Custom event registration & validation
 
 **Next**: [PERFORMANCE_OPTIMIZATION.md](PERFORMANCE_OPTIMIZATION.md) for optimization techniques.

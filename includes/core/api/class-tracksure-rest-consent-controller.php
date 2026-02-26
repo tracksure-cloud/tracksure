@@ -222,13 +222,19 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	{
 		$consent_state = $request->get_param('consent_state');
 
-		// Store consent update in session for this user.
-		// This allows real-time consent updates without page reload.
-		if (! session_id()) {
-			session_start();
-		}
+		// Store consent override in a short-lived transient keyed by client IP.
+		// This makes consent changes from browser available to server-side checks
+		// (Consent Manager reads this in check_consent()).
+		// Transient expires in 5 minutes — by then the consent plugin's own cookie
+		// will be set and the Consent Manager's cookie-based checks take over.
+		$client_ip     = TrackSure_Utilities::get_client_ip();
+		$transient_key = 'tracksure_consent_' . md5($client_ip);
 
-		$_SESSION['tracksure_consent_override'] = $consent_state;
+		set_transient($transient_key, $consent_state, 5 * MINUTE_IN_SECONDS);
+
+		// Invalidate Consent Manager cache so next check sees updated state.
+		$consent_manager = TrackSure_Consent_Manager::get_instance();
+		$consent_manager->invalidate_cache();
 
 		return rest_ensure_response(
 			array(

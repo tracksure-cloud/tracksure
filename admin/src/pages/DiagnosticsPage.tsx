@@ -604,12 +604,6 @@ const DiagnosticsPage: React.FC = () => {
             <span className="ts-diagnostics-info__label">{__("Date Format")}:</span>
             <span className="ts-diagnostics-info__value">{config.dateFormat}</span>
           </div>
-          <div className="ts-diagnostics-info__item">
-            <span className="ts-diagnostics-info__label">{__("License")}:</span>
-            <span className="ts-diagnostics-info__value">
-              {config.isPro ? __("Pro") : __("Free")}
-            </span>
-          </div>
         </div>
       </div>
 

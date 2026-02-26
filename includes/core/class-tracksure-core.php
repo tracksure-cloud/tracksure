@@ -359,7 +359,7 @@ final class TrackSure_Core
 		$registered_modules               = get_option('tracksure_registered_modules', array());
 		$registered_modules[$module_id] = array(
 			'version'       => $this->modules[$module_id]['version'],
-			'registered_at' => current_time('timestamp'),
+			'registered_at' => time(),
 		);
 		update_option('tracksure_registered_modules', $registered_modules);
 

@@ -181,7 +181,6 @@ class TrackSure_Installer
 		cooldown_minutes INT DEFAULT 0,
 		fixed_value DECIMAL(10,2) DEFAULT NULL,
 		is_active TINYINT(1) NOT NULL DEFAULT 1,
-		is_pro TINYINT(1) DEFAULT 0,
 		created_at DATETIME NOT NULL,
 		updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 		PRIMARY KEY (goal_id),
@@ -487,7 +486,6 @@ class TrackSure_Installer
 		$defaults = array(
 			'tracksure_version'                 => TRACKSURE_VERSION,
 			'tracksure_db_version'              => TRACKSURE_DB_VERSION,
-			'tracksure_api_token'               => bin2hex(random_bytes(32)),
 			'tracksure_public_token'            => bin2hex(random_bytes(16)),
 			'tracksure_keep_data_on_uninstall'   => 0,
 			'tracksure_tracking_enabled'        => 0,
@@ -541,15 +539,5 @@ class TrackSure_Installer
 
 		$funnel_analyzer = TrackSure_Funnel_Analyzer::get_instance();
 		$funnel_analyzer->create_default_funnels();
-	}
-
-	/**
-	 * Generate secure API token.
-	 *
-	 * @return string
-	 */
-	public static function generate_token()
-	{
-		return 'ts_' . bin2hex(random_bytes(32));
 	}
 }

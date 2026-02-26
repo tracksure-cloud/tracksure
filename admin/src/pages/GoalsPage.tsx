@@ -264,7 +264,7 @@ const GoalsPage: React.FC = () => {
           comparison = (a.name || '').localeCompare(b.name || '');
           break;
         case 'created_at':
-          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          comparison = new Date(a.created_at.replace(' ', 'T') + 'Z').getTime() - new Date(b.created_at.replace(' ', 'T') + 'Z').getTime();
           break;
         case 'conversions': {
           const perfA = performance[a.goal_id]?.conversions || 0;
@@ -568,13 +568,15 @@ const GoalsPage: React.FC = () => {
                   </div>
                   <div className="ts-goal-header">
                 <div className="ts-goal-title-section">
-                  <h3 className="ts-goal-name">{goal.name}</h3>
+                  <div className="ts-goal-title-row">
+                    <h3 className="ts-goal-name">{goal.name}</h3>
+                    <span className={`ts-goal-status ${goal.is_active ? 'ts-active' : 'ts-inactive'}`}>
+                      {goal.is_active ? __('Active', 'tracksure') : __('Inactive', 'tracksure')}
+                    </span>
+                  </div>
                   <p className="ts-goal-description">{goal.description}</p>
                 </div>
                 <div className="ts-goal-actions">
-                  <span className={`ts-goal-status ${goal.is_active ? 'ts-active' : 'ts-inactive'}`}>
-                    {goal.is_active ? __('Active', 'tracksure') : __('Inactive', 'tracksure')}
-                  </span>
                   <button
                     className="ts-btn-icon"
                     onClick={() => {

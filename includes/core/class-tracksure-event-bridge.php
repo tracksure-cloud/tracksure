@@ -166,7 +166,7 @@ class TrackSure_Event_Bridge
 	public function enqueue_bridge_script()
 	{
 		// Verify base script is enqueued
-		if (! wp_script_is('tracksure-web', 'enqueued')) {
+		if (! wp_script_is('ts-web', 'enqueued')) {
 			return;
 		}
 
@@ -179,7 +179,7 @@ class TrackSure_Event_Bridge
 		$bridge_script = $this->build_bridge_script();
 
 		// Attach to base script using WordPress API
-		wp_add_inline_script('tracksure-web', $bridge_script, 'after');
+		wp_add_inline_script('ts-web', $bridge_script, 'after');
 	}
 
 	/**

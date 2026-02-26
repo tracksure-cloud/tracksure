@@ -219,6 +219,9 @@ class TrackSure_Hourly_Aggregator
 		// Invalidate transient caches.
 		$this->invalidate_caches();
 
+		// Record last successful hourly aggregation time (UTC) for stale-aggregation safety net.
+		update_option('tracksure_last_hourly_agg', gmdate('Y-m-d H:i:s'), false);
+
 		return true;
 	}
 

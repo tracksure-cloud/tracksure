@@ -12,7 +12,10 @@
 4. [Creating an Adapter](#creating-an-adapter)
 5. [Data Normalization](#data-normalization)
 6. [Best Practices](#best-practices)
-7. [Examples](#examples)
+7. [Integration Registration](#-integration-registration)
+8. [Creating the Integration Class](#-creating-the-integration-class-hook-layer)
+9. [End-to-End Walkthrough](#-end-to-end-walkthrough)
+10. [Examples](#examples)
 
 ---
 
@@ -753,7 +756,205 @@ $product_data['quantity'] = (int) $item->get_quantity();
 
 ---
 
-## 📝 **Examples**
+## � **Integration Registration**
+
+An adapter extracts data, but an **integration** wires it into TrackSure. The Integrations Manager (`class-tracksure-integrations-manager.php`) manages all ecommerce platform handlers.
+
+### `register_integration()` Config Schema
+
+```php
+add_action('tracksure_load_integration_handlers', function($integrations_manager) {
+    $integrations_manager->register_integration([
+        // === REQUIRED ===
+        'id'          => 'edd',                           // Unique ID
+        'name'        => 'Easy Digital Downloads',        // Display name
+        'enabled_key' => 'tracksure_edd_enabled',         // wp_option key
+        'class_name'  => 'TrackSure_EDD',                 // Handler class
+        'file_path'   => __DIR__ . '/class-tracksure-edd.php', // Path to handler
+
+        // === OPTIONAL ===
+        'description'     => 'Track EDD purchases and downloads',
+        'icon'            => 'Download',              // Lucide icon name
+        'order'           => 10,                       // Display order (default: 999)
+        'auto_detect'     => 'easy-digital-downloads/easy-digital-downloads.php',
+        'plugin_name'     => 'Easy Digital Downloads',
+        'settings_fields' => ['tracksure_edd_enabled', 'tracksure_edd_track_downloads'],
+        'tracked_events'  => ['purchase', 'add_to_cart', 'view_item'],
+    ]);
+});
+```
+
+### Config Fields
+
+| Field             | Required | Type          | Default        | Description                                        |
+| ----------------- | -------- | ------------- | -------------- | -------------------------------------------------- |
+| `id`              | **Yes**  | string        | —              | Unique identifier (e.g., `'woocommerce'`, `'edd'`) |
+| `name`            | **Yes**  | string        | —              | Display name in admin                              |
+| `enabled_key`     | **Yes**  | string        | —              | `wp_option` key checked to enable/disable          |
+| `class_name`      | **Yes**  | string        | —              | Handler class name                                 |
+| `file_path`       | **Yes**  | string        | —              | Absolute path to handler PHP file                  |
+| `description`     | No       | string        | `""`           | Short description                                  |
+| `icon`            | No       | string        | `"Puzzle"`     | Lucide icon name                                   |
+| `order`           | No       | int           | `999`          | Display order (lower = first)                      |
+| `auto_detect`     | No       | string\|array | —              | Plugin file path(s) for auto-detection             |
+| `plugin_name`     | No       | string        | Same as `name` | Plugin display name                                |
+| `settings_fields` | No       | array         | `[]`           | Setting keys for this integration                  |
+| `tracked_events`  | No       | array         | `[]`           | Event types this integration tracks                |
+
+### Auto-Detection
+
+The `auto_detect` field tells TrackSure to only load this integration when the target plugin is active:
+
+```php
+// Single plugin
+'auto_detect' => 'woocommerce/woocommerce.php',
+
+// Free/Pro variants (either one being active is sufficient)
+'auto_detect' => [
+    'easy-digital-downloads/easy-digital-downloads.php',
+    'easy-digital-downloads-pro/easy-digital-downloads.php',
+],
+```
+
+If `auto_detect` is omitted, the handler loads whenever `enabled_key` is truthy.
+
+### Handler Loading Conditions
+
+All must pass for the handler to load:
+
+1. Integration is registered
+2. `get_option($enabled_key)` is truthy (`1`, `'1'`, `true`)
+3. Target plugin is active (if `auto_detect` specified)
+4. Handler not already loaded
+5. Handler file exists at `file_path`
+6. Handler class exists after `require_once`
+
+---
+
+## 🏗️ **Creating the Integration Class (Hook Layer)**
+
+The integration class connects platform hooks → adapter → Event Builder → Event Recorder.
+
+```php
+// class-tracksure-edd.php
+class TrackSure_EDD {
+
+    private $core;
+
+    public function __construct($core) {
+        $this->core = $core;
+
+        // Hook into EDD events
+        add_action('edd_complete_purchase', [$this, 'track_purchase'], 10, 1);
+        add_action('edd_post_add_to_cart',  [$this, 'track_add_to_cart'], 10, 3);
+    }
+
+    public function track_purchase($payment_id) {
+        $payment = edd_get_payment($payment_id);
+        if (!$payment) return;
+
+        // 1. Use adapter to extract normalized data
+        $adapter    = new TrackSure_EDD_Adapter();
+        $order_data = $adapter->extract_order_data($payment);
+        $user_data  = $adapter->extract_user_data($payment);
+
+        // 2. Build universal event
+        $builder = $this->core->get_service('event_builder');
+        $event   = $builder->build_event('purchase', [
+            'transaction_id' => $order_data['transaction_id'],
+            'value'          => $order_data['value'],
+            'currency'       => $order_data['currency'],
+            'items'          => $order_data['items'],
+        ], [
+            'event_source' => 'server',
+            'user_data'    => $user_data,
+        ]);
+
+        // 3. Record (validates, deduplicates, enriches, queues)
+        if ($event) {
+            $recorder = $this->core->get_service('event_recorder');
+            $recorder->record($event);
+        }
+    }
+
+    public function track_add_to_cart($download_id, $options, $items) {
+        $adapter      = new TrackSure_EDD_Adapter();
+        $product_data = $adapter->extract_product_data($download_id);
+
+        $builder = $this->core->get_service('event_builder');
+        $event   = $builder->build_event('add_to_cart', [
+            'item_id'   => $product_data['item_id'],
+            'item_name' => $product_data['item_name'],
+            'price'     => $product_data['price'],
+            'currency'  => $product_data['currency'],
+            'quantity'  => 1,
+        ]);
+
+        if ($event) {
+            $this->core->get_service('event_recorder')->record($event);
+        }
+    }
+}
+```
+
+**Key pattern:**
+
+- Constructor hooks into platform events
+- Each handler method: `adapter->extract_*()` → `event_builder->build_event()` → `event_recorder->record()`
+- The adapter handles all platform-specific data extraction
+- The integration class handles the wiring and hook logic
+
+---
+
+## 🎓 **End-to-End Walkthrough**
+
+Adding a complete EDD integration requires **3 files**:
+
+### File 1: Adapter (`class-tracksure-edd-adapter.php`)
+
+Implements `TrackSure_Ecommerce_Adapter` — extracts data from EDD objects into the universal schema. See the [Examples](#examples) section below for a complete adapter example.
+
+### File 2: Integration (`class-tracksure-edd.php`)
+
+The hook layer shown above — connects EDD hooks to the adapter and Event Builder/Recorder.
+
+### File 3: Registration (in your module's `bootstrap.php`)
+
+```php
+// In your module pack's bootstrap.php or functions.php
+add_action('tracksure_load_integration_handlers', function() {
+    $core = TrackSure_Core::get_instance();
+    $manager = $core->get_service('integrations_manager');
+
+    // 1. Register the integration
+    $manager->register_integration([
+        'id'          => 'edd',
+        'name'        => 'Easy Digital Downloads',
+        'enabled_key' => 'tracksure_edd_enabled',
+        'class_name'  => 'TrackSure_EDD',
+        'file_path'   => __DIR__ . '/integrations/class-tracksure-edd.php',
+        'auto_detect' => 'easy-digital-downloads/easy-digital-downloads.php',
+        'icon'        => 'Download',
+        'order'       => 20,
+        'tracked_events' => ['purchase', 'add_to_cart', 'view_item'],
+    ]);
+});
+```
+
+### Directory Structure
+
+```
+your-module/
+├── bootstrap.php                              # Registration
+├── adapters/
+│   └── class-tracksure-edd-adapter.php       # Data extraction
+└── integrations/
+    └── class-tracksure-edd.php               # Hook layer
+```
+
+---
+
+## �📝 **Examples**
 
 ### **Example 1: Easy Digital Downloads Adapter**
 
@@ -1041,6 +1242,9 @@ class TrackSure_SureCart_Adapter implements TrackSure_Ecommerce_Adapter {
 
 - **[MODULE_DEVELOPMENT.md](MODULE_DEVELOPMENT.md)** - Creating TrackSure modules
 - **[DESTINATION_DEVELOPMENT.md](DESTINATION_DEVELOPMENT.md)** - Creating ad platform destinations
+- **[EVENT_SYSTEM.md](EVENT_SYSTEM.md)** - Event pipeline (Builder → Recorder → Queue)
+- **[CUSTOM_EVENTS.md](CUSTOM_EVENTS.md)** - Creating custom events for your integration
+- **[PLUGIN_API.md](PLUGIN_API.md)** - PHP API and service container
 - **[HOOKS_AND_FILTERS.md](HOOKS_AND_FILTERS.md)** - Available hooks
 - **[CLASS_REFERENCE.md](CLASS_REFERENCE.md)** - Core classes reference
 - **[CODE_ARCHITECTURE.md](CODE_ARCHITECTURE.md)** - System architecture

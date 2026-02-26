@@ -120,6 +120,13 @@ const TRIGGER_OPTIONS = [
     eventName: 'time_on_page',
   },
   {
+    value: 'engagement',
+    label: __('Engagement Rate', 'tracksure'),
+    description: __('Track combined scroll + time engagement', 'tracksure'),
+    icon: 'Heart',
+    eventName: 'engagement',
+  },
+  {
     value: 'video_play',
     label: __('Video Play', 'tracksure'),
     description: __('Track video interactions', 'tracksure'),
@@ -163,7 +170,7 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
   onSaveAsTemplate,
 }) => {
   const [currentStep, setCurrentStep] = useState<Step>('basic');
-  const [formData, setFormData] = useState<Partial<GoalFormData>>({
+  const [formData, setFormData] = useState<GoalFormData>({
     name: '',
     description: '',
     category: 'engagement',
@@ -189,10 +196,17 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
     const newErrors: Record<string, string> = {};
 
     if (step === 'basic') {
-      if (!formData.name?.trim()) {
+      const trimmedName = formData.name?.trim() || '';
+      if (!trimmedName) {
         newErrors.name = __('Goal name is required', 'tracksure');
-      } else if (formData.name.length < 3) {
+      } else if (trimmedName.length < 3) {
         newErrors.name = __('Goal name must be at least 3 characters', 'tracksure');
+      } else if (trimmedName.length > 100) {
+        newErrors.name = __('Goal name cannot exceed 100 characters', 'tracksure');
+      }
+
+      if (formData.description && formData.description.length > 500) {
+        newErrors.description = __('Description cannot exceed 500 characters', 'tracksure');
       }
 
       if (!formData.category) {
@@ -204,12 +218,19 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
       if (!formData.trigger_type) {
         newErrors.trigger_type = __('Please select a trigger type', 'tracksure');
       }
+      // Validate event_name (especially for custom_event where user types it).
+      const eventName = formData.event_name?.trim() || '';
+      if (!eventName) {
+        newErrors.event_name = __('Event name is required', 'tracksure');
+      } else if (eventName.length > 100) {
+        newErrors.event_name = __('Event name cannot exceed 100 characters', 'tracksure');
+      } else if (!/^[a-z0-9_]+$/.test(eventName)) {
+        newErrors.event_name = __('Event name must contain only lowercase letters, numbers, and underscores', 'tracksure');
+      }
     }
 
     if (step === 'conditions') {
-      if (!formData.conditions || formData.conditions.length === 0) {
-        newErrors.conditions = __('Add at least one condition to define when this goal converts', 'tracksure');
-      }
+      // Conditions are optional — some goals (e.g., ecommerce) work without conditions
     }
 
     if (step === 'advanced') {
@@ -220,6 +241,21 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  /**
+   * Validate all steps before final save.
+   * Returns true only if every step passes validation.
+   */
+  const validateAllSteps = (): boolean => {
+    // Validate each step in order; stop on first failure.
+    for (const step of STEPS) {
+      if (!validateStep(step.id)) {
+        setCurrentStep(step.id); // Navigate to the failing step.
+        return false;
+      }
+    }
+    return true;
   };
 
   const handleNext = () => {
@@ -246,8 +282,11 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
   };
 
   const handleSave = () => {
-    if (validateStep('preview')) {
+    if (validateAllSteps()) {
       onSave(formData as GoalFormData);
+      // Clear draft after successful save.
+      localStorage.removeItem('tracksure_goal_draft');
+      setIsDraft(false);
     }
   };
 
@@ -258,13 +297,14 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
   };
 
   const handleSaveAsTemplate = () => {
-    if (onSaveAsTemplate && validateStep('preview')) {
-      onSaveAsTemplate(formData as GoalFormData);
+    if (onSaveAsTemplate && validateAllSteps()) {
+      onSaveAsTemplate(formData);
     }
   };
 
-  // Load draft on mount
+  // Load draft on mount (only if modal is open).
   useEffect(() => {
+    if (!isOpen) return;
     const draft = localStorage.getItem('tracksure_goal_draft');
     if (draft) {
       try {
@@ -275,10 +315,12 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
         console.error('[CustomGoalBuilder] Failed to load draft:', e);
       }
     }
-  }, []);
+  }, [isOpen]);
 
-  // Update event_name when trigger_type changes
+  // Update event_name when trigger_type changes — but skip for custom_event
+  // (custom_event uses a user-defined event_name, not the trigger default).
   useEffect(() => {
+    if (formData.trigger_type === 'custom_event') return;
     const trigger = TRIGGER_OPTIONS.find(t => t.value === formData.trigger_type);
     if (trigger) {
       setFormData(prev => ({ ...prev, event_name: trigger.eventName }));
@@ -413,6 +455,29 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
             ))}
           </div>
           {errors.trigger_type && <span className="ts-error-message">{errors.trigger_type}</span>}
+
+          {/* Custom event name input */}
+          {formData.trigger_type === 'custom_event' && (
+            <div className="ts-form-field" style={{ marginTop: '16px' }}>
+              <label htmlFor="custom-event-name">
+                {__('Event Name', 'tracksure')} <span className="ts-required">*</span>
+              </label>
+              <input
+                id="custom-event-name"
+                type="text"
+                value={formData.event_name || ''}
+                onChange={(e) => setFormData({ ...formData, event_name: e.target.value })}
+                placeholder={__('e.g., purchase, add_to_cart, calculator_completed', 'tracksure')}
+                maxLength={100}
+              />
+              {errors.event_name && (
+                <p className="ts-field-error">{errors.event_name}</p>
+              )}
+              <p className="ts-field-help">
+                {__('The exact event name your custom code dispatches', 'tracksure')}
+              </p>
+            </div>
+          )}
         </CardBody>
       </Card>
     </div>
@@ -573,11 +638,11 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
             <select
               id="frequency"
               value={formData.frequency || 'unlimited'}
-              onChange={(e) => setFormData({ ...formData, frequency: e.target.value as 'once' | 'unlimited' })}
+              onChange={(e) => setFormData({ ...formData, frequency: e.target.value as GoalFormData['frequency'] })}
             >
               <option value="unlimited">{__('Unlimited (track every occurrence)', 'tracksure')}</option>
-              <option value="once_per_session">{__('Once per session', 'tracksure')}</option>
-              <option value="once_per_visitor">{__('Once per visitor (lifetime)', 'tracksure')}</option>
+              <option value="session">{__('Once per session', 'tracksure')}</option>
+              <option value="once">{__('Once per visitor (lifetime)', 'tracksure')}</option>
             </select>
             <p className="ts-field-help">
               {__('Control how often the same user can trigger this goal', 'tracksure')}
@@ -662,8 +727,8 @@ export const CustomGoalBuilder: React.FC<CustomGoalBuilderProps> = ({
                 <dt>{__('Frequency', 'tracksure')}</dt>
                 <dd>
                   {formData.frequency === 'unlimited' && __('Unlimited', 'tracksure')}
-                  {formData.frequency === 'once_per_session' && __('Once per session', 'tracksure')}
-                  {formData.frequency === 'once_per_visitor' && __('Once per visitor', 'tracksure')}
+                  {formData.frequency === 'session' && __('Once per session', 'tracksure')}
+                  {formData.frequency === 'once' && __('Once per visitor', 'tracksure')}
                 </dd>
               </dl>
             </div>

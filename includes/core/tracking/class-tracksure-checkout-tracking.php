@@ -110,6 +110,101 @@ class TrackSure_Checkout_Tracking
   }
 
   /**
+   * Billing field selectors for all supported ecommerce platforms.
+   * Maps TrackSure field names to form selectors (checked in order).
+   * These capture guest user data for EMQ and cross-device matching.
+   */
+  var billingFieldMap = {
+    _ts_b_email: [
+      '#billing_email',                 // WooCommerce Classic
+      'input[name=\"billing_email\"]',  // WooCommerce
+      'input[id*=\"email\"][type=\"email\"]', // WooCommerce Blocks / SureCart / FluentCart
+      'input[name=\"email\"]',          // EDD / Generic
+      'input[name*=\"email\"][type=\"email\"]' // Fallback
+    ],
+    _ts_b_phone: [
+      '#billing_phone',                 // WooCommerce Classic
+      'input[name=\"billing_phone\"]',  // WooCommerce
+      'input[id*=\"phone\"]',           // WooCommerce Blocks / SureCart
+      'input[name=\"phone\"]',          // EDD / Generic
+      'input[name*=\"phone\"]'          // Fallback
+    ],
+    _ts_b_fname: [
+      '#billing_first_name',            // WooCommerce Classic
+      'input[name=\"billing_first_name\"]', // WooCommerce
+      'input[id*=\"first-name\"]',      // WooCommerce Blocks
+      'input[name=\"first_name\"]',     // EDD / Generic
+      'input[name=\"edd_first\"]'       // EDD specific
+    ],
+    _ts_b_lname: [
+      '#billing_last_name',             // WooCommerce Classic
+      'input[name=\"billing_last_name\"]', // WooCommerce
+      'input[id*=\"last-name\"]',       // WooCommerce Blocks
+      'input[name=\"last_name\"]',      // EDD / Generic
+      'input[name=\"edd_last\"]'        // EDD specific
+    ],
+    _ts_b_city: [
+      '#billing_city',                  // WooCommerce Classic
+      'input[name=\"billing_city\"]',   // WooCommerce
+      'input[id*=\"city\"]'             // WooCommerce Blocks
+    ],
+    _ts_b_state: [
+      '#billing_state',                 // WooCommerce Classic
+      'select[name=\"billing_state\"]', // WooCommerce dropdown
+      'input[name=\"billing_state\"]'   // WooCommerce text
+    ],
+    _ts_b_zip: [
+      '#billing_postcode',              // WooCommerce Classic
+      'input[name=\"billing_postcode\"]', // WooCommerce
+      'input[id*=\"postcode\"]',        // WooCommerce Blocks
+      'input[name=\"card_zip\"]',       // EDD
+      'input[name*=\"postcode\"]',      // Fallback
+      'input[name*=\"zip\"]'            // Fallback
+    ],
+    _ts_b_country: [
+      '#billing_country',               // WooCommerce Classic
+      'select[name=\"billing_country\"]', // WooCommerce dropdown
+      'input[id*=\"country\"]'          // WooCommerce Blocks
+    ]
+  };
+
+  /**
+   * Capture billing field values from the checkout form.
+   * Searches through selectors for each billing field and injects as hidden inputs.
+   */
+  function captureBillingFields(form) {
+    Object.keys(billingFieldMap).forEach(function(fieldName) {
+      var selectors = billingFieldMap[fieldName];
+      var value = '';
+
+      for (var i = 0; i < selectors.length; i++) {
+        try {
+          // Search within the form first, then in the document (for split layouts).
+          var el = form.querySelector(selectors[i]) || document.querySelector(selectors[i]);
+          if (el && el.value && el.value.trim() !== '') {
+            value = el.value.trim();
+            break;
+          }
+        } catch (e) {} // Silently catch invalid selectors
+      }
+
+      if (value) {
+        var existing = form.querySelector('input[name=\"' + fieldName + '\"]');
+        if (existing) {
+          existing.value = value;
+        } else {
+          var input = document.createElement('input');
+          input.type = 'hidden';
+          input.name = fieldName;
+          input.value = value;
+          input.className = 'tracksure-tracking-field';
+          form.appendChild(input);
+        }
+      }
+    });
+  }
+
+  /**
    * Inject or update hidden fields in a form
    */
   function injectTrackingFields(form) {
@@ -129,19 +224,19 @@ class TrackSure_Checkout_Tracking
     // Create or update hidden fields.
     var fields = [
       {
-        name: 'tracksure_event_id',
+        name: '_ts_eid',
         value: eventId
       },
       {
-        name: 'tracksure_client_id',
+        name: '_ts_cid',
         value: clientId
       },
       {
-        name: 'tracksure_session_id',
+        name: '_ts_sid',
         value: sessionId
       },
       {
-        name: 'tracksure_nonce',
+        name: '_ts_nonce',
         value: '" . esc_js($nonce) . "'
       }
     ];
@@ -227,9 +322,10 @@ class TrackSure_Checkout_Tracking
         forms.forEach(function(form) {
           injectTrackingFields(form);
 
-          // Re-inject on form submit to ensure fresh event_id
+          // Re-inject on form submit to ensure fresh event_id + capture billing data.
           form.addEventListener('submit', function() {
             injectTrackingFields(form);
+            captureBillingFields(form);
           }, false);
         });
       } catch (e) {
@@ -252,6 +348,7 @@ class TrackSure_Checkout_Tracking
                         injectTrackingFields(node);
                         node.addEventListener('submit', function() {
                           injectTrackingFields(node);
+                          captureBillingFields(node);
                         }, false);
                       }
                     } catch (e) {
@@ -268,6 +365,7 @@ class TrackSure_Checkout_Tracking
                         injectTrackingFields(form);
                         form.addEventListener('submit', function() {
                           injectTrackingFields(form);
+                          captureBillingFields(form);
                         }, false);
                       });
                     } catch (e) {
@@ -316,9 +414,9 @@ class TrackSure_Checkout_Tracking
 
     // Register a dummy script handle and add the inline script.
     // Use false for source to indicate inline-only script.
-    wp_register_script('tracksure-checkout-tracking', false, array(), TRACKSURE_VERSION, true);
-    wp_enqueue_script('tracksure-checkout-tracking');
-    wp_add_inline_script('tracksure-checkout-tracking', $checkout_script);
+    wp_register_script('ts-checkout', false, array(), TRACKSURE_VERSION, true);
+    wp_enqueue_script('ts-checkout');
+    wp_add_inline_script('ts-checkout', $checkout_script);
   }
 
   /**  * Validate UUID format (version 4).
@@ -347,34 +445,74 @@ class TrackSure_Checkout_Tracking
 
     // Verify nonce — required before reading any $_POST data.
     if (
-      ! isset($_POST['tracksure_nonce'])
-      || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['tracksure_nonce'])), 'tracksure_checkout_tracking')
+      ! isset($_POST['_ts_nonce'])
+      || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_ts_nonce'])), 'tracksure_checkout_tracking')
     ) {
       // Nonce missing or invalid — do not read $_POST, fall back to session-based tracking.
       return $event_data;
     }
 
     // Nonce verified — safe to extract tracking IDs from POST.
-    if (isset($_POST['tracksure_event_id']) && ! empty($_POST['tracksure_event_id'])) {
-      $sanitized = sanitize_text_field(wp_unslash($_POST['tracksure_event_id']));
+    if (isset($_POST['_ts_eid']) && ! empty($_POST['_ts_eid'])) {
+      $sanitized = sanitize_text_field(wp_unslash($_POST['_ts_eid']));
       // Validate event_id format (UUID or ts_timestamp_randomstring format).
       if ($this->is_valid_uuid($sanitized) || preg_match('/^ts_[0-9]+_[a-z0-9]+$/i', $sanitized)) {
         $event_data['event_id'] = $sanitized;
       }
     }
 
-    if (isset($_POST['tracksure_client_id']) && ! empty($_POST['tracksure_client_id'])) {
-      $sanitized = sanitize_text_field(wp_unslash($_POST['tracksure_client_id']));
+    if (isset($_POST['_ts_cid']) && ! empty($_POST['_ts_cid'])) {
+      $sanitized = sanitize_text_field(wp_unslash($_POST['_ts_cid']));
       if ($this->is_valid_uuid($sanitized)) {
         $event_data['client_id'] = $sanitized;
       }
     }
 
-    if (isset($_POST['tracksure_session_id']) && ! empty($_POST['tracksure_session_id'])) {
-      $sanitized = sanitize_text_field(wp_unslash($_POST['tracksure_session_id']));
+    if (isset($_POST['_ts_sid']) && ! empty($_POST['_ts_sid'])) {
+      $sanitized = sanitize_text_field(wp_unslash($_POST['_ts_sid']));
       if ($this->is_valid_uuid($sanitized)) {
         $event_data['session_id'] = $sanitized;
       }
+    }
+
+    // BILLING FIELDS: Extract checkout form data for EMQ enrichment.
+    // For guest users (not logged in), this is the ONLY source of email/phone/address.
+    // These dramatically improve Meta CAPI Event Match Quality and cross-device matching.
+    $billing_fields = array(
+      '_ts_b_email'  => 'email',
+      '_ts_b_phone'  => 'phone',
+      '_ts_b_fname'  => 'first_name',
+      '_ts_b_lname'  => 'last_name',
+      '_ts_b_city'   => 'city',
+      '_ts_b_state'  => 'state',
+      '_ts_b_zip'    => 'zip',
+      '_ts_b_country' => 'country',
+    );
+
+    $user_data = isset($event_data['user_data']) && is_array($event_data['user_data']) ? $event_data['user_data'] : array();
+    $has_billing = false;
+
+    foreach ($billing_fields as $post_key => $data_key) {
+      // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above
+      if (isset($_POST[$post_key]) && ! empty($_POST[$post_key])) {
+        $value = sanitize_text_field(wp_unslash($_POST[$post_key]));
+        if (! empty($value)) {
+          // Only override if not already set (server data may be more authoritative).
+          if (empty($user_data[$data_key])) {
+            $user_data[$data_key] = $value;
+            $has_billing = true;
+          }
+        }
+      }
+    }
+
+    // Validate email format.
+    if (! empty($user_data['email']) && ! is_email($user_data['email'])) {
+      unset($user_data['email']);
+    }
+
+    if ($has_billing) {
+      $event_data['user_data'] = $user_data;
     }
 
     return $event_data;

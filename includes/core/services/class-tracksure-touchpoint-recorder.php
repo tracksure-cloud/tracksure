@@ -13,14 +13,15 @@
  */
 
 // Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
 /**
  * TrackSure Touchpoint Recorder class.
  */
-class TrackSure_Touchpoint_Recorder {
+class TrackSure_Touchpoint_Recorder
+{
 
 
 
@@ -43,8 +44,9 @@ class TrackSure_Touchpoint_Recorder {
 	 *
 	 * @return TrackSure_Touchpoint_Recorder
 	 */
-	public static function get_instance() {
-		if ( null === self::$instance ) {
+	public static function get_instance()
+	{
+		if (null === self::$instance) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -53,7 +55,8 @@ class TrackSure_Touchpoint_Recorder {
 	/**
 	 * Constructor.
 	 */
-	private function __construct() {
+	private function __construct()
+	{
 		$this->db = TrackSure_DB::get_instance();
 	}
 
@@ -69,28 +72,29 @@ class TrackSure_Touchpoint_Recorder {
 	 * @param array $event_data Event data (optional, for conversion touchpoints).
 	 * @return int|false Touchpoint ID on success, false on failure.
 	 */
-	public function maybe_record_touchpoint( $session_data, $event_data = array() ) {
+	public function maybe_record_touchpoint($session_data, $event_data = array())
+	{
 		global $wpdb;
 
-		if ( empty( $session_data['visitor_id'] ) || empty( $session_data['session_id'] ) ) {
+		if (empty($session_data['visitor_id']) || empty($session_data['session_id'])) {
 			return false;
 		}
 
 		// Check if we should create a touchpoint.
-		$should_create = $this->should_create_touchpoint( $session_data );
+		$should_create = $this->should_create_touchpoint($session_data);
 
-		if ( ! $should_create ) {
+		if (! $should_create) {
 			return false;
 		}
 
 		// Get next sequence number for this visitor.
-		$touchpoint_seq = $this->get_next_touchpoint_seq( $session_data['visitor_id'] );
+		$touchpoint_seq = $this->get_next_touchpoint_seq($session_data['visitor_id']);
 
 		// Calculate channel from UTM parameters.
-		$channel = $this->calculate_channel( $session_data );
+		$channel = $this->calculate_channel($session_data);
 
 		// Get page data from recent event if not provided.
-		if ( empty( $event_data['page_url'] ) && ! empty( $session_data['session_id'] ) ) {
+		if (empty($event_data['page_url']) && ! empty($session_data['session_id'])) {
 			$recent_event = $wpdb->get_row(
 				$wpdb->prepare(
 					"SELECT page_url, page_title FROM {$wpdb->prefix}tracksure_events
@@ -101,7 +105,7 @@ class TrackSure_Touchpoint_Recorder {
 				ARRAY_A
 			);
 
-			if ( $recent_event ) {
+			if ($recent_event) {
 				$event_data['page_url']   = $recent_event['page_url'];
 				$event_data['page_title'] = $recent_event['page_title'];
 			} else {
@@ -115,11 +119,11 @@ class TrackSure_Touchpoint_Recorder {
 					ARRAY_A
 				);
 
-				if ( $session && ! empty( $session['landing_page'] ) ) {
+				if ($session && ! empty($session['landing_page'])) {
 					$event_data['page_url'] = $session['landing_page'];
 					// Extract title from URL if not available.
-					$path                     = wp_parse_url( $session['landing_page'], PHP_URL_PATH );
-					$event_data['page_title'] = ! empty( $path ) ? basename( $path ) : 'Home';
+					$path                     = wp_parse_url($session['landing_page'], PHP_URL_PATH);
+					$event_data['page_title'] = ! empty($path) ? basename($path) : 'Home';
 				}
 			}
 		}
@@ -128,20 +132,20 @@ class TrackSure_Touchpoint_Recorder {
 		$touchpoint_data = array(
 			'visitor_id'     => $session_data['visitor_id'],
 			'session_id'     => $session_data['session_id'],
-			'event_id'       => ! empty( $event_data['event_id'] ) ? $event_data['event_id'] : null,
+			'event_id'       => ! empty($event_data['event_id']) ? $event_data['event_id'] : null,
 			'touchpoint_seq' => $touchpoint_seq,
-			'touched_at'     => current_time( 'mysql' ),
-			'utm_source'     => ! empty( $session_data['utm_source'] ) ? $session_data['utm_source'] : null,
-			'utm_medium'     => ! empty( $session_data['utm_medium'] ) ? $session_data['utm_medium'] : null,
-			'utm_campaign'   => ! empty( $session_data['utm_campaign'] ) ? $session_data['utm_campaign'] : null,
-			'utm_term'       => ! empty( $session_data['utm_term'] ) ? $session_data['utm_term'] : null,
-			'utm_content'    => ! empty( $session_data['utm_content'] ) ? $session_data['utm_content'] : null,
+			'touched_at'     => current_time('mysql', true),
+			'utm_source'     => ! empty($session_data['utm_source']) ? $session_data['utm_source'] : null,
+			'utm_medium'     => ! empty($session_data['utm_medium']) ? $session_data['utm_medium'] : null,
+			'utm_campaign'   => ! empty($session_data['utm_campaign']) ? $session_data['utm_campaign'] : null,
+			'utm_term'       => ! empty($session_data['utm_term']) ? $session_data['utm_term'] : null,
+			'utm_content'    => ! empty($session_data['utm_content']) ? $session_data['utm_content'] : null,
 			'channel'        => $channel,
-			'page_url'       => ! empty( $event_data['page_url'] ) ? $event_data['page_url'] : null,
-			'page_title'     => ! empty( $event_data['page_title'] ) ? $event_data['page_title'] : null,
-			'page_path'      => $this->extract_page_path( ! empty( $event_data['page_url'] ) ? $event_data['page_url'] : '' ),
-			'referrer'       => ! empty( $session_data['referrer'] ) ? $session_data['referrer'] : null,
-			'created_at'     => current_time( 'mysql' ),
+			'page_url'       => ! empty($event_data['page_url']) ? $event_data['page_url'] : null,
+			'page_title'     => ! empty($event_data['page_title']) ? $event_data['page_title'] : null,
+			'page_path'      => $this->extract_page_path(! empty($event_data['page_url']) ? $event_data['page_url'] : ''),
+			'referrer'       => ! empty($session_data['referrer']) ? $session_data['referrer'] : null,
+			'created_at'     => current_time('mysql', true),
 		);
 
 		// Insert touchpoint.
@@ -168,10 +172,10 @@ class TrackSure_Touchpoint_Recorder {
 			)
 		);
 
-		if ( $result === false ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ($result === false) {
+			if (defined('WP_DEBUG') && WP_DEBUG) {
 
-				error_log( '[TrackSure] Failed to insert touchpoint: ' . $wpdb->last_error );
+				error_log('[TrackSure] Failed to insert touchpoint: ' . $wpdb->last_error);
 			}
 			return false;
 		}
@@ -185,7 +189,7 @@ class TrackSure_Touchpoint_Recorder {
 		 * @param int   $touchpoint_id Touchpoint ID.
 		 * @param array $touchpoint_data Touchpoint data.
 		 */
-		do_action( 'tracksure_touchpoint_recorded', $touchpoint_id, $touchpoint_data );
+		do_action('tracksure_touchpoint_recorded', $touchpoint_id, $touchpoint_data);
 
 		return $touchpoint_id;
 	}
@@ -196,10 +200,11 @@ class TrackSure_Touchpoint_Recorder {
 	 * @param array $session_data Session data.
 	 * @return bool
 	 */
-	private function should_create_touchpoint( $session_data ) {
+	private function should_create_touchpoint($session_data)
+	{
 		global $wpdb;
 		// Always create touchpoint for new sessions.
-		if ( ! empty( $session_data['session_number'] ) && $session_data['session_number'] == 1 ) {
+		if (! empty($session_data['session_number']) && $session_data['session_number'] == 1) {
 			return true;
 		}
 
@@ -216,17 +221,17 @@ class TrackSure_Touchpoint_Recorder {
 			ARRAY_A
 		);
 
-		if ( ! $last_touchpoint ) {
+		if (! $last_touchpoint) {
 			return true; // No previous touchpoint
 		}
 
 		// Check if any UTM parameter changed.
 		$utm_changed = (
-			$this->normalize_utm( $session_data['utm_source'] ?? '' ) !== $this->normalize_utm( $last_touchpoint['utm_source'] ?? '' ) ||
-			$this->normalize_utm( $session_data['utm_medium'] ?? '' ) !== $this->normalize_utm( $last_touchpoint['utm_medium'] ?? '' ) ||
-			$this->normalize_utm( $session_data['utm_campaign'] ?? '' ) !== $this->normalize_utm( $last_touchpoint['utm_campaign'] ?? '' ) ||
-			$this->normalize_utm( $session_data['utm_term'] ?? '' ) !== $this->normalize_utm( $last_touchpoint['utm_term'] ?? '' ) ||
-			$this->normalize_utm( $session_data['utm_content'] ?? '' ) !== $this->normalize_utm( $last_touchpoint['utm_content'] ?? '' )
+			$this->normalize_utm($session_data['utm_source'] ?? '') !== $this->normalize_utm($last_touchpoint['utm_source'] ?? '') ||
+			$this->normalize_utm($session_data['utm_medium'] ?? '') !== $this->normalize_utm($last_touchpoint['utm_medium'] ?? '') ||
+			$this->normalize_utm($session_data['utm_campaign'] ?? '') !== $this->normalize_utm($last_touchpoint['utm_campaign'] ?? '') ||
+			$this->normalize_utm($session_data['utm_term'] ?? '') !== $this->normalize_utm($last_touchpoint['utm_term'] ?? '') ||
+			$this->normalize_utm($session_data['utm_content'] ?? '') !== $this->normalize_utm($last_touchpoint['utm_content'] ?? '')
 		);
 
 		return $utm_changed;
@@ -238,7 +243,8 @@ class TrackSure_Touchpoint_Recorder {
 	 * @param int $visitor_id Visitor ID.
 	 * @return int
 	 */
-	private function get_next_touchpoint_seq( $visitor_id ) {
+	private function get_next_touchpoint_seq($visitor_id)
+	{
 		global $wpdb;
 		$max_seq = $wpdb->get_var(
 			$wpdb->prepare(
@@ -247,7 +253,7 @@ class TrackSure_Touchpoint_Recorder {
 			)
 		);
 
-		return $max_seq ? ( $max_seq + 1 ) : 1;
+		return $max_seq ? ($max_seq + 1) : 1;
 	}
 
 	/**
@@ -258,10 +264,11 @@ class TrackSure_Touchpoint_Recorder {
 	 * @param array $session_data Session data.
 	 * @return string Channel name.
 	 */
-	private function calculate_channel( $session_data ) {
+	private function calculate_channel($session_data)
+	{
 		// Use Attribution Resolver for consistent channel calculation.
 		$attribution_resolver = TrackSure_Attribution_Resolver::get_instance();
-		$resolved             = $attribution_resolver->resolve( $session_data );
+		$resolved             = $attribution_resolver->resolve($session_data);
 
 		return $resolved['channel'];
 	}
@@ -272,13 +279,14 @@ class TrackSure_Touchpoint_Recorder {
 	 * @param string $url Full URL.
 	 * @return string Page path.
 	 */
-	private function extract_page_path( $url ) {
-		if ( empty( $url ) ) {
+	private function extract_page_path($url)
+	{
+		if (empty($url)) {
 			return '';
 		}
 
-		$parsed = wp_parse_url( $url );
-		return ! empty( $parsed['path'] ) ? $parsed['path'] : '/';
+		$parsed = wp_parse_url($url);
+		return ! empty($parsed['path']) ? $parsed['path'] : '/';
 	}
 
 	/**
@@ -287,8 +295,9 @@ class TrackSure_Touchpoint_Recorder {
 	 * @param string $utm UTM value.
 	 * @return string Normalized value.
 	 */
-	private function normalize_utm( $utm ) {
-		return strtolower( trim( $utm ) );
+	private function normalize_utm($utm)
+	{
+		return strtolower(trim($utm));
 	}
 
 	/**
@@ -298,7 +307,8 @@ class TrackSure_Touchpoint_Recorder {
 	 * @param int $limit Limit.
 	 * @return array Touchpoints.
 	 */
-	public function get_visitor_touchpoints( $visitor_id, $limit = 100 ) {
+	public function get_visitor_touchpoints($visitor_id, $limit = 100)
+	{
 		global $wpdb;
 		return $wpdb->get_results(
 			$wpdb->prepare(
@@ -322,9 +332,10 @@ class TrackSure_Touchpoint_Recorder {
 	 * @param int    $lookback_days Lookback window in days (default 30).
 	 * @return array Touchpoints.
 	 */
-	public function get_conversion_touchpoints( $visitor_id, $converted_at, $lookback_days = 30 ) {
+	public function get_conversion_touchpoints($visitor_id, $converted_at, $lookback_days = 30)
+	{
 		global $wpdb;
-		$lookback_date = gmdate( 'Y-m-d H:i:s', strtotime( $converted_at . " - {$lookback_days} days" ) );
+		$lookback_date = gmdate('Y-m-d H:i:s', strtotime($converted_at . " - {$lookback_days} days"));
 
 		return $wpdb->get_results(
 			$wpdb->prepare(

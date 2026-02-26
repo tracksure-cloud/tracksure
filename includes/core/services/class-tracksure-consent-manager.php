@@ -170,8 +170,25 @@ class TrackSure_Consent_Manager
 	 */
 	private function check_consent()
 	{
-		// Check for TrackSure consent cookie.
-		if (isset($_COOKIE['tracksure_consent']) && 'true' === sanitize_text_field(wp_unslash($_COOKIE['tracksure_consent']))) {
+		// PRIORITY 1: Check real-time consent override from browser.
+		// consent-listeners.js sends consent changes via REST API, stored as short-lived transient.
+		// This bridges the gap between browser consent change and cookie being available.
+		$client_ip     = TrackSure_Utilities::get_client_ip();
+		$transient_key = 'tracksure_consent_' . md5($client_ip);
+		$override      = get_transient($transient_key);
+
+		if (is_array($override)) {
+			// Browser sent explicit consent state — check analytics_storage.
+			if (isset($override['analytics_storage']) && $override['analytics_storage'] === 'granted') {
+				return true;
+			}
+			if (isset($override['analytics_storage']) && $override['analytics_storage'] === 'denied') {
+				return false;
+			}
+		}
+
+		// PRIORITY 2: Check for TrackSure consent cookie.
+		if (isset($_COOKIE['_ts_consent']) && 'true' === sanitize_text_field(wp_unslash($_COOKIE['_ts_consent']))) {
 			return true;
 		}
 
@@ -227,7 +244,7 @@ class TrackSure_Consent_Manager
 	private function check_consent_denied()
 	{
 		// Check for TrackSure consent cookie.
-		if (isset($_COOKIE['tracksure_consent']) && 'false' === sanitize_text_field(wp_unslash($_COOKIE['tracksure_consent']))) {
+		if (isset($_COOKIE['_ts_consent']) && 'false' === sanitize_text_field(wp_unslash($_COOKIE['_ts_consent']))) {
 			return true;
 		}
 
@@ -348,6 +365,16 @@ class TrackSure_Consent_Manager
 
 		// Check for statistics or marketing consent.
 		return cmplz_has_consent('statistics') || cmplz_has_consent('marketing');
+	}
+
+	/**
+	 * Invalidate consent cache (called after consent state changes).
+	 *
+	 * Allows fresh consent checks after browser consent update.
+	 */
+	public function invalidate_cache()
+	{
+		$this->tracking_allowed_cache = null;
 	}
 
 	/**

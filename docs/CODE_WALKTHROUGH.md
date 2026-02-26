@@ -308,8 +308,8 @@ class TrackSure_Consent_Manager {
 
     public function get_consent_status() {
         // Check cookie
-        if (isset($_COOKIE['tracksure_consent'])) {
-            return $_COOKIE['tracksure_consent'] === 'granted';
+        if (isset($_COOKIE['_ts_consent'])) {
+            return $_COOKIE['_ts_consent'] === 'granted';
         }
 
         // Check for third-party consent plugins
@@ -468,9 +468,9 @@ class TrackSure_Destinations_Manager {
     }
 
     public function distribute_event($event_id, $event_data) {
-        // Get enabled destinations from settings
-        $settings = get_option('tracksure_settings', array());
-        $enabled_destinations = $settings['enabled_destinations'] ?? array('ga4', 'meta');
+        // Get enabled destinations (each setting is an individual wp_option)
+        $destinations_enabled = get_option('tracksure_enable_destinations', true);
+        $enabled_destinations = $destinations_enabled ? array('ga4', 'meta') : array();
 
         // Apply filter to allow third-party modification
         $enabled_destinations = apply_filters('tracksure_enabled_destinations', $enabled_destinations, $event_data);
@@ -916,5 +916,11 @@ WHERE id = 1;
 - ✅ Extensible (hooks allow third-party customization)
 
 ---
+
+**See Also**:
+
+- [EVENT_SYSTEM.md](EVENT_SYSTEM.md) — Deep dive into the event pipeline (Builder → Recorder → Queue → Mapper)
+- [PLUGIN_API.md](PLUGIN_API.md) — PHP & JavaScript public API reference
+- [CUSTOM_EVENTS.md](CUSTOM_EVENTS.md) — Creating and tracking custom events
 
 **Next**: Read [SESSION_MANAGEMENT.md](SESSION_MANAGEMENT.md) to understand session tracking, or [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md) to learn how to debug this flow.

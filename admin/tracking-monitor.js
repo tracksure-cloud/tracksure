@@ -222,7 +222,7 @@
     window.fetch = function(...args) {
         const [url, options] = args;
         const urlStr = typeof url === 'string' ? url : url.toString();
-        const isTracking = urlStr.includes('tracksure/v1/ingest') || 
+        const isTracking = urlStr.includes('ts/v1/collect') || 
                           urlStr.includes('facebook.com') || 
                           urlStr.includes('google-analytics.com');
         

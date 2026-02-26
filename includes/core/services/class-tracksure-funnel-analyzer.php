@@ -401,8 +401,8 @@ class TrackSure_Funnel_Analyzer
 					'funnel_type' => 'event_based',
 					'is_active'   => 1,
 					'time_window' => 1800,
-					'created_at'  => current_time('mysql'),
-					'updated_at'  => current_time('mysql'),
+					'created_at'  => current_time('mysql', true),
+					'updated_at'  => current_time('mysql', true),
 				)
 			);
 
@@ -453,8 +453,8 @@ class TrackSure_Funnel_Analyzer
 				'funnel_type' => 'event_based',
 				'is_active'   => 1,
 				'time_window' => 1800,
-				'created_at'  => current_time('mysql'),
-				'updated_at'  => current_time('mysql'),
+				'created_at'  => current_time('mysql', true),
+				'updated_at'  => current_time('mysql', true),
 			)
 		);
 

@@ -66,7 +66,7 @@ class TrackSure_Admin_UI
 			'tracksure',
 			array($this, 'render_admin_page'),
 			'dashicons-chart-area',
-			2
+			56
 		);
 	}
 
@@ -251,13 +251,11 @@ class TrackSure_Admin_UI
 		$currency = apply_filters('tracksure_admin_currency', $currency, $currency_symbol);
 
 		$config = array(
-			'apiUrl'         => rest_url('tracksure/v1'),
-			'apiToken'       => get_option('tracksure_api_token'),
+			'apiUrl'         => rest_url('ts/v1'),
 			'nonce'          => wp_create_nonce('wp_rest'),
 			'siteUrl'        => get_site_url(),
 			'timezone'       => wp_timezone_string(),
 			'dateFormat'     => get_option('date_format'),
-			'isPro'          => $this->is_pro_active(),
 			'isEcommerce'    => $this->is_ecommerce_active(),
 			'currency'       => $currency,
 			'currencySymbol' => $currency_symbol,
@@ -291,16 +289,6 @@ class TrackSure_Admin_UI
 		 * @param string $hook Current admin page hook.
 		 */
 		do_action('tracksure_admin_enqueue_scripts', $hook);
-	}
-
-	/**
-	 * Check if Pro is active.
-	 *
-	 * @return bool
-	 */
-	private function is_pro_active()
-	{
-		return defined('TRACKSURE_PRO_VERSION');
 	}
 
 	/**
@@ -396,12 +384,12 @@ class TrackSure_Admin_UI
 					if ($extension['id'] === 'tracksure-free') {
 						// Free: Only tracksure_free_* or old naming (woo_*, fluentcart_*)
 						if ($is_free_integration) {
-							$extension['integrations'][] = $this->format_integration_for_react($int);
+							$extension['integrations'][] = $this->format_integration_for_react($int, $integrations_manager);
 						}
 					} elseif ($extension['id'] === 'tracksure-pro') {
 						// Pro: Only tracksure_* (but NOT tracksure_free_*)
 						if (strpos($int['enabled_key'], 'tracksure_') === 0 && ! $is_free_integration) {
-							$extension['integrations'][] = $this->format_integration_for_react($int);
+							$extension['integrations'][] = $this->format_integration_for_react($int, $integrations_manager);
 						}
 					}
 				}
@@ -414,6 +402,9 @@ class TrackSure_Admin_UI
 	/**
 	 * Format destination for React (from Manager data).
 	 *
+	 * Keys use camelCase to match TypeScript DestinationConfig interface.
+	 * Note: custom_config remains snake_case as both PHP and React use it that way.
+	 *
 	 * @param array $dest Destination data from Manager.
 	 * @return array Formatted for React.
 	 */
@@ -425,8 +416,8 @@ class TrackSure_Admin_UI
 			'description'   => isset($dest['description']) ? $dest['description'] : '',
 			'icon'          => isset($dest['icon']) ? $dest['icon'] : 'Target',
 			'order'         => isset($dest['order']) ? $dest['order'] : 999,
-			'enabled_key'   => $dest['enabled_key'],
-			'custom_config' => isset($dest['custom_config']) ? $dest['custom_config'] : null, // Custom React component for configuration
+			'enabledKey'    => $dest['enabled_key'],
+			'custom_config' => isset($dest['custom_config']) ? $dest['custom_config'] : null,
 			'fields'        => $this->enrich_fields(isset($dest['settings_fields']) ? $dest['settings_fields'] : array(), TrackSure_Settings_Schema::get_all_settings()),
 		);
 	}
@@ -434,49 +425,33 @@ class TrackSure_Admin_UI
 	/**
 	 * Format integration for React (from Manager data).
 	 *
-	 * @param array $int Integration data from Manager.
+	 * Keys use camelCase to match TypeScript IntegrationConfig interface.
+	 * - auto_detect path is resolved to boolean 'detected' (React doesn't need file paths)
+	 * - plugin_name removed (not used by React)
+	 *
+	 * @param array                              $int                  Integration data from Manager.
+	 * @param TrackSure_Integrations_Manager|null $integrations_manager Manager instance for plugin detection.
 	 * @return array Formatted for React.
 	 */
-	private function format_integration_for_react($int)
+	private function format_integration_for_react($int, $integrations_manager = null)
 	{
+		// Resolve auto_detect path to boolean — React only needs the result, not the file path.
+		$detected = false;
+		if ($integrations_manager && ! empty($int['auto_detect'])) {
+			$detected = $integrations_manager->is_plugin_active($int['auto_detect']);
+		}
+
 		return array(
-			'id'             => $int['id'],
-			'name'           => $int['name'],
-			'description'    => isset($int['description']) ? $int['description'] : '',
-			'icon'           => isset($int['icon']) ? $int['icon'] : 'Puzzle',
-			'order'          => isset($int['order']) ? $int['order'] : 999,
-			'enabled_key'    => $int['enabled_key'],
-			'auto_detect'    => isset($int['auto_detect']) ? $int['auto_detect'] : false,
-			'plugin_name'    => isset($int['plugin_name']) ? $int['plugin_name'] : '',
-			'tracked_events' => isset($int['tracked_events']) ? $int['tracked_events'] : array(),
-			'fields'         => $this->enrich_fields(isset($int['settings_fields']) ? $int['settings_fields'] : array(), TrackSure_Settings_Schema::get_all_settings()),
+			'id'          => $int['id'],
+			'name'        => $int['name'],
+			'description' => isset($int['description']) ? $int['description'] : '',
+			'icon'        => isset($int['icon']) ? $int['icon'] : 'Puzzle',
+			'order'       => isset($int['order']) ? $int['order'] : 999,
+			'enabledKey'  => $int['enabled_key'],
+			'detected'    => $detected,
+			'events'      => isset($int['tracked_events']) ? $int['tracked_events'] : array(),
+			'fields'      => $this->enrich_fields(isset($int['settings_fields']) ? $int['settings_fields'] : array(), TrackSure_Settings_Schema::get_all_settings()),
 		);
-	}
-
-	/**
-	 * DEPRECATED: Get destination metadata from Manager (old approach).
-	 *
-	 * @deprecated No longer used - destinations assigned by enabled_key prefix.
-	 * @param object $manager Destinations Manager instance.
-	 * @param array  $extension_destinations Destination IDs from extension registration.
-	 * @return array Empty array.
-	 */
-	private function get_destinations_from_manager_DEPRECATED($manager, $extension_destinations)
-	{
-		return array();
-	}
-
-	/**
-	 * DEPRECATED: Get integration metadata from Manager (old approach).
-	 *
-	 * @deprecated No longer used - integrations assigned by enabled_key prefix.
-	 * @param object $manager Integrations Manager instance.
-	 * @param array  $extension_integrations Integration IDs from extension registration.
-	 * @return array Empty array.
-	 */
-	private function get_integrations_from_manager_DEPRECATED($manager, $extension_integrations)
-	{
-		return array();
 	}
 
 	/**

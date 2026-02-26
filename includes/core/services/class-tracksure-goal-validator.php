@@ -387,10 +387,10 @@ class TrackSure_Goal_Validator
 		// Sanitize and prepare data.
 		$prepared = array(
 			'name'         => sanitize_text_field(trim($goal_data['name'])),
+			'description'  => isset($goal_data['description']) ? sanitize_textarea_field(trim($goal_data['description'])) : '',
 			'event_name'   => sanitize_text_field(strtolower(trim($goal_data['event_name']))),
 			'trigger_type' => sanitize_text_field($goal_data['trigger_type']),
 			'is_active'    => isset($goal_data['is_active']) ? (bool) $goal_data['is_active'] : true,
-			'is_pro'       => isset($goal_data['is_pro']) ? (bool) $goal_data['is_pro'] : false,
 		);
 
 		// Conditions (already validated, encode as JSON).

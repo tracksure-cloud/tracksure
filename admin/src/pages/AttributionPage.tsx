@@ -3,7 +3,7 @@
  * 
  * Shows multi-session visitor journeys and attribution insights:
  * - Journey Insights: Aggregated metrics (avg sessions, time to convert)
- * - Attribution Models: Model comparison (Free: first/last, Pro: all)
+ * - Attribution Models: Model comparison with all 5 models
  * - Individual Journeys: Single visitor journey search
  */
 
@@ -15,7 +15,6 @@ import { Button } from '../components/ui/Button';
 import { Icon } from '../components/ui/Icon';
 import { SkeletonKPI, SkeletonChart, SkeletonTable } from '../components/ui/Skeleton';
 import { EmptyState } from '../components/ui/EmptyState';
-import { ProBadge } from '../components/ui/ProBadge';
 import { useApp } from '../contexts/AppContext';
 import { useApiQuery } from '../hooks/useApiQuery';
 import { __ } from '../utils/i18n';
@@ -69,7 +68,7 @@ interface AttributionModelsData {
 type TabType = 'insights' | 'models' | 'journeys';
 
 export function AttributionPage(): JSX.Element {
-  const { dateRange, config } = useApp();
+  const { dateRange } = useApp();
   const [activeTab, setActiveTab] = useState<TabType>('insights');
 
   return (
@@ -98,10 +97,7 @@ export function AttributionPage(): JSX.Element {
             onClick={() => setActiveTab('models')}
           >
             <Icon name="GitBranch" size={18} />
-            <span className="ts-attribution-page__tab-label">
-              {__('Attribution Models', 'tracksure')}
-              {!config.isPro && <ProBadge size="sm" />}
-            </span>
+            {__('Attribution Models', 'tracksure')}
           </button>
           <button
             className={`tracksure-tabs__tab ${activeTab === 'journeys' ? 'is-active' : ''}`}
@@ -114,7 +110,7 @@ export function AttributionPage(): JSX.Element {
 
         <div className="tracksure-tabs__content">
           {activeTab === 'insights' && <JourneyInsightsTab dateRange={dateRange} />}
-          {activeTab === 'models' && <AttributionModelsTab dateRange={dateRange} isPro={config.isPro} />}
+          {activeTab === 'models' && <AttributionModelsTab dateRange={dateRange} />}
           {activeTab === 'journeys' && <IndividualJourneysTab />}
         </div>
       </div>
@@ -341,7 +337,7 @@ function JourneyInsightsTab({ dateRange }: { dateRange: { start: Date; end: Date
 /**
  * Attribution Models Tab - Model Comparison
  */
-function AttributionModelsTab({ dateRange, isPro: _isPro }: { dateRange: { start: Date; end: Date }; isPro: boolean }): JSX.Element {
+function AttributionModelsTab({ dateRange }: { dateRange: { start: Date; end: Date } }): JSX.Element {
   const startDate = formatLocalDate(dateRange.start);
   const endDate = formatLocalDate(dateRange.end);
   
@@ -372,8 +368,6 @@ function AttributionModelsTab({ dateRange, isPro: _isPro }: { dateRange: { start
     });
   }, [modelsData]);
 
-  const hasProModels = modelsData?.available_models.some((m) => ['linear', 'time_decay', 'position_based'].includes(m));
-
   if (isLoading) {
     return (
       <div>
@@ -393,22 +387,20 @@ function AttributionModelsTab({ dateRange, isPro: _isPro }: { dateRange: { start
     );
   }
 
+  // Check if ALL model arrays are empty (API returns models object with empty arrays when no data)
+  const hasAnyModelData = Object.values(modelsData.models).some((sources) => sources.length > 0);
+  if (!hasAnyModelData) {
+    return (
+      <EmptyState
+        icon={<Icon name="GitBranch" size={64} />}
+        title={__('No Attribution Data', 'tracksure')}
+        message={__('Attribution model comparison will appear once conversions with linked touchpoints are tracked.', 'tracksure')}
+      />
+    );
+  }
+
   return (
     <div className="attribution-models-tab">
-      {/* Pro Upgrade Banner */}
-      {!hasProModels && (
-        <div className="pro-upgrade-banner">
-          <Icon name="Sparkles" size={24} />
-          <div>
-            <strong>{__('Unlock Advanced Attribution Models', 'tracksure')}</strong>
-            <p>{__('Get Linear, Time Decay, and Position-Based attribution with TrackSure Pro', 'tracksure')}</p>
-          </div>
-          <Button variant="primary" onClick={() => window.open('https://tracksure.cloud', '_blank')}>
-            {__('Upgrade to Pro', 'tracksure')}
-          </Button>
-        </div>
-      )}
-
       {/* Attribution Comparison Chart */}
       <Card>
         <CardHeader>

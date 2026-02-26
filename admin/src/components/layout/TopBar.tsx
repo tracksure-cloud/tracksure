@@ -25,7 +25,6 @@ export const TopBar: React.FC = () => {
             <circle cx="14" cy="14" r="3" fill="currentColor"/>
           </svg>
           <span className="ts-topbar-title">TrackSure</span>
-          {config.isPro && <span className="ts-topbar-badge">Pro</span>}
         </div>
       </div>
 

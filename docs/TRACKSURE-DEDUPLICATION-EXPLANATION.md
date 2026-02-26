@@ -160,7 +160,7 @@ POST https://googleadservices.com/pagead/conversion/...
    - **Result**: Single database record, single ad platform count
 
 2. **Add to Cart** (Button Clicks):
-   - **Browser**: `tracksure-web.js` tracks click immediately
+   - **Browser**: `ts-web.js` tracks click immediately
    - **Server**: `woocommerce_add_to_cart` hook captures product data
    - **Deduplication**: Same `event_id` from session + product_id
    - **Result**: Single record with both flags

@@ -37,6 +37,7 @@
  * - GET    /wp-json/tracksure/v1/goals/performance  - Batch performance
  * - GET    /wp-json/tracksure/v1/goals/{id}/timeline - Conversion timeline
  * - GET    /wp-json/tracksure/v1/goals/{id}/sources - Source attribution
+ * - GET    /wp-json/tracksure/v1/goals/{id}/devices - Device & browser distribution
  *
  * @package TrackSure\Core\API
  * @since 1.0.0
@@ -238,7 +239,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 				'args'                => array(
 					'attribution_model' => array(
 						'type'    => 'string',
-						'enum'    => array('first_touch', 'last_touch'),
+						'enum'    => array('first_touch', 'last_touch', 'linear', 'time_decay', 'position_based'),
 						'default' => 'last_touch',
 					),
 					'date_start'        => array(
@@ -247,6 +248,29 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 						'required' => false,
 					),
 					'date_end'          => array(
+						'type'     => 'string',
+						'format'   => 'date',
+						'required' => false,
+					),
+				),
+			)
+		);
+
+		// GET /goals/{id}/devices - Get goal device & browser distribution.
+		register_rest_route(
+			$this->namespace,
+			'/goals/(?P<id>\d+)/devices',
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => array($this, 'get_goal_devices'),
+				'permission_callback' => array($this, 'check_admin_permission'),
+				'args'                => array(
+					'date_start' => array(
+						'type'     => 'string',
+						'format'   => 'date',
+						'required' => false,
+					),
+					'date_end'   => array(
 						'type'     => 'string',
 						'format'   => 'date',
 						'required' => false,
@@ -307,8 +331,11 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
                     conditions, 
                     trigger_type, 
                     match_logic, 
+                    trigger_config, 
                     value_type, 
                     fixed_value, 
+                    frequency, 
+                    cooldown_minutes, 
                     is_active, 
                     created_at, 
                     updated_at
@@ -319,18 +346,24 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			)
 		);
 
-		// Parse conditions JSON and type-cast values.
+		// Parse conditions JSON, trigger_config JSON, and type-cast values.
 		foreach ($goals as $goal) {
 			if (! empty($goal->conditions)) {
 				$goal->conditions = json_decode($goal->conditions, true);
 			} else {
 				$goal->conditions = array();
 			}
-			if (! empty($goal->match_logic)) {
-				$goal->match_logic = json_decode($goal->match_logic, true);
+			if (! empty($goal->trigger_config)) {
+				$decoded = json_decode($goal->trigger_config);
+				$goal->trigger_config = $decoded !== null ? $decoded : null;
 			} else {
-				$goal->match_logic = array();
+				$goal->trigger_config = null;
 			}
+			// match_logic is a plain string ('all' or 'any'), NOT JSON.
+			if (empty($goal->match_logic) || ! in_array($goal->match_logic, array('all', 'any'), true)) {
+				$goal->match_logic = 'all';
+			}
+			$goal->cooldown_minutes = (int) ($goal->cooldown_minutes ?? 0);
 		}
 
 		// Return goals wrapped in object for consistency with frontend expectations.
@@ -368,7 +401,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'conditions'       => $request->get_param('conditions'),
 			'match_logic'      => $request->get_param('match_logic'),
 			'value_type'       => $request->get_param('value_type'),
-			'fixed_value'      => $request->get_param('fixed_value'),
+			'fixed_value'      => $request->get_param('fixed_value') ?? $request->get_param('value'),
 			'trigger_config'   => $request->get_param('trigger_config'),
 			'frequency'        => $request->get_param('frequency'),
 			'cooldown_minutes' => $request->get_param('cooldown_minutes'),
@@ -519,7 +552,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'conditions'       => $request->get_param('conditions'),
 			'match_logic'      => $request->get_param('match_logic'),
 			'value_type'       => $request->get_param('value_type'),
-			'fixed_value'      => $request->get_param('fixed_value'),
+			'fixed_value'      => $request->get_param('fixed_value') ?? $request->get_param('value'),
 			'trigger_config'   => $request->get_param('trigger_config'),
 			'frequency'        => $request->get_param('frequency'),
 			'cooldown_minutes' => $request->get_param('cooldown_minutes'),
@@ -538,7 +571,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 
 		// Use validated and sanitized data.
 		$data               = $validation['data'];
-		$data['updated_at'] = current_time('mysql');
+		$data['updated_at'] = current_time('mysql', true);
 
 		/**
 		 * Filter goal data before database update.
@@ -1074,36 +1107,61 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		}
 
 
-		// Choose source column based on attribution model (strict allowlist).
-		$allowed_columns = array('first_touch_source', 'last_touch_source');
-		$source_column   = in_array($attribution_model === 'first_touch' ? 'first_touch_source' : 'last_touch_source', $allowed_columns, true)
-			? ($attribution_model === 'first_touch' ? 'first_touch_source' : 'last_touch_source')
-			: 'last_touch_source';
+		// Multi-touch models use the conversion_attribution table.
+		$multi_touch_models = array('linear', 'time_decay', 'position_based');
 
-		// Get source breakdown.
-		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
-		$sources = $wpdb->get_results(
-			$wpdb->prepare(
-				"SELECT 
-                {$source_column} as source,
-                COUNT(*) as conversions,
-                COALESCE(SUM(conversion_value), 0) as revenue
-            FROM {$wpdb->prefix}tracksure_conversions
-            WHERE goal_id = %d
-            AND converted_at >= %s
-            AND converted_at <= %s
-            AND {$source_column} IS NOT NULL
-            AND {$source_column} != ''
-            GROUP BY {$source_column}
-            ORDER BY conversions DESC
-            LIMIT 20",
-				$goal_id,
-				$date_start . ' 00:00:00',
-				$date_end . ' 23:59:59'
-			),
-			ARRAY_A
-		);
-		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if (in_array($attribution_model, $multi_touch_models, true)) {
+			// Query conversion_attribution table for multi-touch models.
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$sources = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT 
+					COALESCE(ca.utm_source, '(direct)') as source,
+					SUM(ca.credit_value) as conversions,
+					COALESCE(SUM(ca.credit_value * c.conversion_value), 0) as revenue
+				FROM {$wpdb->prefix}tracksure_conversion_attribution ca
+				INNER JOIN {$wpdb->prefix}tracksure_conversions c ON ca.conversion_id = c.conversion_id
+				WHERE c.goal_id = %d
+				AND ca.attribution_model = %s
+				AND c.converted_at >= %s
+				AND c.converted_at <= %s
+				GROUP BY ca.utm_source
+				ORDER BY conversions DESC
+				LIMIT 20",
+					$goal_id,
+					$attribution_model,
+					$date_start . ' 00:00:00',
+					$date_end . ' 23:59:59'
+				),
+				ARRAY_A
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		} else {
+			// First-touch / last-touch use direct columns on conversions table.
+			$source_column = $attribution_model === 'first_touch' ? 'first_touch_source' : 'last_touch_source';
+
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$sources = $wpdb->get_results(
+				$wpdb->prepare(
+					"SELECT 
+					COALESCE(NULLIF({$source_column}, ''), '(direct)') as source,
+					COUNT(*) as conversions,
+					COALESCE(SUM(conversion_value), 0) as revenue
+				FROM {$wpdb->prefix}tracksure_conversions
+				WHERE goal_id = %d
+				AND converted_at >= %s
+				AND converted_at <= %s
+				GROUP BY source
+				ORDER BY conversions DESC
+				LIMIT 20",
+					$goal_id,
+					$date_start . ' 00:00:00',
+					$date_end . ' 23:59:59'
+				),
+				ARRAY_A
+			);
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		}
 
 		// Calculate total for percentages.
 		$total_conversions = array_sum(array_column($sources, 'conversions'));
@@ -1349,6 +1407,89 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		// ========================================.
 		// PHASE 9: CACHE RESULT (5 min TTL).
 		// ========================================.
+		set_transient($cache_key, $result, 5 * MINUTE_IN_SECONDS);
+
+		return $this->prepare_success($result);
+	}
+
+	/**
+	 * Get goal device and browser distribution.
+	 *
+	 * Aggregates device_type and browser data from sessions table for all
+	 * conversions of a given goal. Uses server-side GROUP BY so the full
+	 * dataset is aggregated (not just the paginated timeline page).
+	 *
+	 * Cached with a 5-minute transient TTL.
+	 *
+	 * @since 2.2.0
+	 *
+	 * @param WP_REST_Request $request Request object with goal ID and optional date range.
+	 * @return WP_REST_Response Response with devices array.
+	 */
+	public function get_goal_devices($request)
+	{
+		global $wpdb;
+
+		$goal_id    = absint($request->get_param('id'));
+		$date_start = $request->get_param('date_start') ?: gmdate('Y-m-d', strtotime('-30 days'));
+		$date_end   = $request->get_param('date_end') ?: gmdate('Y-m-d');
+
+		// Check cache.
+		$cache_key = sprintf(
+			'tracksure_goal_%d_devices_%s_%s',
+			$goal_id,
+			$date_start,
+			$date_end
+		);
+
+		$cached = get_transient($cache_key);
+		if ($cached !== false && is_array($cached)) {
+			return $this->prepare_success($cached);
+		}
+
+		// Aggregate device + browser from sessions linked to conversions.
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		$devices = $wpdb->get_results(
+			$wpdb->prepare(
+				"SELECT 
+					COALESCE(s.device_type, 'desktop') as device,
+					COALESCE(s.browser, 'unknown') as browser,
+					COUNT(*) as conversions
+				FROM {$wpdb->prefix}tracksure_conversions c
+				LEFT JOIN {$wpdb->prefix}tracksure_sessions s ON c.session_id = s.session_id
+				WHERE c.goal_id = %d
+				AND c.converted_at BETWEEN %s AND %s
+				GROUP BY s.device_type, s.browser
+				ORDER BY conversions DESC",
+				$goal_id,
+				$date_start . ' 00:00:00',
+				$date_end . ' 23:59:59'
+			),
+			ARRAY_A
+		);
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Calculate total for percentages.
+		$total_conversions = 0;
+		foreach ($devices as $row) {
+			$total_conversions += (int) $row['conversions'];
+		}
+
+		// Format response with percentages.
+		foreach ($devices as &$row) {
+			$row['conversions'] = (int) $row['conversions'];
+			$row['percentage']  = $total_conversions > 0
+				? round(($row['conversions'] / $total_conversions) * 100, 1)
+				: 0;
+		}
+
+		$result = array(
+			'goal_id' => $goal_id,
+			'devices' => $devices,
+			'total'   => $total_conversions,
+		);
+
+		// Cache for 5 minutes.
 		set_transient($cache_key, $result, 5 * MINUTE_IN_SECONDS);
 
 		return $this->prepare_success($result);

@@ -110,7 +110,7 @@
 
 .ts-goals-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
   gap: var(--ts-spacing-lg);
   margin-top: var(--ts-spacing-lg);
 }
@@ -127,9 +127,9 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   position: relative;
   overflow: hidden;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: var(--ts-spacing-md);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 .ts-goal-card::before {
@@ -160,11 +160,12 @@
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-/* Goal Checkbox */
+/* Goal Checkbox - Inline with header */
 .ts-goal-checkbox {
-  display: flex;
-  align-items: flex-start;
-  padding-top: 2px;
+  position: absolute;
+  top: var(--ts-spacing-lg);
+  left: var(--ts-spacing-lg);
+  z-index: 1;
 }
 
 .ts-goal-checkbox input[type="checkbox"] {
@@ -182,7 +183,7 @@
   align-items: flex-start;
   margin-bottom: var(--ts-spacing-md);
   gap: var(--ts-spacing-md);
-  grid-column: 2;
+  padding-left: 30px; /* Space for absolute checkbox */
 }
 
 .ts-goal-title-section {
@@ -190,18 +191,25 @@
   min-width: 0;
 }
 
+.ts-goal-title-row {
+  display: flex;
+  align-items: center;
+  gap: var(--ts-spacing-sm);
+  flex-wrap: wrap;
+}
+
 .ts-goal-name {
   font-size: 18px;
   font-weight: 600;
   color: var(--ts-text);
-  margin: 0 0 6px 0;
+  margin: 0;
   line-height: 1.4;
 }
 
 .ts-goal-description {
   font-size: 14px;
   color: var(--ts-text-muted);
-  margin: 0;
+  margin: 6px 0 0 0;
   line-height: 1.5;
   display: -webkit-box;
   line-clamp: 2;
@@ -214,8 +222,9 @@
 .ts-goal-actions {
   display: flex;
   align-items: center;
-  gap: var(--ts-spacing-sm);
+  gap: var(--ts-spacing-xs);
   flex-shrink: 0;
+  flex-wrap: wrap;
 }
 
 .ts-goal-status {
@@ -260,7 +269,6 @@
   background: var(--ts-primary-soft);
   color: var(--ts-primary);
   border-color: var(--ts-primary);
-  transform: scale(1.08);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
@@ -268,21 +276,18 @@
   background: var(--ts-danger-soft);
   color: var(--ts-danger);
   border-color: var(--ts-danger);
-  transform: scale(1.1);
   box-shadow: 0 2px 8px rgba(239, 68, 68, 0.2);
 }
 
 /* Goal Details */
 .ts-goal-details {
   margin-bottom: var(--ts-spacing-md);
-  grid-column: 2;
 }
 
 .ts-goal-meta {
   display: flex;
   flex-wrap: wrap;
   gap: var(--ts-spacing-sm);
-  grid-column: 2;
 }
 
 .ts-goal-event,
@@ -313,8 +318,7 @@
   gap: var(--ts-spacing-md);
   padding-top: var(--ts-spacing-md);
   border-top: 1px solid var(--ts-border);
-  margin-top: var(--ts-spacing-md);
-  grid-column: 2;
+  margin-top: auto;
 }
 
 .ts-goal-stat {
@@ -353,9 +357,11 @@
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: var(--ts-spacing-xs);
   position: relative;
   white-space: nowrap;
+  overflow: hidden;
 }
 
 .ts-goal-view-details svg {
@@ -786,29 +792,39 @@
 /* ========================================
    Responsive Design
    ======================================== */
-@media (max-width: 1024px) {
-  .ts-goals-grid {
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-  }
-  
-  .ts-templates-grid {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-  }
-}
 
+/* Tablet and below */
 @media (max-width: 768px) {
   .ts-goals-page {
     padding: var(--ts-spacing-md);
   }
 
-  .ts-goals-grid,
   .ts-templates-grid {
     grid-template-columns: 1fr;
     gap: var(--ts-spacing-md);
   }
 
+  .ts-goal-card {
+    padding: var(--ts-spacing-md);
+  }
+
+  .ts-goal-header {
+    flex-direction: column;
+    gap: var(--ts-spacing-sm);
+    padding-left: 30px;
+  }
+
+  .ts-goal-actions {
+    flex-wrap: wrap;
+  }
+
   .ts-goal-performance {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--ts-spacing-sm);
+  }
+
+  .ts-goal-stat-value {
+    font-size: 18px;
   }
 
   .ts-condition-row {
@@ -826,6 +842,21 @@
 
   .ts-modal-footer .ts-btn {
     width: 100%;
+  }
+}
+
+/* Small mobile */
+@media (max-width: 480px) {
+  .ts-goal-performance {
+    grid-template-columns: 1fr;
+  }
+  
+  .ts-goal-header {
+    padding-left: 28px;
+  }
+  
+  .ts-goal-name {
+    font-size: 15px;
   }
 }
 

@@ -477,17 +477,6 @@
   margin-top: var(--ts-spacing-xl);
 }
 
-.ts-info-box.ts-info-upgrade {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border: none;
-  color: white;
-}
-
-.ts-info-box.ts-info-upgrade strong,
-.ts-info-box.ts-info-upgrade p {
-  color: white !important;
-}
-
 .ts-info-icon {
   font-size: 20px;
   flex-shrink: 0;
@@ -504,24 +493,6 @@
   font-size: 13px;
   margin: 0;
   color: var(--ts-text);
-}
-
-.ts-btn-upgrade {
-  margin-top: var(--ts-spacing-md);
-  padding: 8px 20px;
-  background: var(--ts-surface);
-  color: var(--ts-primary);
-  border: 1px solid var(--ts-primary);
-  border-radius: var(--ts-radius-sm);
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.ts-btn-upgrade:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Code Block */

@@ -877,7 +877,7 @@ Delivery Worker (WP-Cron) → Gets pending items from outbox
 **Step 9: Admin Dashboard**
 
 ```
-React Admin → Calls REST API: /wp-json/tracksure/v1/query/overview
+React Admin → Calls REST API: /wp-json/ts/v1/query/overview
            → Gets: Total sales, conversion rate, attribution data
            → Displays charts and tables
 ```

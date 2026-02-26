@@ -119,7 +119,9 @@ class TrackSure_Conversion_Recorder
 		}
 
 		// Get touchpoints for this conversion.
-		$converted_at = ! empty($conversion_data['converted_at']) ? $conversion_data['converted_at'] : current_time('mysql');
+		// All timestamps are stored in UTC for consistency (WP.org best practice).
+		// Callers should send converted_at in UTC (current_time('mysql', 1) or gmdate()).
+		$converted_at = ! empty($conversion_data['converted_at']) ? $conversion_data['converted_at'] : current_time('mysql', true);
 		$touchpoints  = $this->touchpoint_recorder->get_conversion_touchpoints(
 			$conversion_data['visitor_id'],
 			$converted_at,
@@ -164,7 +166,7 @@ class TrackSure_Conversion_Recorder
 			'last_touch_source'    => $last_touch['utm_source'],
 			'last_touch_medium'    => $last_touch['utm_medium'],
 			'last_touch_campaign'  => $last_touch['utm_campaign'],
-			'created_at'           => current_time('mysql'),
+			'created_at'           => current_time('mysql', true),
 		);
 
 		// START TRANSACTION - Ensure all conversion data is inserted atomically.
@@ -358,15 +360,10 @@ class TrackSure_Conversion_Recorder
 		// All models are still stored in conversion_attribution table for Pro features.
 		$this->update_canonical_attribution_weights($touchpoints, 'last_touch');
 
-		// Pro version: Multi-touch models.
-		if (defined('TRACKSURE_PRO_VERSION')) {
-			$this->calculate_linear_attribution($conversion_id, $touchpoints, $conversion_value);
-			$this->calculate_time_decay_attribution($conversion_id, $touchpoints, $conversion_value);
-			$this->calculate_position_based_attribution($conversion_id, $touchpoints, $conversion_value);
-
-			// Pro can use a different canonical model (e.g., position_based).
-			// For now, still using last_touch as canonical.
-		}
+		// Multi-touch attribution models — all available in Free.
+		$this->calculate_linear_attribution($conversion_id, $touchpoints, $conversion_value);
+		$this->calculate_time_decay_attribution($conversion_id, $touchpoints, $conversion_value);
+		$this->calculate_position_based_attribution($conversion_id, $touchpoints, $conversion_value);
 	}
 
 	/**
@@ -615,7 +612,7 @@ class TrackSure_Conversion_Recorder
 			'utm_campaign'       => $touchpoint['utm_campaign'],
 			'channel'            => $touchpoint['channel'],
 			'touchpoint_order'   => $touchpoint_order,
-			'created_at'         => current_time('mysql'),
+			'created_at'         => current_time('mysql', true),
 		);
 
 		$wpdb->insert(

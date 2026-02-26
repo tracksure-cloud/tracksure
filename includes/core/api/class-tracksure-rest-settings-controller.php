@@ -84,17 +84,6 @@ class TrackSure_REST_Settings_Controller extends TrackSure_REST_Controller
 				'args'                => $this->get_settings_schema(),
 			)
 		);
-
-		// POST /settings/regenerate-token - Regenerate API token.
-		register_rest_route(
-			$this->namespace,
-			'/settings/regenerate-token',
-			array(
-				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array($this, 'regenerate_token'),
-				'permission_callback' => array($this, 'check_admin_permission'),
-			)
-		);
 	}
 
 	/**
@@ -159,7 +148,7 @@ class TrackSure_REST_Settings_Controller extends TrackSure_REST_Controller
 
 		// Add enabled destinations using existing Destinations Manager.
 		$core                 = TrackSure_Core::get_instance();
-		$destinations_manager = $core->get_service('destinations');
+		$destinations_manager = $core->get_service('destinations_manager');
 		if ($destinations_manager) {
 			$registered           = $destinations_manager->get_registered_destinations();
 			$enabled_destinations = array();
@@ -174,7 +163,7 @@ class TrackSure_REST_Settings_Controller extends TrackSure_REST_Controller
 		}
 
 		// Add detected integrations using existing Integrations Manager.
-		$integrations_manager = $core->get_service('integrations');
+		$integrations_manager = $core->get_service('integrations_manager');
 		if ($integrations_manager) {
 			$registered            = $integrations_manager->get_registered_integrations();
 			$detected_integrations = array();
@@ -362,25 +351,6 @@ class TrackSure_REST_Settings_Controller extends TrackSure_REST_Controller
 			array(
 				'success' => true,
 				'updated' => $updated,
-			)
-		);
-	}
-
-	/**
-	 * Regenerate API token.
-	 *
-	 * @param WP_REST_Request $request Request object.
-	 * @return WP_REST_Response
-	 */
-	public function regenerate_token($request)
-	{
-		$new_token = TrackSure_Installer::generate_token();
-		update_option('tracksure_api_token', $new_token);
-
-		return $this->prepare_success(
-			array(
-				'success'   => true,
-				'api_token' => $new_token, // Use api_token to match field ID
 			)
 		);
 	}

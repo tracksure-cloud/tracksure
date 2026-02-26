@@ -81,7 +81,7 @@ export const GoalImport: React.FC<GoalImportProps> = ({ onImport, onClose }) => 
         match_logic: (goal.match_logic as GoalFormData['match_logic']) || 'all',
         value_type: (goal.value_type as GoalFormData['value_type']) || 'none',
         value: typeof goal.conversion_value === 'number' ? goal.conversion_value : undefined,
-        frequency: String(goal.frequency || 'once'),
+        frequency: (['once', 'session', 'unlimited'].includes(String(goal.frequency)) ? String(goal.frequency) : 'once') as GoalFormData['frequency'],
         is_active: goal.is_active !== undefined ? Boolean(goal.is_active) : true,
       }));
 

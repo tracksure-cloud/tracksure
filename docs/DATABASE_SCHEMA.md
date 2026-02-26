@@ -6,7 +6,7 @@ Complete database schema reference for TrackSure analytics platform.
 
 ## 📊 **Overview**
 
-TrackSure uses **14 custom database tables** to store visitor tracking, events, conversions, and analytics data.
+TrackSure uses **15 custom database tables** to store visitor tracking, events, conversions, and analytics data.
 
 **Tables**:
 
@@ -16,8 +16,9 @@ TrackSure uses **14 custom database tables** to store visitor tracking, events, 
 - 1 Delivery table (outbox)
 - 3 Aggregation tables (agg_hourly, agg_daily, agg_product_daily)
 - 2 Funnel tables (funnels, funnel_steps)
+- 1 Logging table (logs)
 
-**Total**: 14 tables
+**Total**: 15 tables
 
 ---
 
@@ -29,8 +30,9 @@ TrackSure uses **14 custom database tables** to store visitor tracking, events, 
 4. [Delivery Table](#delivery-table)
 5. [Aggregation Tables](#aggregation-tables)
 6. [Funnel Tables](#funnel-tables)
-7. [Indexes & Performance](#indexes--performance)
-8. [Entity Relationship Diagram](#entity-relationship-diagram)
+7. [Logging Table](#logging-table)
+8. [Indexes & Performance](#indexes--performance)
+9. [Entity Relationship Diagram](#entity-relationship-diagram)
 
 ---
 
@@ -549,6 +551,30 @@ CREATE TABLE wp_tracksure_funnel_steps (
 
 ---
 
+## 📋 **Logging Table**
+
+### **15. wp_tracksure_logs**
+
+Structured log entries for debugging and diagnostics. Managed by `TrackSure_Logger`.
+
+```sql
+CREATE TABLE wp_tracksure_logs (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+    level VARCHAR(20) NOT NULL,              -- debug, info, warning, error
+    message TEXT NOT NULL,
+    context LONGTEXT,                        -- JSON serialized context data
+    occurred_at DATETIME NOT NULL,
+    ip_address VARCHAR(45),
+    PRIMARY KEY (id),
+    KEY level (level),
+    KEY occurred_at (occurred_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+```
+
+**Retention**: Cleaned automatically by the `tracksure_cleanup_logs` daily cron hook.
+
+---
+
 ## ⚡ **Indexes & Performance**
 
 ### **Primary Indexes**
@@ -704,6 +730,6 @@ OPTIMIZE TABLE wp_tracksure_visitors;
 
 ---
 
-**Last Updated**: January 17, 2026  
+**Last Updated**: February 25, 2026  
 **Schema Version**: 1.0.0  
-**Total Tables**: 14
+**Total Tables**: 15

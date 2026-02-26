@@ -65,8 +65,8 @@ class TrackSure_Tracker_Assets
 
 		// 1. Enqueue currency handler (no dependencies - pure utility).
 		wp_enqueue_script(
-			'tracksure-currency',
-			TRACKSURE_PLUGIN_URL . 'assets/js/tracksure-currency.js',
+			'ts-currency',
+			TRACKSURE_PLUGIN_URL . 'assets/js/ts-currency.js',
 			array(),
 			TRACKSURE_VERSION,
 			true
@@ -74,17 +74,17 @@ class TrackSure_Tracker_Assets
 
 		// 2. Enqueue goal constants (shared constants for JS/React/PHP).
 		wp_enqueue_script(
-			'tracksure-goal-constants',
+			'ts-goal-constants',
 			TRACKSURE_PLUGIN_URL . 'admin/tracksure-goal-constants.js',
 			array(),
 			TRACKSURE_VERSION,
 			true
 		);
 
-		// 3. Enqueue main tracking script.
+		// 3. Enqueue main tracking script (neutral name avoids ad-blocker keyword matching).
 		wp_enqueue_script(
-			'tracksure-web',
-			TRACKSURE_PLUGIN_URL . 'assets/js/tracksure-web.js',
+			'ts-web',
+			TRACKSURE_PLUGIN_URL . 'assets/js/ts-web.js',
 			array(),
 			TRACKSURE_VERSION,
 			true
@@ -93,41 +93,41 @@ class TrackSure_Tracker_Assets
 		// Pass configuration to script using centralized schema.
 		$config = TrackSure_Settings_Schema::get_js_config();
 		wp_localize_script(
-			'tracksure-web',
+			'ts-web',
 			'trackSureConfig',
 			$config
 		);
 
-		// 4. Enqueue Universal MiniCart tracking (depends on tracksure-web + tracksure-currency).
+		// 4. Enqueue Universal MiniCart tracking (depends on ts-web + ts-currency).
 		wp_enqueue_script(
-			'tracksure-universal-minicart',
-			TRACKSURE_PLUGIN_URL . 'assets/js/tracksure-universal-minicart.js',
-			array('tracksure-web', 'tracksure-currency'),
+			'ts-minicart',
+			TRACKSURE_PLUGIN_URL . 'assets/js/ts-minicart.js',
+			array('ts-web', 'ts-currency'),
 			TRACKSURE_VERSION,
 			true
 		);
 
-		// 5. Enqueue consent change listeners (depends on tracksure-web for config).
+		// 5. Enqueue consent change listeners (depends on ts-web for config).
 		wp_enqueue_script(
-			'tracksure-consent-listeners',
+			'ts-consent-listeners',
 			TRACKSURE_PLUGIN_URL . 'assets/js/consent-listeners.js',
-			array('tracksure-web'),
+			array('ts-web'),
 			TRACKSURE_VERSION,
 			true
 		);
 
 		// 6. Enqueue goals tracking script (depends on constants + main tracker).
 		wp_enqueue_script(
-			'tracksure-goals',
+			'ts-goals',
 			TRACKSURE_PLUGIN_URL . 'admin/tracking-goals.js',
-			array('tracksure-goal-constants', 'tracksure-web'), // Depends on both
+			array('ts-goal-constants', 'ts-web'), // Depends on both
 			TRACKSURE_VERSION,
 			true
 		);
 
 		// Pass active goals to script.
 		wp_localize_script(
-			'tracksure-goals',
+			'ts-goals',
 			'tracksure_goals',
 			$this->get_active_goals()
 		);
@@ -256,15 +256,5 @@ class TrackSure_Tracker_Assets
 		 * @param bool $auto_track Whether auto-tracking is enabled.
 		 */
 		return apply_filters('tracksure_auto_track', true);
-	}
-
-	/**
-	 * Get API token.
-	 *
-	 * @return string
-	 */
-	private function get_api_token()
-	{
-		return get_option('tracksure_api_token', '');
 	}
 }

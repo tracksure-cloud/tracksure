@@ -67,7 +67,7 @@ export const GOAL_TEMPLATES: GoalTemplate[] = [
     recommended: true,
     icon: 'Timer',
     conditions: [
-      { param: 'time_seconds', operator: 'greater_than_or_equal', value: 180 },
+      { param: 'time_on_page', operator: 'greater_than_or_equal', value: 180 },
     ],
     trigger_config: {
       time_seconds: 180,
@@ -84,7 +84,7 @@ export const GOAL_TEMPLATES: GoalTemplate[] = [
     recommended: true,
     icon: 'ArrowDown',
     conditions: [
-      { param: 'scroll_percentage', operator: 'greater_than_or_equal', value: 80 },
+      { param: 'scroll_depth', operator: 'greater_than_or_equal', value: 80 },
     ],
     trigger_config: {
       scroll_depth: 80,
@@ -384,7 +384,7 @@ export const GOAL_TEMPLATES: GoalTemplate[] = [
     recommended: true,
     icon: 'Newspaper',
     conditions: [
-      { param: 'form_type', operator: 'contains', value: 'newsletter' },
+      { param: 'form_name', operator: 'contains', value: 'newsletter' },
     ],
     trigger_config: {
       form_id: 'newsletter-form',

@@ -121,14 +121,6 @@ msgstr ""
 msgid "Current database schema version"
 msgstr ""
 
-#: includes/core/class-tracksure-settings-schema.php:59
-msgid "API Token"
-msgstr ""
-
-#: includes/core/class-tracksure-settings-schema.php:60
-msgid "Authentication token for REST API access"
-msgstr ""
-
 #: includes/core/class-tracksure-settings-schema.php:72
 msgid "Enable Tracking"
 msgstr ""

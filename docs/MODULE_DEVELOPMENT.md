@@ -1291,7 +1291,7 @@ class TrackSure_Forms_Module implements TrackSure_Module_Interface {
         wp_enqueue_script(
             'tracksure-forms',
             TRACKSURE_FORMS_URL . 'assets/js/form-tracking.js',
-            ['tracksure-web'],
+            ['ts-web'],
             TRACKSURE_FORMS_VERSION,
             true
         );
@@ -1338,7 +1338,7 @@ class TrackSure_Forms_Module implements TrackSure_Module_Interface {
           });
         }
       },
-      true
+      true,
     );
 
     // Track form submit

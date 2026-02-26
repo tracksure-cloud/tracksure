@@ -22,6 +22,7 @@ export type TriggerType =
   | 'form_submit' 
   | 'scroll_depth' 
   | 'time_on_page' 
+  | 'engagement'
   | 'custom_event' 
   | 'video_play' 
   | 'download' 
@@ -115,8 +116,6 @@ export interface GoalTemplate {
   value_type?: ValueType;
   /** Typical/suggested value for this goal type */
   typical_value?: number;
-  /** Whether this is a Pro-only feature */
-  is_pro?: boolean;
 }
 
 /**
@@ -134,20 +133,26 @@ export interface Goal {
   event_name: string;
   /** Trigger type */
   trigger_type: TriggerType;
-  /** Goal category (optional - not stored in database yet) */
+  /** Goal category (UI-only, not stored in database) */
   category?: GoalCategory;
   /** Conditions (stored as JSON) */
   conditions: GoalCondition[];
   /** Condition match logic */
   match_logic: MatchLogic;
+  /** Trigger-specific configuration (stored as JSON in DB) */
+  trigger_config?: TriggerConfig | null;
   /** Value type */
   value_type: ValueType;
-  /** Fixed value (if value_type is 'fixed') */
+  /** Fixed value (if value_type is 'fixed') — DB column: fixed_value */
+  fixed_value?: number;
+  /** Alias kept for backward-compatibility with existing components */
   value?: number;
-  /** Attribution window in days (optional - not currently used) */
+  /** Attribution window in days (UI-only, not stored in database) */
   attribution_window?: number;
-  /** Conversion frequency: 'once' | 'unlimited' */
-  frequency: string;
+  /** Conversion frequency limit */
+  frequency: 'once' | 'session' | 'unlimited';
+  /** Cooldown period in minutes between conversions (0 = no cooldown) */
+  cooldown_minutes?: number;
   /** Whether goal is active */
   is_active: boolean;
   /** Creation timestamp */

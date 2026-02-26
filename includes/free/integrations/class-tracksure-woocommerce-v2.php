@@ -265,11 +265,14 @@ class TrackSure_WooCommerce_V2
 		}
 
 		// 4. CHECK: Thank You Page (purchase)
+		// NOTE: Uses separate meta key (_tracksure_purchase_browser_sent) from the server-side
+		// capture_purchase_data() which uses _tracksure_purchase_tracked.
+		// Both fire independently. Deduplication happens at the destination level via shared event_id.
 		elseif (is_checkout() && is_wc_endpoint_url('order-received')) {
 			global $wp;
 			$order_id = isset($wp->query_vars['order-received']) ? absint($wp->query_vars['order-received']) : 0;
 
-			if ($order_id && ! get_post_meta($order_id, '_tracksure_purchase_tracked', true)) {
+			if ($order_id && ! get_post_meta($order_id, '_tracksure_purchase_browser_sent', true)) {
 				$order = wc_get_order($order_id);
 				if ($order && is_a($order, 'WC_Order')) {
 					$ecommerce_data = $this->adapter->extract_order_data($order);
@@ -288,8 +291,8 @@ class TrackSure_WooCommerce_V2
 							'items'          => $ecommerce_data['items'],
 						);
 
-						// Mark as tracked
-						update_post_meta($order_id, '_tracksure_purchase_tracked', time());
+						// Mark browser output as done (separate from server-side tracking).
+						update_post_meta($order_id, '_tracksure_purchase_browser_sent', time());
 					}
 				}
 			}
@@ -380,8 +383,8 @@ class TrackSure_WooCommerce_V2
 		$script .= '})();';
 
 		// Attach to tracksure-web using WordPress enqueue API (DRY principle)
-		if (wp_script_is('tracksure-web', 'enqueued')) {
-			wp_add_inline_script('tracksure-web', $script, 'after');
+		if (wp_script_is('ts-web', 'enqueued')) {
+			wp_add_inline_script('ts-web', $script, 'after');
 		}
 	}
 

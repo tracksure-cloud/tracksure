@@ -80,7 +80,7 @@ cd ..
 2. Click it - you should see the React admin dashboard
 3. Check **WordPress** → **Tools** → **Site Health** → **Info** → look for TrackSure database tables
 
-**Expected Database Tables** (14 total):
+**Expected Database Tables** (15 total):
 
 ```
 wp_tracksure_visitors
@@ -97,6 +97,7 @@ wp_tracksure_agg_daily
 wp_tracksure_agg_product_daily
 wp_tracksure_funnels
 wp_tracksure_funnel_steps
+wp_tracksure_logs
 ```
 
 ### Step 5: Enable Debug Mode
@@ -128,7 +129,7 @@ tracksure/
 │   ├── core/                  ← Core engine (read this first)
 │   │   ├── class-tracksure-core.php          ← Service container
 │   │   ├── class-tracksure-db.php            ← Database layer
-│   │   ├── services/          ← Business logic (20 services)
+│   │   ├── services/          ← Business logic (22 services)
 │   │   ├── api/               ← REST API controllers
 │   │   └── ...
 │   └── free/                  ← Free module features
@@ -138,7 +139,11 @@ tracksure/
 │   ├── src/                   ← TypeScript source (development)
 │   └── dist/                  ← Compiled bundle (production)
 ├── assets/                    ← Public assets
-│   └── js/tracksure-web.js    ← Browser tracking SDK
+│   └── js/
+│       ├── ts-web.js          ← Browser tracking SDK
+│       ├── ts-currency.js     ← Currency detection
+│       ├── ts-minicart.js     ← Mini-cart tracking
+│       └── consent-listeners.js ← Consent change listeners
 └── registry/                  ← Event definitions (JSON)
 ```
 
@@ -425,7 +430,7 @@ public function register_controllers() {
 
 ```bash
 # In browser or Postman
-GET /wp-json/tracksure/v1/stats/total-events
+GET /wp-json/ts/v1/stats/total-events
 
 # Response:
 {
@@ -589,7 +594,7 @@ LIMIT 10;
 
 ```bash
 # Using curl
-curl -X GET "http://localhost/wp-json/tracksure/v1/events" \
+curl -X GET "http://localhost/wp-json/ts/v1/events" \
   -H "X-WP-Nonce: YOUR_NONCE"
 ```
 
@@ -637,8 +642,9 @@ curl -X GET "http://localhost/wp-json/tracksure/v1/events" \
    ```
 3. Check destination settings:
    ```php
-   $settings = get_option('tracksure_settings');
-   print_r($settings['destinations']);
+   // Settings are individual wp_options, not a single array
+   $tracking_enabled = get_option('tracksure_tracking_enabled', false);
+   $session_timeout = get_option('tracksure_session_timeout', 30);
    ```
 
 ---
@@ -708,6 +714,12 @@ add_filter('tracksure_deliver_mapped_event', function($result, $destination, $ev
 - [DEBUGGING_GUIDE.md](DEBUGGING_GUIDE.md) - Debugging techniques
 - [HOOKS_AND_FILTERS.md](HOOKS_AND_FILTERS.md) - All hooks
 - [REST_API_REFERENCE.md](REST_API_REFERENCE.md) - API docs
+- [FRONTEND_SDK.md](FRONTEND_SDK.md) - Browser tracking SDK
+- [DATABASE_SCHEMA.md](DATABASE_SCHEMA.md) - All 15 database tables
+- [CLASS_REFERENCE.md](CLASS_REFERENCE.md) - Class-by-class reference
+- [EVENT_SYSTEM.md](EVENT_SYSTEM.md) - Event pipeline deep dive
+- [PLUGIN_API.md](PLUGIN_API.md) - PHP & JavaScript public API
+- [CUSTOM_EVENTS.md](CUSTOM_EVENTS.md) - Creating custom events
 
 **Code Examples**:
 

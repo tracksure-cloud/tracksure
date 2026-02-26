@@ -8,8 +8,8 @@
 
 1. [Overview](#overview)
 2. [Core Classes](#core-classes)
-3. [Services (20)](#services)
-4. [REST API Controllers (14)](#rest-api-controllers)
+3. [Services (22)](#services)
+4. [REST API Controllers (12)](#rest-api-controllers)
 5. [Background Jobs (4)](#background-jobs)
 6. [Integrations & Destinations](#integrations--destinations)
 7. [Registry & Modules](#registry--modules)
@@ -26,8 +26,8 @@
 TrackSure contains **50+ classes** organized into logical layers:
 
 - **Core Layer**: Bootstrap, database, settings
-- **Services Layer**: 20 core services (event handling, attribution, goals, etc.)
-- **API Layer**: 14 REST controllers for admin communication
+- **Services Layer**: 22 core services (event handling, attribution, goals, etc.)
+- **API Layer**: 12 REST controllers for admin communication
 - **Background Layer**: 4 scheduled jobs for delivery and aggregation
 - **Integration Layer**: Ecommerce platform integrations (WooCommerce, etc.)
 - **Destination Layer**: Ad platform handlers (GA4, Meta, etc.)
@@ -40,8 +40,8 @@ includes/
 ├── core/
 │   ├── class-tracksure-core.php (Main container)
 │   ├── class-tracksure-db.php (Database)
-│   ├── services/ (20 service classes)
-│   ├── api/ (14 REST controllers)
+│   ├── services/ (22 service classes)
+│   ├── api/ (12 REST controllers)
 │   ├── jobs/ (4 background workers)
 │   ├── modules/ (Module system)
 │   ├── registry/ (Event/parameter registry)
@@ -104,7 +104,7 @@ $core = $tracksure->core; // Access core
 
 - `get_instance()` - Get singleton instance
 - `boot()` - Initialize core services
-- `boot_services()` - Register all 20 services
+- `boot_services()` - Register all 22 services
 - `get_service($name)` - Retrieve service by name
 - `register_module($id, $path, $config)` - Register module
 - `get_modules()` - Get all registered modules
@@ -120,7 +120,7 @@ $event_builder = $core->get_service('event_builder');
 $event_recorder = $core->get_service('event_recorder');
 $session_manager = $core->get_service('session_manager');
 $consent_manager = $core->get_service('consent_manager');
-// ... 13 more services
+// ... 15 more services
 ```
 
 **Usage**:
@@ -138,7 +138,7 @@ $event_builder = $core->get_service('event_builder');
 **Type**: Database abstraction layer  
 **Pattern**: Singleton
 
-**Purpose**: Manages all database operations for 14 tables
+**Purpose**: Manages all database operations for 14 data tables (the 15th table `tracksure_logs` is managed by `TrackSure_Logger`)
 
 **Key Properties**:
 
@@ -244,7 +244,7 @@ $db->enqueue_to_outbox($event_id, 'ga4', $payload);
 **Key Methods**:
 
 - `install()` - Create tables and default settings
-- `create_tables()` - Create all 14 database tables
+- `create_tables()` - Create All 15 database tables
 - `maybe_upgrade()` - Run upgrade routines
 - `get_schema()` - Get CREATE TABLE statements
 
@@ -942,9 +942,39 @@ $evaluator->evaluate($event_data, $session);
 
 ---
 
+### **21. TrackSure_URL_Normalizer**
+
+**File**: `includes/core/services/class-tracksure-url-normalizer.php`  
+**Service Name**: `url_normalizer`  
+**Purpose**: Normalizes and cleans URLs for consistent tracking and reporting
+
+**Methods**:
+
+- `normalize($url)` - Normalize a URL (strip fragments, sort params, lowercase host)
+- `strip_tracking_params($url)` - Remove known tracking query parameters (utm\_\*, gclid, fbclid, etc.)
+- `get_path($url)` - Extract clean path from URL
+- `is_same_page($url1, $url2)` - Compare two URLs ignoring irrelevant differences
+
+---
+
+### **22. TrackSure_Attribution_Analytics**
+
+**File**: `includes/core/services/class-tracksure-attribution-analytics.php`  
+**Service Name**: `attribution_analytics`  
+**Purpose**: Provides analytics and reporting for attribution data
+
+**Methods**:
+
+- `get_attribution_report($args)` - Generate attribution summary report
+- `get_channel_performance($date_range)` - Channel-level performance metrics
+- `get_touchpoint_analysis($visitor_id)` - Analyze touchpoints for a visitor
+- `get_conversion_paths($args)` - Common conversion path analysis
+
+---
+
 ## 🌐 **REST API Controllers**
 
-All controllers extend `TrackSure_REST_Controller` and are registered under `/wp-json/tracksure/v1/`.
+All controllers extend `TrackSure_REST_Controller` and are registered under `/wp-json/ts/v1/`.
 
 ---
 
@@ -974,22 +1004,22 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 **Methods**:
 
 - `register_routes()` - Register all REST routes
-- `load_controllers()` - Load all 14 controllers
-- `get_namespace()` - Get API namespace ('tracksure/v1')
+- `load_controllers()` - Load all 12 controllers
+- `get_namespace()` - Get API namespace ('ts/v1')
 
 ---
 
 ### **2. TrackSure_REST_Ingest_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-ingest-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/ingest`  
+**Endpoint**: `/wp-json/ts/v1/collect`  
 **Methods**: POST
 
 **Purpose**: Receives events from browser SDK
 
 **Endpoints**:
 
-- `POST /ingest` - Receive single or batch events
+- `POST /collect` - Receive single or batch events
 
 **Request**:
 
@@ -1019,7 +1049,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **3. TrackSure_REST_Events_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-events-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/events`  
+**Endpoint**: `/wp-json/ts/v1/events`  
 **Methods**: GET, POST, DELETE
 
 **Purpose**: CRUD operations for events (admin only)
@@ -1036,7 +1066,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **4. TrackSure_REST_Query_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-query-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/query`  
+**Endpoint**: `/wp-json/ts/v1/query`  
 **Methods**: POST
 
 **Purpose**: Advanced analytics queries for admin dashboard
@@ -1068,7 +1098,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **5. TrackSure_REST_Goals_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-goals-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/goals`  
+**Endpoint**: `/wp-json/ts/v1/goals`  
 **Methods**: GET, POST, PUT, DELETE
 
 **Purpose**: Manage goals
@@ -1086,7 +1116,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **6. TrackSure_REST_Settings_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-settings-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/settings`  
+**Endpoint**: `/wp-json/ts/v1/settings`  
 **Methods**: GET, POST
 
 **Purpose**: Get/update plugin settings
@@ -1101,7 +1131,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **7. TrackSure_REST_Diagnostics_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-diagnostics-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/diagnostics`  
+**Endpoint**: `/wp-json/ts/v1/diagnostics`  
 **Methods**: GET
 
 **Purpose**: System diagnostics and health checks
@@ -1118,7 +1148,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **8. TrackSure_REST_Consent_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-consent-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/consent`  
+**Endpoint**: `/wp-json/ts/v1/consent`  
 **Methods**: GET, POST
 
 **Purpose**: Manage consent preferences
@@ -1133,7 +1163,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **9. TrackSure_REST_Products_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-products-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/products`  
+**Endpoint**: `/wp-json/ts/v1/products`  
 **Methods**: GET
 
 **Purpose**: Product analytics
@@ -1148,7 +1178,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **10. TrackSure_REST_Quality_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-quality-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/quality`  
+**Endpoint**: `/wp-json/ts/v1/quality`  
 **Methods**: GET
 
 **Purpose**: Data quality monitoring
@@ -1163,7 +1193,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **11. TrackSure_REST_Registry_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-registry-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/registry`  
+**Endpoint**: `/wp-json/ts/v1/registry`  
 **Methods**: GET
 
 **Purpose**: Access event/parameter registry
@@ -1178,7 +1208,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **12. TrackSure_REST_Suggestions_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-suggestions-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/suggestions`  
+**Endpoint**: `/wp-json/ts/v1/suggestions`  
 **Methods**: GET
 
 **Purpose**: AI-powered suggestions
@@ -1193,7 +1223,7 @@ All controllers extend `TrackSure_REST_Controller` and are registered under `/wp
 ### **13. TrackSure_REST_Pixel_Callback_Controller**
 
 **File**: `includes/core/api/class-tracksure-rest-pixel-callback-controller.php`  
-**Endpoint**: `/wp-json/tracksure/v1/pixel`  
+**Endpoint**: `/wp-json/ts/v1/pixel`  
 **Methods**: GET
 
 **Purpose**: Server-side pixel callbacks for GA4/Meta
@@ -1659,7 +1689,7 @@ interface TrackSure_Module_Interface {
 TrackSure (Main)
 └── TrackSure_Core (Container)
     ├── TrackSure_DB
-    ├── Services (20)
+    ├── Services (22)
     │   ├── TrackSure_Logger
     │   ├── TrackSure_Event_Recorder
     │   │   └── TrackSure_Event_Builder
@@ -1667,8 +1697,8 @@ TrackSure (Main)
     │   ├── TrackSure_Consent_Manager
     │   ├── TrackSure_Goal_Evaluator
     │   │   └── TrackSure_Goal_Validator
-    │   └── ... 13 more services
-    ├── REST API (14 controllers)
+    │   └── ... 15 more services
+    ├── REST API (12 controllers)
     │   └── TrackSure_REST_Controller (base)
     ├── Jobs (4 workers)
     ├── TrackSure_Registry

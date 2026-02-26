@@ -894,7 +894,20 @@
       "optional_params": [
         "value",
         "currency"
-      ]
+      ],
+      "destination_mappings": {
+        "meta": {
+          "event_name": "AddPaymentInfo",
+          "param_mapping": {
+            "value": "value",
+            "currency": "currency",
+            "payment_type": "payment_type"
+          },
+          "requires_transform": {
+            "_build_contents_array": true
+          }
+        }
+      }
     },
     {
       "name": "add_shipping_info",
@@ -1371,21 +1384,7 @@
       "required_params": [],
       "optional_params": [
         "is_returning"
-      ],
-      "destination_mappings": {
-        "meta": {
-          "event_name": "SessionStart",
-          "param_mapping": {
-            "is_returning": "is_returning"
-          }
-        },
-        "ga4": {
-          "event_name": "session_start",
-          "param_mapping": {
-            "is_returning": "is_returning"
-          }
-        }
-      }
+      ]
     },
     {
       "name": "first_visit",
@@ -1488,25 +1487,7 @@
         "variant_id",
         "variant_name",
         "experience_priority"
-      ],
-      "destination_mappings": {
-        "meta": {
-          "event_name": "ViewContent",
-          "param_mapping": {
-            "experience_name": "content_name",
-            "experience_type": "content_category"
-          }
-        },
-        "ga4": {
-          "event_name": "view_promotion",
-          "param_mapping": {
-            "experience_id": "promotion_id",
-            "experience_name": "promotion_name",
-            "variant_name": "creative_name",
-            "experience_type": "creative_slot"
-          }
-        }
-      }
+      ]
     },
     {
       "name": "experience_interaction",
@@ -1526,25 +1507,7 @@
         "variant_id",
         "variant_name",
         "experience_type"
-      ],
-      "destination_mappings": {
-        "meta": {
-          "event_name": "CustomizeProduct",
-          "param_mapping": {
-            "experience_name": "content_name",
-            "interaction_type": "content_type"
-          }
-        },
-        "ga4": {
-          "event_name": "select_promotion",
-          "param_mapping": {
-            "experience_id": "promotion_id",
-            "experience_name": "promotion_name",
-            "variant_name": "creative_name",
-            "experience_type": "creative_slot"
-          }
-        }
-      }
+      ]
     },
     {
       "name": "experience_conversion",
@@ -1565,26 +1528,7 @@
         "experience_type",
         "value",
         "currency"
-      ],
-      "destination_mappings": {
-        "meta": {
-          "event_name": "Lead",
-          "param_mapping": {
-            "experience_name": "content_name",
-            "value": "value",
-            "currency": "currency"
-          }
-        },
-        "ga4": {
-          "event_name": "conversion",
-          "param_mapping": {
-            "experience_id": "promotion_id",
-            "experience_name": "promotion_name",
-            "value": "value",
-            "currency": "currency"
-          }
-        }
-      }
+      ]
     },
     {
       "name": "experience_dismiss",

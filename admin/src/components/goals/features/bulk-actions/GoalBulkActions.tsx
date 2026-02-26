@@ -69,7 +69,7 @@ export const GoalBulkActions: React.FC<GoalBulkActionsProps> = ({
     
     const promises = selectedGoals.map(goalId =>
       window.wp.apiFetch({
-        path: `/tracksure/v1/goals/${goalId}`,
+        path: `/ts/v1/goals/${goalId}`,
         method: 'POST',
         data: { is_active }
       })
@@ -93,7 +93,7 @@ export const GoalBulkActions: React.FC<GoalBulkActionsProps> = ({
     try {
       const promises = selectedGoals.map(goalId =>
         window.wp.apiFetch({
-          path: `/tracksure/v1/goals/${goalId}`,
+          path: `/ts/v1/goals/${goalId}`,
           method: 'DELETE'
         })
       );

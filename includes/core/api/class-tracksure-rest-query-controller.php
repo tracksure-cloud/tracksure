@@ -998,7 +998,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				'version'      => 1,
 				'events'       => $registry ? $registry->get_events() : array(),
 				'destinations' => array(),
-				'models'       => array('first_touch', 'last_touch'),
+				'models'       => array('first_touch', 'last_touch', 'linear', 'time_decay', 'position_based'),
 			)
 		);
 

@@ -4,7 +4,7 @@
  * Reusable data table with sorting, pagination, and CSV export.
  */
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, type Key, type ReactNode } from 'react';
 import { __ } from '../../utils/i18n';
 import { useVirtualized } from '../../hooks/useVirtualized';
 import '../../styles/components/ui/DataTable.css';
@@ -251,7 +251,7 @@ export const DataTable = <T extends Record<string, unknown>>({
               
               return (
                 <tr 
-                  key={row[keyField] || actualIndex} 
+                  key={(row[keyField] as Key) || actualIndex} 
                   className="ts-data-table__tr"
                   style={!showPagination && isVirtualized && virtualized ? { 
                     height: rowHeight 
@@ -266,7 +266,7 @@ export const DataTable = <T extends Record<string, unknown>>({
                         ? column.render(row[column.key], row, actualIndex)
                         : column.format
                         ? column.format(row[column.key])
-                        : row[column.key]}
+                        : (row[column.key] as ReactNode)}
                     </td>
                   ))}
                 </tr>

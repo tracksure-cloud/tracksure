@@ -26,7 +26,7 @@ import { Card, CardHeader, CardBody } from '../../ui';
 import { SkeletonKPI } from '../../ui/Skeleton';
 import { Icon } from '../../ui/Icon';
 import { __ } from '../../../utils/i18n';
-import { formatLocalDate } from '../../../utils/parameterFormatters';
+import { formatLocalDate, formatCurrency } from '../../../utils/parameterFormatters';
 import type { GoalsOverview as GoalsOverviewType } from '../../../types/goals';
 import './GoalsOverview.css';
 
@@ -173,8 +173,9 @@ export const GoalsOverview: React.FC = () => {
             {/* Simple bar chart visualization */}
             <div className="ts-simple-chart">
               <div className="ts-simple-chart__bars">
-                {data.daily_conversions.map((day, index) => {
+                {(() => {
                   const maxValue = Math.max(...data.daily_conversions.map(d => d.conversions));
+                  return data.daily_conversions.map((day, index) => {
                   const heightPercent = maxValue > 0 ? (day.conversions / maxValue) * 100 : 0;
                   
                   return (
@@ -187,11 +188,12 @@ export const GoalsOverview: React.FC = () => {
                         <span className="ts-simple-chart__bar-value">{day.conversions}</span>
                       </div>
                       <span className="ts-simple-chart__bar-label">
-                        {new Date(day.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                        {new Date(day.date + 'T00:00:00').toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                       </span>
                     </div>
                   );
-                })}
+                });
+                })()}
               </div>
             </div>
           </CardBody>
@@ -223,7 +225,7 @@ export const GoalsOverview: React.FC = () => {
                     </div>
                     {goal.value > 0 && (
                       <div className="ts-top-goal__value">
-                        ${goal.value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                        {formatCurrency(goal.value)}
                       </div>
                     )}
                   </div>

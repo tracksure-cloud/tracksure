@@ -32,7 +32,7 @@
 
 ## 📖 **Overview**
 
-TrackSure provides 90+ WordPress hooks for customization and extension. These hooks allow you to:
+TrackSure provides 80+ WordPress hooks for customization and extension. These hooks allow you to:
 
 - ✅ Modify event data before recording
 - ✅ Add custom enrichment to events
@@ -1006,7 +1006,7 @@ do_action('tracksure_rest_api_init', $namespace);
 
 **Parameters**:
 
-- `$namespace` (string) - REST API namespace ('tracksure/v1')
+- `$namespace` (string) - REST API namespace ('ts/v1')
 
 **Use Cases**:
 
@@ -2338,6 +2338,8 @@ add_filter('tracksure_settings_schema', function($settings) {
 - **See**: [MODULE_DEVELOPMENT.md](MODULE_DEVELOPMENT.md) - Creating modules
 - **See**: [ADAPTER_DEVELOPMENT.md](ADAPTER_DEVELOPMENT.md) - Creating adapters
 - **See**: [DESTINATION_DEVELOPMENT.md](DESTINATION_DEVELOPMENT.md) - Creating destinations
+- **See**: [REST_API_REFERENCE.md](REST_API_REFERENCE.md) - REST API endpoints
+- **See**: [CLASS_REFERENCE.md](CLASS_REFERENCE.md) - Class-by-class reference
 
 ---
 

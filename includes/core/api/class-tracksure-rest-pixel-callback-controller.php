@@ -32,14 +32,14 @@ class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
 	 *
 	 * @var string
 	 */
-	protected $namespace = 'tracksure/v1';
+	protected $namespace = 'ts/v1';
 
 	/**
 	 * Rest base.
 	 *
 	 * @var string
 	 */
-	protected $rest_base = 'pixel-callback';
+	protected $rest_base = 'cb';
 
 	/**
 	 * Database instance.

@@ -115,7 +115,7 @@ export const ConsentSettings: React.FC<ConsentSettingsProps> = ({ className = ''
 						justifyContent: 'center',
 						color: 'white'
 					}}>
-						<Icon name="Shield" style={{ width: '1.5rem', height: '1.5rem' }} />
+						<Icon name="Shield" size={24} />
 					</div>
 					<div style={{ flex: 1 }}>
 						<h2 style={{ 

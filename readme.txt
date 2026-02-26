@@ -230,7 +230,7 @@ The admin interface is built with React 18 and TypeScript, compiled with Webpack
 4. **Destinations (Optional – only if you run ads):**
    - **Meta Pixel + CAPI:** Add Pixel ID and Access Token for server-side Facebook tracking
    - **Google Analytics 4:** Add Measurement ID and API Secret for server-side GA4 tracking
-   - **TikTok / Pinterest / Others:** Upgrade to Pro for additional platforms
+   - **TikTok / Pinterest / Others:** Available with the [TrackSure Pro](https://tracksure.cloud/pricing) add-on
 5. Click **Save Changes**
 
 **That's it!** Visit **TrackSure → Overview** to see your first-party analytics dashboard.
@@ -591,7 +591,7 @@ TrackSure works for content, eCommerce, lead generation, and many other WordPres
 
 = How does attribution work in TrackSure? =
 
-TrackSure tracks **first-touch** and **last-touch attribution** in the free version:
+TrackSure includes **five attribution models** out of the box:
 
 **First-Touch Attribution:**
 - Tracks the very first traffic source that brought the visitor
@@ -601,16 +601,14 @@ TrackSure tracks **first-touch** and **last-touch attribution** in the free vers
 - Tracks the final interaction before conversion
 - Example: User returns via Facebook ad before purchasing → credited to "facebook / cpc"
 
-**Attribution Window:** 30 days (configurable)
-
-**Multi-Touch Attribution (Pro):**
-Upgrade to Pro for advanced models:
+**Multi-Touch Attribution:**
 - **Linear** – Equal credit to all touchpoints
 - **Time-Decay** – More credit to recent interactions
 - **Position-Based (U-Shaped)** – First and last touch get 40% each, middle gets 20%
-- **Data-Driven (AI)** – Machine learning determines credit based on actual conversion patterns
 
-**Assisted Conversions (Pro):**
+**Attribution Window:** 30 days (configurable)
+
+**Assisted Conversions:**
 See which channels helped but didn't get final credit (e.g., Facebook ad assisted, Google search converted).
 
 = Can I export my analytics data? =
@@ -687,14 +685,13 @@ No special configuration needed—just install and activate TrackSure.
 - ✅ Meta Pixel + Conversion API (server-side)
 - ✅ Google Analytics 4 + Measurement Protocol (server-side)
 - ✅ WooCommerce, FluentCart, EDD, SureCart tracking
-- ✅ First-touch and last-touch attribution
+- ✅ All attribution models (first-touch, last-touch, linear, time-decay, position-based)
+- ✅ Assisted conversions and channel interaction analysis
 - ✅ Consent management (GDPR/CCPA)
 - ✅ Unlimited events and traffic
 
 **TrackSure Pro adds:**
 - 🚀 14+ additional ad platforms (TikTok, Pinterest, LinkedIn, Snapchat, Reddit, Twitter, Microsoft, Google Ads)
-- 🚀 Multi-touch attribution models (linear, time-decay, position-based, AI-driven)
-- 🚀 Assisted conversions and channel interaction analysis
 - 🚀 Cart abandonment recovery emails
 - 🚀 Session recording & heatmaps
 - 🚀 Cohort analysis (retention, churn, LTV)
@@ -829,7 +826,7 @@ All with **browser-side** and **server-side (Conversion API)** tracking where su
 - Browser tracking SDK with comprehensive event capture
 - Server-side integrations (WooCommerce, FluentCart, EDD, SureCart)
 - First-party analytics dashboards
-- First-touch and last-touch attribution
+- Multi-touch attribution (first-touch, last-touch, linear, time-decay, position-based)
 - Meta Pixel + CAPI integration
 - GA4 gtag.js + Measurement Protocol integration
 - Privacy-first features (GDPR compliance, cookieless mode)

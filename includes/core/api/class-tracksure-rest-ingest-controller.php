@@ -72,12 +72,12 @@ class TrackSure_REST_Ingest_Controller extends TrackSure_REST_Controller
 	 */
 	public function register_routes()
 	{
-		// POST /ingest - Primary endpoint for browser tracking (batch events).
-		// HEAD /ingest - Check if tracking is enabled (lightweight status check).
-		// This is the main endpoint that tracksure-web.js calls.
+		// POST /collect - Primary endpoint for browser tracking (batch events).
+		// HEAD /collect - Check if tracking is enabled (lightweight status check).
+		// This is the main endpoint that ts-web.js calls.
 		register_rest_route(
 			$this->namespace,
-			'/ingest',
+			'/collect',
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
@@ -101,10 +101,10 @@ class TrackSure_REST_Ingest_Controller extends TrackSure_REST_Controller
 			)
 		);
 
-		// POST /ingest/event - Record single event (alternative endpoint).
+		// POST /collect/event - Record single event (alternative endpoint).
 		register_rest_route(
 			$this->namespace,
-			'/ingest/event',
+			'/collect/event',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array($this, 'ingest_event'),
@@ -114,10 +114,10 @@ class TrackSure_REST_Ingest_Controller extends TrackSure_REST_Controller
 			)
 		);
 
-		// POST /ingest/batch - Record multiple events (alternative endpoint).
+		// POST /collect/batch - Record multiple events (alternative endpoint).
 		register_rest_route(
 			$this->namespace,
-			'/ingest/batch',
+			'/collect/batch',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array($this, 'ingest_batch'),
@@ -133,10 +133,10 @@ class TrackSure_REST_Ingest_Controller extends TrackSure_REST_Controller
 			)
 		);
 
-		// POST /ingest/conversion - Record conversion.
+		// POST /collect/conversion - Record conversion.
 		register_rest_route(
 			$this->namespace,
-			'/ingest/conversion',
+			'/collect/conversion',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
 				'callback'            => array($this, 'ingest_conversion'),

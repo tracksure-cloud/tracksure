@@ -7,7 +7,7 @@
  * Provides aggregated attribution insights for multi-session visitor journeys.
  * - Journey metrics (avg sessions, time to convert)
  * - Device journey patterns
- * - Attribution model comparison (Free: first/last, Pro: all models)
+ * - Attribution model comparison (all 5 models included)
  * - Conversion breakdown (single vs multi-touch)
  *
  * @package TrackSure\Core\Services
@@ -418,13 +418,13 @@ class TrackSure_Attribution_Analytics
     public function get_attribution_models_comparison($date_start, $date_end)
     {
         global $wpdb;
-        // Free version models.
-        $models = array('first_touch', 'last_touch');
+        // All attribution models included.
+        $models = array('first_touch', 'last_touch', 'linear', 'time_decay', 'position_based');
 
         /**
          * Filter attribution models for comparison.
          *
-         * Pro can add: linear, time_decay, position_based.
+         * Extensions can add or remove models.
          *
          * @param array $models Attribution models.
          */

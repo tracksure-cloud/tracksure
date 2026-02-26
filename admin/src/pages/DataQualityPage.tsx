@@ -72,7 +72,7 @@ const DataQualityPage: React.FC = () => {
     // Fetch quality data for all enabled destinations
     // Note: This uses a single API call instead of per-destination calls to avoid hooks violation
     const { data: _qualitySignals, isLoading: loadingSignals } = useApiQuery<{ signals: SignalQuality[] }>(
-        'getQualitySignals',
+        'getQualitySignal',
         {
             destinations: enabledDestinations.join(','),
             date_start: formatLocalDate(dateRange.start),
@@ -83,19 +83,28 @@ const DataQualityPage: React.FC = () => {
 
     const { data: deduplication, isLoading: loadingDedup } = useApiQuery<DeduplicationStats>(
         'getQualityDeduplication',
-        dateRange,
+        {
+            date_start: formatLocalDate(dateRange.start),
+            date_end: formatLocalDate(dateRange.end),
+        },
         { refetchInterval: 300000 }
     );
 
     const { data: schemaValidation, isLoading: loadingSchema } = useApiQuery<SchemaValidation[]>(
         'getQualitySchema',
-        dateRange,
+        {
+            date_start: formatLocalDate(dateRange.start),
+            date_end: formatLocalDate(dateRange.end),
+        },
         { refetchInterval: 300000 }
     );
 
     const { data: reconciliation, isLoading: loadingRecon } = useApiQuery<ReconciliationData>(
         'getQualityReconciliation',
-        dateRange,
+        {
+            date_start: formatLocalDate(dateRange.start),
+            date_end: formatLocalDate(dateRange.end),
+        },
         { refetchInterval: 300000 }
     );
 

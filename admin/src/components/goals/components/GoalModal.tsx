@@ -44,15 +44,16 @@ interface GoalModalProps {
  * Trigger type options with labels and corresponding event names
  */
 const TRIGGER_OPTIONS = [
-  { value: 'pageview', label: __('Page View'), eventName: 'page_view', icon: '📄' },
-  { value: 'click', label: __('Element Click'), eventName: 'click', icon: '👆' },
-  { value: 'form_submit', label: __('Form Submission'), eventName: 'form_submit', icon: '📝' },
-  { value: 'scroll_depth', label: __('Scroll Depth'), eventName: 'scroll', icon: '📜' },
-  { value: 'time_on_page', label: __('Time on Page'), eventName: 'time_on_page', icon: '⏱️' },
-  { value: 'video_play', label: __('Video Play'), eventName: 'video_play', icon: '🎬' },
-  { value: 'download', label: __('File Download'), eventName: 'file_download', icon: '💾' },
-  { value: 'outbound_link', label: __('Outbound Link'), eventName: 'outbound_click', icon: '🔗' },
-  { value: 'custom_event', label: __('Custom Event'), eventName: 'custom_event', icon: '⚡' },
+  { value: 'pageview', label: __('Page View', 'tracksure'), eventName: 'page_view', icon: '📄' },
+  { value: 'click', label: __('Element Click', 'tracksure'), eventName: 'click', icon: '👆' },
+  { value: 'form_submit', label: __('Form Submission', 'tracksure'), eventName: 'form_submit', icon: '📝' },
+  { value: 'scroll_depth', label: __('Scroll Depth', 'tracksure'), eventName: 'scroll', icon: '📜' },
+  { value: 'time_on_page', label: __('Time on Page', 'tracksure'), eventName: 'time_on_page', icon: '⏱️' },
+  { value: 'engagement', label: __('Engagement Rate', 'tracksure'), eventName: 'engagement', icon: '❤️' },
+  { value: 'video_play', label: __('Video Play', 'tracksure'), eventName: 'video_play', icon: '🎬' },
+  { value: 'download', label: __('File Download', 'tracksure'), eventName: 'file_download', icon: '💾' },
+  { value: 'outbound_link', label: __('Outbound Link', 'tracksure'), eventName: 'outbound_click', icon: '🔗' },
+  { value: 'custom_event', label: __('Custom Event', 'tracksure'), eventName: 'custom_event', icon: '⚡' },
 ] as const;
 
 /**
@@ -241,6 +242,7 @@ export const GoalModal: React.FC<GoalModalProps> = ({
       form_submit: __('Fires when a form is submitted'),
       scroll_depth: __('Fires when user scrolls to a specific depth'),
       time_on_page: __('Fires when user spends specific time on page'),
+      engagement: __('Fires when user meets scroll + time engagement thresholds'),
       video_play: __('Fires when a video is played or completed'),
       download: __('Fires when a file is downloaded'),
       outbound_link: __('Fires when an external link is clicked'),
@@ -378,6 +380,26 @@ export const GoalModal: React.FC<GoalModalProps> = ({
               {getTriggerHelp(formData.trigger_type)}
             </p>
           </div>
+
+          {/* Custom event name input */}
+          {formData.trigger_type === 'custom_event' && (
+            <div className="ts-goal-modal__field">
+              <label htmlFor="custom-event-name" className="ts-goal-modal__label ts-goal-modal__label--required">
+                {__('Event Name')}
+              </label>
+              <input
+                id="custom-event-name"
+                type="text"
+                className="ts-goal-modal__input"
+                value={formData.event_name || ''}
+                onChange={(e) => updateField('event_name', e.target.value)}
+                placeholder={__('e.g., purchase, add_to_cart, calculator_completed')}
+              />
+              <p className="ts-goal-modal__help">
+                {__('The exact event name your custom code or WooCommerce dispatches')}
+              </p>
+            </div>
+          )}
         </section>
 
         {/* Conditions Section */}

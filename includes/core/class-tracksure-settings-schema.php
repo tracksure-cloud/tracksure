@@ -56,18 +56,6 @@ class TrackSure_Settings_Schema
 				'in_js'       => false,
 			),
 
-			'tracksure_api_token'          => array(
-				'type'        => 'string',
-				'readonly'    => true,
-				'default'     => '',
-				'label'       => __('API Token', 'tracksure'),
-				'description' => __('Authentication token for REST API access', 'tracksure'),
-				'category'    => 'system',
-				'in_rest'     => true,
-				'in_js'       => false,
-				'sensitive'   => true,
-			),
-
 			'tracksure_keep_data_on_uninstall'       => array(
 				'type'        => 'boolean',
 				'readonly'    => false,
@@ -298,7 +286,7 @@ class TrackSure_Settings_Schema
 		$config = array();
 
 		// Add endpoint (not in schema).
-		$config['endpoint'] = rest_url('tracksure/v1/ingest');
+		$config['endpoint'] = rest_url('ts/v1/collect');
 		$config['restUrl']  = rest_url();
 		$config['nonce']    = wp_create_nonce('wp_rest');
 
@@ -321,7 +309,7 @@ class TrackSure_Settings_Schema
 
 		// Add enabled destinations and full metadata (centralized - single source of truth).
 		$core                 = TrackSure_Core::get_instance();
-		$destinations_manager = $core->get_service('destinations');
+		$destinations_manager = $core->get_service('destinations_manager');
 		if ($destinations_manager) {
 			// Simple array of enabled IDs for quick checks.
 			$config['enabledDestinations'] = $destinations_manager->get_enabled_destination_ids();
@@ -330,14 +318,10 @@ class TrackSure_Settings_Schema
 			$config['destinationsMetadata'] = $destinations_manager->get_destinations_for_js_config();
 		}
 
-		// Add enabled integrations and full metadata (same pattern as destinations).
-		$integrations_manager = $core->get_service('integrations');
+		// Add enabled integrations (IDs only — full metadata comes via trackSureExtensions).
+		$integrations_manager = $core->get_service('integrations_manager');
 		if ($integrations_manager) {
-			// Simple array of enabled IDs.
 			$config['enabledIntegrations'] = $integrations_manager->get_enabled_integration_ids();
-
-			// Full metadata for React rendering.
-			$config['integrationsMetadata'] = $integrations_manager->get_integrations_for_js_config();
 		}
 
 		// Cache config (without user data) for 5 minutes.

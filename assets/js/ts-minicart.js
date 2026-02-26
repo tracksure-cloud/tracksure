@@ -27,7 +27,7 @@
     'use strict';
 
     // Wait for TrackSure to be ready
-    if (!window.TrackSure || !window.TrackSure.trackEvent) {
+    if (!window.TrackSure || !window.TrackSure.track) {
         console.warn('[TrackSure MiniCart] TrackSure SDK not loaded');
         return;
     }
@@ -763,9 +763,9 @@
         eventData.value = eventData.price * eventData.quantity;
 
         // Track via TrackSure SDK
-        if (window.TrackSure && window.TrackSure.trackEvent) {
+        if (window.TrackSure && window.TrackSure.track) {
             try {
-                window.TrackSure.trackEvent('add_to_cart', eventData);
+                window.TrackSure.track('add_to_cart', eventData);
                 console.log('[TrackSure MiniCart] ✅ add_to_cart tracked:', eventData.item_id, eventData.item_name);
             } catch (error) {
                 console.error('[TrackSure MiniCart] Error tracking event:', error);

@@ -105,7 +105,7 @@ class TrackSure_Integrations_Manager
 	 *   - order: int (display order, default: 999).
 	 *   - auto_detect: string (plugin path for auto-detection, e.g., 'woocommerce/woocommerce.php').
 	 *   - settings_fields: array (settings keys for this integration).
-	 *   - events: array (event types this integration supports).
+	 *   - tracked_events: array (event types this integration supports).
 	 * @return bool Success.
 	 */
 	public function register_integration($config)
@@ -278,32 +278,6 @@ class TrackSure_Integrations_Manager
 	public function get_registered_integrations()
 	{
 		return $this->registered_integrations;
-	}
-
-	/**
-	 * Get integrations metadata for JavaScript config.
-	 *
-	 * Returns ONLY the data needed by browser (no class/file paths).
-	 * Used by Settings Schema to inject into window.trackSureConfig.
-	 *
-	 * @return array Integrations metadata for JS.
-	 */
-	public function get_integrations_for_js_config()
-	{
-		$js_integrations = array();
-
-		foreach ($this->registered_integrations as $int_id => $int) {
-			$js_integrations[$int_id] = array(
-				'id'          => $int['id'],
-				'name'        => $int['name'],
-				'icon'        => $int['icon'],
-				'order'       => $int['order'],
-				'auto_detect' => $int['auto_detect'],
-				'events'      => $int['events'],
-			);
-		}
-
-		return $js_integrations;
 	}
 
 	/**

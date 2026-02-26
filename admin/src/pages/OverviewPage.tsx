@@ -1104,7 +1104,7 @@ const OverviewPage: React.FC = () => {
 
           {data?.data_updated_at && (
             <div className="ts-api-status">
-              <p><Icon name="CheckCircle" size={16} color="success" /> {__('Last updated')}: {new Date(data.data_updated_at).toLocaleString()}</p>
+              <p><Icon name="CheckCircle" size={16} color="success" /> {__('Last updated')}: {new Date(data.data_updated_at.replace(' ', 'T') + 'Z').toLocaleString()}</p>
             </div>
           )}
         </>
