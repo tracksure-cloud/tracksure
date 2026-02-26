@@ -82,12 +82,17 @@ class TrackSure_Tracker_Assets
 		);
 
 		// 3. Enqueue main tracking script (neutral name avoids ad-blocker keyword matching).
+		// Uses 'defer' strategy (WP 6.3+) so the script doesn't block HTML parsing.
+		// Falls back to footer loading on older WP versions.
 		wp_enqueue_script(
 			'ts-web',
 			TRACKSURE_PLUGIN_URL . 'assets/js/ts-web.js',
 			array(),
 			TRACKSURE_VERSION,
-			true
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			)
 		);
 
 		// Pass configuration to script using centralized schema.

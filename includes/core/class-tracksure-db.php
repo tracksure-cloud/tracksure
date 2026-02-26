@@ -482,6 +482,7 @@ class TrackSure_DB
 		}
 
 		// DEDUPLICATION CHECK #2: Semantic duplicate (same event within 2 seconds on same page).
+		// Uses BETWEEN instead of ABS(TIMESTAMPDIFF) so the occurred_at index can be used.
 		if (isset($event_data['session_id']) && isset($event_data['event_name']) && isset($event_data['page_url'])) {
 			$occurred_at = isset($event_data['occurred_at']) ? $event_data['occurred_at'] : gmdate('Y-m-d H:i:s');
 
@@ -491,11 +492,12 @@ class TrackSure_DB
                 WHERE session_id = %s 
                 AND event_name = %s 
                 AND page_url = %s 
-                AND ABS(TIMESTAMPDIFF(SECOND, occurred_at, %s)) < 2
+                AND occurred_at BETWEEN DATE_SUB(%s, INTERVAL 2 SECOND) AND DATE_ADD(%s, INTERVAL 2 SECOND)
                 LIMIT 1",
 					$event_data['session_id'],
 					$event_data['event_name'],
 					$event_data['page_url'],
+					$occurred_at,
 					$occurred_at
 				)
 			);
@@ -595,6 +597,28 @@ class TrackSure_DB
 		$placeholders_array = array();
 		$all_values         = array();
 
+		// Pre-filter duplicates with a SINGLE query instead of N queries (one per event).
+		// Collects all candidate event_ids and checks existence in bulk.
+		$candidate_ids = array();
+		foreach ($events_data as $event_data) {
+			if (! empty($event_data['event_id'])) {
+				$candidate_ids[] = $event_data['event_id'];
+			}
+		}
+
+		$existing_ids = array();
+		if (! empty($candidate_ids)) {
+			$id_placeholders = implode(', ', array_fill(0, count($candidate_ids), '%s'));
+			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$existing_rows = $wpdb->get_col(
+				$wpdb->prepare(
+					"SELECT event_id FROM {$wpdb->prefix}tracksure_events WHERE event_id IN ({$id_placeholders})",
+					...$candidate_ids
+				)
+			);
+			$existing_ids = array_flip($existing_rows ? $existing_rows : array());
+		}
+
 		// Prepare all events for batch insert.
 		foreach ($events_data as $index => $event_data) {
 			// Validate required fields.
@@ -603,15 +627,8 @@ class TrackSure_DB
 				continue;
 			}
 
-			// Check for duplicate event_id.
-			$exists = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT event_id FROM {$wpdb->prefix}tracksure_events WHERE event_id = %s",
-					$event_data['event_id']
-				)
-			);
-
-			if ($exists) {
+			// Check for duplicate event_id (already resolved in bulk above).
+			if (isset($existing_ids[$event_data['event_id']])) {
 				$inserted_event_ids[] = $event_data['event_id']; // Already exists
 				continue;
 			}

@@ -30,7 +30,12 @@ if (! defined('ABSPATH')) {
 class TrackSure_Daily_Aggregator
 {
 
-
+	/**
+	 * Maximum seconds a single aggregation run may take.
+	 *
+	 * @var int
+	 */
+	const TIME_BOX_SECONDS = 25;
 
 	/**
 	 * Instance.
@@ -45,6 +50,13 @@ class TrackSure_Daily_Aggregator
 	 * @var TrackSure_DB
 	 */
 	private $db;
+
+	/**
+	 * Run start time.
+	 *
+	 * @var float
+	 */
+	private $start_time = 0;
 
 	/**
 	 * Get instance.
@@ -73,9 +85,18 @@ class TrackSure_Daily_Aggregator
 	 */
 	public function aggregate_yesterday()
 	{
-		$date = gmdate('Y-m-d', strtotime('-1 day'));
+		// Concurrency lock — prevent overlapping cron runs.
+		if (get_transient('tracksure_daily_agg_lock')) {
+			return;
+		}
+		set_transient('tracksure_daily_agg_lock', 1, 10 * MINUTE_IN_SECONDS);
 
+		$this->start_time = microtime(true);
+
+		$date = gmdate('Y-m-d', strtotime('-1 day'));
 		$this->aggregate_date($date);
+
+		delete_transient('tracksure_daily_agg_lock');
 	}
 
 	/**
@@ -214,20 +235,46 @@ class TrackSure_Daily_Aggregator
 	/**
 	 * Invalidate cached metrics after aggregation.
 	 *
+	 * Uses a scoped SQL LIKE delete targeting only dashboard/API response transients.
+	 * This is more targeted than a blanket '%tracksure_%' pattern but still
+	 * covers all parameterized cache keys (e.g. tracksure_overview_v2_{hash}).
+	 *
 	 * @param string $date Date that was aggregated.
 	 */
 	private function invalidate_caches_for_date($date)
 	{
 		global $wpdb;
 
-		// Delete all transients matching tracksure patterns for this date.
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$wpdb->esc_like('_transient_tracksure_') . '%',
-				$wpdb->esc_like('_transient_timeout_tracksure_') . '%'
-			)
+		// These prefixes match the actual cache keys set by REST API controllers.
+		$transient_prefixes = array(
+			'tracksure_overview_v2_',
+			'tracksure_realtime_v',
+			'tracksure_sessions_v2_',
+			'tracksure_traffic_sources_v2_',
+			'tracksure_pages_',
+			'tracksure_visitors_v2_',
+			'tracksure_goal_perf_',
+			'tracksure_goals_perf_',
+			'tracksure_goals_overview_',
+			'tracksure_agg_metrics_',
 		);
+
+		foreach ($transient_prefixes as $prefix) {
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+					$wpdb->esc_like('_transient_' . $prefix) . '%',
+					$wpdb->esc_like('_transient_timeout_' . $prefix) . '%'
+				)
+			);
+		}
+
+		// Also clear specific non-parameterized transients.
+		delete_transient('tracksure_active_goals');
+		delete_transient('tracksure_active_goals_server');
+
+		/** This action is documented in class-tracksure-hourly-aggregator.php */
+		do_action('tracksure_invalidate_caches');
 	}
 
 	/**
@@ -265,16 +312,30 @@ class TrackSure_Daily_Aggregator
 	}
 
 	/**
-	 * Aggregate date range.
+	 * Aggregate date range with time-boxing.
 	 *
 	 * @param string $start_date Start date (Y-m-d).
 	 * @param string $end_date End date (Y-m-d).
 	 */
 	public function aggregate_date_range($start_date, $end_date)
 	{
+		if (! $this->start_time) {
+			$this->start_time = microtime(true);
+		}
+
 		$current_date = $start_date;
 
 		while (strtotime($current_date) <= strtotime($end_date)) {
+			// Time-box: stop if we're approaching the limit.
+			$max_time = self::TIME_BOX_SECONDS;
+			$ini_max  = (int) ini_get('max_execution_time');
+			if ($ini_max > 0) {
+				$max_time = min($max_time, max(5, $ini_max - 5));
+			}
+			if ((microtime(true) - $this->start_time) >= $max_time) {
+				break;
+			}
+
 			$this->aggregate_date($current_date);
 			$current_date = gmdate('Y-m-d', strtotime($current_date . ' +1 day'));
 		}

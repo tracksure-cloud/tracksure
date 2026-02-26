@@ -29,11 +29,10 @@ jobs:
           coverage: none
 
       - name: Install Composer dependencies
-        run: |
-          composer global config --no-plugins allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
-          composer global require squizlabs/php_codesniffer:^3.13
-          composer global require wp-coding-standards/wpcs:^3.3
-          phpcs --config-set installed_paths ~/.composer/vendor/wp-coding-standards/wpcs
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Verify PHPCS standards
+        run: vendor/bin/phpcs -i
 
       - name: Install NPM dependencies
         run: |
@@ -43,7 +42,7 @@ jobs:
           cd ..
 
       - name: Run PHPCS
-        run: npm run phpcs
+        run: vendor/bin/phpcs --standard=phpcs.xml
         continue-on-error: true
 
       - name: Run ESLint

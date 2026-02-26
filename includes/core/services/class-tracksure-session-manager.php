@@ -80,8 +80,8 @@ class TrackSure_Session_Manager
 	 * Get client ID from browser or generate new one.
 	 *
 	 * Tries to read from JavaScript localStorage (tracksure_client_id) via cookie fallback.
-	 * If not found, uses PHP session as fallback (prevents multiple sessions for same user).
-	 * If neither available, generates a new UUID v4.
+	 * If not found, uses server-side fingerprint via transient (IP + UA + Accept-Language hash).
+	 * Works in cookieless environments (Brave, Tor, Safari ITP, ad blockers).
 	 *
 	 * @return string Client UUID.
 	 */
@@ -95,19 +95,25 @@ class TrackSure_Session_Manager
 			}
 		}
 
-		// Fallback: Use PHP session when browser cookies aren't available yet.
-		// This prevents creating multiple sessions for same user on server-side events.
-		if (! session_id()) {
-			@session_start(); // Suppress warnings if headers already sent
+		// Fallback: Server-side fingerprint via short-lived transient.
+		// REPLACES @session_start() which caused PHP file-based session locking,
+		// serializing ALL concurrent requests for the same visitor.
+		// This approach:
+		// 1. Uses IP + User-Agent hash as a consistent fingerprint
+		// 2. Stores the generated UUID in a transient (1 hour TTL)
+		// 3. Works with cookieless browsers (Brave shield, Tor, Safari ITP, ad blockers)
+		// 4. No file locking — fully concurrent on shared hosting
+		// 5. With object cache (Redis/Memcached): 0 DB queries (in-memory)
+		$fingerprint_key = $this->get_server_fingerprint_key('cid');
+		$cached_cid      = get_transient($fingerprint_key);
+
+		if ($cached_cid && TrackSure_Utilities::is_valid_uuid_v4($cached_cid)) {
+			return $cached_cid;
 		}
 
-		if (isset($_SESSION['_ts_cid']) && TrackSure_Utilities::is_valid_uuid_v4(sanitize_text_field(wp_unslash($_SESSION['_ts_cid'])))) {
-			return sanitize_text_field(wp_unslash($_SESSION['_ts_cid']));
-		}
-
-		// Generate new UUID v4 and store in session.
-		$client_id                = $this->generate_uuid();
-		$_SESSION['_ts_cid'] = $client_id;
+		// Generate new UUID v4 and store in transient (1 hour — covers a typical session).
+		$client_id = $this->generate_uuid();
+		set_transient($fingerprint_key, $client_id, HOUR_IN_SECONDS);
 
 		return $client_id;
 	}
@@ -116,8 +122,8 @@ class TrackSure_Session_Manager
 	 * Get session ID from browser or generate new one.
 	 *
 	 * Tries to read from JavaScript sessionStorage (tracksure_session_id) via cookie fallback.
-	 * If not found, uses PHP session as fallback (prevents multiple sessions for same user).
-	 * If neither available, generates a new UUID v4.
+	 * If not found, uses server-side fingerprint via transient (same approach as client ID).
+	 * Works in cookieless environments without PHP session file locking.
 	 *
 	 * @return string Session UUID.
 	 */
@@ -131,19 +137,18 @@ class TrackSure_Session_Manager
 			}
 		}
 
-		// Fallback: Use PHP session when browser cookies aren't available yet.
-		// This prevents creating multiple sessions for same user on server-side events.
-		if (! session_id()) {
-			@session_start(); // Suppress warnings if headers already sent
+		// Fallback: Server-side fingerprint via short-lived transient.
+		// Same approach as get_client_id_from_browser() — see comments there.
+		$fingerprint_key = $this->get_server_fingerprint_key('sid');
+		$cached_sid      = get_transient($fingerprint_key);
+
+		if ($cached_sid && TrackSure_Utilities::is_valid_uuid_v4($cached_sid)) {
+			return $cached_sid;
 		}
 
-		if (isset($_SESSION['_ts_sid']) && TrackSure_Utilities::is_valid_uuid_v4(sanitize_text_field(wp_unslash($_SESSION['_ts_sid'])))) {
-			return sanitize_text_field(wp_unslash($_SESSION['_ts_sid']));
-		}
-
-		// Generate new UUID v4 and store in session.
-		$session_id                = $this->generate_uuid();
-		$_SESSION['_ts_sid'] = $session_id;
+		// Generate new UUID v4 and store in transient (30 min — session scope).
+		$session_id = $this->generate_uuid();
+		set_transient($fingerprint_key, $session_id, 30 * MINUTE_IN_SECONDS);
 
 		return $session_id;
 	}
@@ -156,6 +161,45 @@ class TrackSure_Session_Manager
 	private function generate_uuid()
 	{
 		return TrackSure_Utilities::generate_uuid_v4();
+	}
+
+	/**
+	 * Get a deterministic transient key based on server-side fingerprint.
+	 *
+	 * Uses IP + User-Agent hash as a consistent, cookieless fingerprint.
+	 * This replaces PHP session (@session_start) which causes file-based locking
+	 * that serializes all concurrent requests from the same visitor.
+	 *
+	 * With object cache (Redis/Memcached): zero DB queries (pure in-memory lookup).
+	 * Without object cache: falls back to wp_options transients (still no file locking).
+	 *
+	 * @param string $type Fingerprint type ('cid' for client, 'sid' for session).
+	 * @return string Transient key for this visitor+type combination.
+	 */
+	private function get_server_fingerprint_key($type)
+	{
+		$ip = '';
+		if (class_exists('TrackSure_Utilities') && method_exists('TrackSure_Utilities', 'get_client_ip')) {
+			$ip = TrackSure_Utilities::get_client_ip();
+		} elseif (isset($_SERVER['REMOTE_ADDR'])) {
+			$ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
+		}
+
+		$ua = isset($_SERVER['HTTP_USER_AGENT'])
+			? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT']))
+			: '';
+
+		// Include Accept-Language for better differentiation on corporate networks
+		// where multiple users share the same IP + User-Agent (e.g., managed browsers).
+		$accept_lang = isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
+			? sanitize_text_field(wp_unslash($_SERVER['HTTP_ACCEPT_LANGUAGE']))
+			: '';
+
+		// wp_hash() uses AUTH_SALT so the fingerprint is site-specific and irreversible.
+		$hash = wp_hash($ip . '|' . $ua . '|' . $accept_lang);
+
+		// Transient key max 172 chars. 'ts_fp_' + type(3) + '_' + hash(64) = ~74 chars.
+		return 'ts_fp_' . $type . '_' . $hash;
 	}
 
 	/**

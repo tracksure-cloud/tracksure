@@ -23,9 +23,19 @@ if (! defined('ABSPATH')) {
 class TrackSure_Event_Recorder
 {
 
+	/**
+	 * Pending conversion attribution data — processed on shutdown after response is sent.
+	 *
+	 * @var array
+	 */
+	private $pending_conversions = array();
 
-
-
+	/**
+	 * Pending goal evaluation data — processed on shutdown after response is sent.
+	 *
+	 * @var array
+	 */
+	private $pending_goals = array();
 
 	/**
 	 * Instance.
@@ -395,26 +405,40 @@ class TrackSure_Event_Recorder
 		 */
 		do_action('tracksure_event_recorded', $event_id, $event_data, $session);
 
-		// Record conversion attribution if this is a conversion event.
+		// DEFERRED: Conversion attribution + goal evaluation run AFTER the response is sent.
+		// These operations involve 8+ DB queries (with multi-model attribution, up to 23+
+		// queries for 3 touchpoints). Running them inline would block the visitor's request
+		// on /collect or WooCommerce thank-you page.
+		// Instead, we queue them to the same 'shutdown' hook that handles delivery.
+		// fastcgi_finish_request() / litespeed_finish_request() flush the response first.
 		if ($is_conversion && $event_id) {
-			$conversion_recorder = TrackSure_Conversion_Recorder::get_instance();
-			$conversion_result   = $conversion_recorder->record_conversion(
-				array(
-					'visitor_id'       => $session['visitor_id'],
-					'session_id'       => $session['session_id'],
-					'event_id'         => $event_id,
-					'conversion_type'  => $event_data['event_name'],
-					'conversion_value' => $conversion_value,
-					'currency'         => isset($event_data['currency']) ? $event_data['currency'] : 'USD',
-					'transaction_id'   => isset($event_data['transaction_id']) ? $event_data['transaction_id'] : null,
-					'items_count'      => isset($event_data['items_count']) ? $event_data['items_count'] : 0,
-					'converted_at'     => isset($event_data['occurred_at']) ? $event_data['occurred_at'] : current_time('mysql', 1),
-				)
+			$this->pending_conversions[] = array(
+				'visitor_id'       => $session['visitor_id'],
+				'session_id'       => $session['session_id'],
+				'event_id'         => $event_id,
+				'conversion_type'  => $event_data['event_name'],
+				'conversion_value' => $conversion_value,
+				'currency'         => isset($event_data['currency']) ? $event_data['currency'] : 'USD',
+				'transaction_id'   => isset($event_data['transaction_id']) ? $event_data['transaction_id'] : null,
+				'items_count'      => isset($event_data['items_count']) ? $event_data['items_count'] : 0,
+				'converted_at'     => isset($event_data['occurred_at']) ? $event_data['occurred_at'] : current_time('mysql', 1),
 			);
+
+			// Register shutdown handler once to process all pending conversions + goals.
+			if (! has_action('shutdown', array($this, 'deferred_conversion_attribution'))) {
+				add_action('shutdown', array($this, 'deferred_conversion_attribution'));
+			}
 		}
 
-		// Check if event triggers a goal.
-		$this->check_goals($event_id, $event_data, $session);
+		// Goals also deferred — they query the DB for goal conditions + create conversion records.
+		$this->pending_goals[] = array(
+			'event_id'   => $event_id,
+			'event_data' => $event_data,
+			'session'    => $session,
+		);
+		if (! has_action('shutdown', array($this, 'deferred_goal_evaluation'))) {
+			add_action('shutdown', array($this, 'deferred_goal_evaluation'));
+		}
 
 		return $result;
 	}
@@ -1068,6 +1092,86 @@ class TrackSure_Event_Recorder
 
 		/** This filter is documented in class-tracksure-event-recorder.php */
 		return (bool) apply_filters('tracksure_is_bot', false, $user_agent);
+	}
+
+	/**
+	 * Deferred conversion attribution — runs AFTER the response is sent to the visitor.
+	 *
+	 * Processes all pending conversion records that were queued during event recording.
+	 * Runs on 'shutdown' hook after fastcgi_finish_request() flushes the output buffer,
+	 * so the visitor's browser gets the response immediately.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function deferred_conversion_attribution()
+	{
+		// Flush the response to the visitor FIRST.
+		if (function_exists('fastcgi_finish_request')) {
+			fastcgi_finish_request();
+		} elseif (function_exists('litespeed_finish_request')) {
+			litespeed_finish_request();
+		}
+
+		if (empty($this->pending_conversions)) {
+			return;
+		}
+
+		$conversion_recorder = TrackSure_Conversion_Recorder::get_instance();
+		if (! $conversion_recorder) {
+			return;
+		}
+
+		foreach ($this->pending_conversions as $conversion) {
+			try {
+				$conversion_recorder->record_conversion($conversion);
+			} catch (\Exception $e) {
+				if (defined('WP_DEBUG') && WP_DEBUG) {
+					error_log('[TrackSure] Deferred conversion attribution failed: ' . $e->getMessage());
+				}
+			}
+		}
+
+		$this->pending_conversions = array();
+	}
+
+	/**
+	 * Deferred goal evaluation — runs AFTER the response is sent to the visitor.
+	 *
+	 * Processes all pending goal checks that were queued during event recording.
+	 * Runs on 'shutdown' hook so goal condition queries don't block the visitor.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function deferred_goal_evaluation()
+	{
+		// Flush the response to the visitor FIRST.
+		if (function_exists('fastcgi_finish_request')) {
+			fastcgi_finish_request();
+		} elseif (function_exists('litespeed_finish_request')) {
+			litespeed_finish_request();
+		}
+
+		if (empty($this->pending_goals)) {
+			return;
+		}
+
+		foreach ($this->pending_goals as $goal_data) {
+			try {
+				$this->check_goals(
+					$goal_data['event_id'],
+					$goal_data['event_data'],
+					$goal_data['session']
+				);
+			} catch (\Exception $e) {
+				if (defined('WP_DEBUG') && WP_DEBUG) {
+					error_log('[TrackSure] Deferred goal evaluation failed: ' . $e->getMessage());
+				}
+			}
+		}
+
+		$this->pending_goals = array();
 	}
 
 	/**

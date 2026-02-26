@@ -30,7 +30,12 @@ if (! defined('ABSPATH')) {
 class TrackSure_Hourly_Aggregator
 {
 
-
+	/**
+	 * Maximum seconds a single aggregation run may take.
+	 *
+	 * @var int
+	 */
+	const TIME_BOX_SECONDS = 25;
 
 	/**
 	 * Instance.
@@ -45,6 +50,13 @@ class TrackSure_Hourly_Aggregator
 	 * @var TrackSure_DB
 	 */
 	private $db;
+
+	/**
+	 * Run start time.
+	 *
+	 * @var float
+	 */
+	private $start_time = 0;
 
 	/**
 	 * Get instance.
@@ -73,10 +85,20 @@ class TrackSure_Hourly_Aggregator
 	 */
 	public function aggregate_last_hour()
 	{
+		// Concurrency lock — prevent overlapping cron runs.
+		if (get_transient('tracksure_hourly_agg_lock')) {
+			return;
+		}
+		set_transient('tracksure_hourly_agg_lock', 1, 5 * MINUTE_IN_SECONDS);
+
+		$this->start_time = microtime(true);
+
 		$hour_start = gmdate('Y-m-d H:00:00', strtotime('-1 hour'));
 		$hour_end   = gmdate('Y-m-d H:59:59', strtotime('-1 hour'));
 
 		$this->aggregate_hour($hour_start, $hour_end);
+
+		delete_transient('tracksure_hourly_agg_lock');
 	}
 
 	/**
@@ -227,19 +249,51 @@ class TrackSure_Hourly_Aggregator
 
 	/**
 	 * Invalidate cached metrics after aggregation.
+	 *
+	 * Uses a scoped SQL LIKE delete targeting only dashboard/API response transients.
+	 * This is more targeted than the old blanket '%tracksure_%' pattern but still
+	 * covers all parameterized cache keys (e.g. tracksure_overview_v2_{hash}).
 	 */
 	private function invalidate_caches()
 	{
 		global $wpdb;
 
-		// Delete all transients matching tracksure patterns.
-		$wpdb->query(
-			$wpdb->prepare(
-				"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-				$wpdb->esc_like('_transient_tracksure_') . '%',
-				$wpdb->esc_like('_transient_timeout_tracksure_') . '%'
-			)
+		// These prefixes match the actual cache keys set by REST API controllers.
+		// Each prefix covers multiple parameterized variants (date ranges, segments, etc.).
+		$transient_prefixes = array(
+			'tracksure_overview_v2_',
+			'tracksure_realtime_v',
+			'tracksure_sessions_v2_',
+			'tracksure_traffic_sources_v2_',
+			'tracksure_pages_',
+			'tracksure_visitors_v2_',
+			'tracksure_goal_perf_',
+			'tracksure_goals_perf_',
+			'tracksure_goals_overview_',
+			'tracksure_agg_metrics_',
 		);
+
+		foreach ($transient_prefixes as $prefix) {
+			$wpdb->query(
+				$wpdb->prepare(
+					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
+					$wpdb->esc_like('_transient_' . $prefix) . '%',
+					$wpdb->esc_like('_transient_timeout_' . $prefix) . '%'
+				)
+			);
+		}
+
+		// Also clear specific non-parameterized transients.
+		delete_transient('tracksure_active_goals');
+		delete_transient('tracksure_active_goals_server');
+
+		/**
+		 * Fires when tracksure transient caches are invalidated.
+		 * Third-party code can hook in to clear additional caches.
+		 *
+		 * @since 1.0.0
+		 */
+		do_action('tracksure_invalidate_caches');
 	}
 
 	/**

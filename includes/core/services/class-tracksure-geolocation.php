@@ -221,11 +221,13 @@ class TrackSure_Geolocation
 		}
 
 		// ── REMOTE SOURCE 4: ipapi.co ──
+		// Reduced timeout to 1.5s (from 3s) — if the API can't respond in 1.5s
+		// it's better to skip geo than block the visitor for 3s.
 		$ipapi_url      = 'https://ipapi.co/' . urlencode($ip) . '/json/';
 		$ipapi_response = wp_remote_get(
 			$ipapi_url,
 			array(
-				'timeout'   => 3,
+				'timeout'   => 1.5,
 				'sslverify' => true,
 				'headers'   => array(
 					'User-Agent' => 'TrackSure/1.0',
@@ -255,11 +257,12 @@ class TrackSure_Geolocation
 		}
 
 		// ── REMOTE SOURCE 5: ip-api.com (free, 45 req/min, very accurate) ──
+		// Only try this if ipapi.co failed — this is HTTP-only (no SSL).
 		$ipapi_com_url      = 'http://ip-api.com/json/' . urlencode($ip) . '?fields=status,message,country,countryCode,regionName,city';
 		$ipapi_com_response = wp_remote_get(
 			$ipapi_com_url,
 			array(
-				'timeout'   => 3,
+				'timeout'   => 1.5,
 				'sslverify' => false, // HTTP endpoint (free tier)
 				'headers'   => array(
 					'User-Agent' => 'TrackSure/1.0',
@@ -292,7 +295,7 @@ class TrackSure_Geolocation
 		$wpcom_response = wp_remote_get(
 			$wpcom_url,
 			array(
-				'timeout'   => 3,
+				'timeout'   => 1.5,
 				'sslverify' => true,
 				'headers'   => array(
 					'User-Agent' => 'TrackSure/1.0',

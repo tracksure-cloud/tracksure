@@ -3,7 +3,6 @@
  */
 
 import React from 'react';
-import { useApp } from '../../contexts/AppContext';
 // import { useTheme } from '../../contexts/ThemeContext';
 import { DateRangePicker } from '../ui/DateRangePicker';
 import { ThemeToggle } from '../ui/ThemeToggle';
@@ -13,8 +12,6 @@ import { __ } from '../../utils/i18n';
 import '../../styles/components/layout/TopBar.css';
 
 export const TopBar: React.FC = () => {
-  const { config } = useApp();
-
   return (
     <header className="ts-topbar">
       <div className="ts-topbar-left">
