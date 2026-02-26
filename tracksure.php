@@ -172,6 +172,12 @@ final class TrackSure
 		wp_clear_scheduled_hook('tracksure_cleanup_data');
 		wp_clear_scheduled_hook('tracksure_cleanup_logs');
 
+		// Clear Action Scheduler delivery tasks (prevents duplicates on reactivation).
+		wp_clear_scheduled_hook('tracksure_deliver_events');
+		if (function_exists('as_unschedule_all_actions')) {
+			as_unschedule_all_actions('tracksure_deliver_events', array(), 'tracksure');
+		}
+
 		// Flush rewrite rules.
 		flush_rewrite_rules();
 	}
@@ -184,12 +190,18 @@ final class TrackSure
 	 */
 	public static function deactivate()
 	{
-		// Clear all scheduled cron jobs.
+		// Clear all WP-Cron scheduled hooks.
 		wp_clear_scheduled_hook('tracksure_aggregate_hourly');
 		wp_clear_scheduled_hook('tracksure_aggregate_daily');
 		wp_clear_scheduled_hook('tracksure_delivery_worker');
 		wp_clear_scheduled_hook('tracksure_cleanup_data');
 		wp_clear_scheduled_hook('tracksure_cleanup_logs');
+
+		// Clean up Action Scheduler tasks (if AS is available).
+		// Action Scheduler is NOT part of WordPress core — it comes from
+		// WooCommerce, EDD, or standalone plugin. Must check before calling.
+		require_once TRACKSURE_CORE_DIR . 'services/class-tracksure-action-scheduler.php';
+		TrackSure_Action_Scheduler::unschedule_all();
 
 		// Flush rewrite rules to remove REST API routes.
 		flush_rewrite_rules();

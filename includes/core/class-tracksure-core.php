@@ -505,11 +505,8 @@ final class TrackSure_Core
 	 */
 	public function add_cron_schedules($schedules)
 	{
-		// Every minute (for delivery worker).
-		$schedules['tracksure_one_minute'] = array(
-			'interval' => 60,
-			'display'  => 'Every Minute (TrackSure)',
-		);
+		// NOTE: The 'tracksure_every_minute' schedule for delivery is registered
+		// by TrackSure_Action_Scheduler class (its own cron_schedules filter).
 
 		// Every 5 minutes.
 		$schedules['tracksure_five_minutes'] = array(
@@ -543,12 +540,14 @@ final class TrackSure_Core
 	 */
 	private function schedule_jobs()
 	{
+		// NOTE: Delivery worker scheduling is handled entirely by TrackSure_Action_Scheduler
+		// (uses Action Scheduler if available, falls back to WP-Cron).
+		// Do NOT add 'tracksure_delivery_worker' here — it would create duplicate delivery runs.
 		$jobs = array(
 			'tracksure_aggregate_hourly' => 'hourly',
 			'tracksure_aggregate_daily'  => 'daily',
 			'tracksure_cleanup_data'     => 'daily',
 			'tracksure_cleanup_logs'     => 'daily',
-			'tracksure_delivery_worker'  => 'tracksure_one_minute',
 		);
 
 		foreach ($jobs as $hook => $recurrence) {
@@ -557,12 +556,16 @@ final class TrackSure_Core
 			}
 		}
 
+		// Clean up legacy delivery worker hook (was removed in favor of Action Scheduler integration).
+		if (wp_next_scheduled('tracksure_delivery_worker')) {
+			wp_clear_scheduled_hook('tracksure_delivery_worker');
+		}
+
 		// Register job handlers.
 		add_action('tracksure_aggregate_hourly', array($this, 'run_hourly_aggregation'));
 		add_action('tracksure_aggregate_daily', array($this, 'run_daily_aggregation'));
 		add_action('tracksure_cleanup_data', array($this, 'run_cleanup'));
 		add_action('tracksure_cleanup_logs', array($this, 'run_log_cleanup'));
-		add_action('tracksure_delivery_worker', array($this, 'run_delivery'));
 
 		// Force aggregation check on admin load (for low-traffic sites).
 		add_action('admin_init', array($this, 'maybe_force_aggregation'));

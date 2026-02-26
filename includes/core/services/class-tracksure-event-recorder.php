@@ -358,13 +358,17 @@ class TrackSure_Event_Recorder
 		// Queue to outbox for server-side delivery (batch processing via Delivery Worker).
 		$this->queue_to_outbox($event_data, $enriched_data, $session);
 
-		// IMMEDIATE delivery for high-value conversion events (don't wait for cron).
+		// NON-BLOCKING delivery for conversion events.
+		// Instead of calling process_outbox() synchronously (which would make HTTP calls
+		// to Meta CAPI / GA4 MP during the visitor's request and slow down the page),
+		// we schedule it to run after the response is sent via the 'shutdown' hook.
+		// This keeps the /collect endpoint fast even on slow shared hosting.
 		if ($is_conversion) {
-			// Trigger delivery worker immediately for conversions.
-			$delivery_worker = TrackSure_Delivery_Worker::get_instance();
-			if ($delivery_worker) {
-				// Process just the events for this session (last 10 events max).
-				$delivery_worker->process_outbox(10);
+			// Use shutdown hook to deliver after response is sent to the visitor.
+			// fastcgi_finish_request() or litespeed_finish_request() will flush the response
+			// first if available, so the visitor never waits for external API calls.
+			if (! has_action('shutdown', array($this, 'deferred_conversion_delivery'))) {
+				add_action('shutdown', array($this, 'deferred_conversion_delivery'));
 			}
 		}
 
@@ -1052,6 +1056,37 @@ class TrackSure_Event_Recorder
 
 		/** This filter is documented in class-tracksure-event-recorder.php */
 		return (bool) apply_filters('tracksure_is_bot', false, $user_agent);
+	}
+
+	/**
+	 * Deferred conversion delivery — runs AFTER the response is sent to the visitor.
+	 *
+	 * Called via 'shutdown' hook so the visitor's browser gets the response immediately.
+	 * The actual HTTP calls to Meta CAPI / GA4 Measurement Protocol happen in the
+	 * background after fastcgi_finish_request() flushes the output buffer.
+	 *
+	 * This ensures conversion events are delivered promptly (within same request cycle)
+	 * without blocking the website visitor — critical for performance on shared hosting.
+	 *
+	 * @since 1.0.0
+	 * @return void
+	 */
+	public function deferred_conversion_delivery()
+	{
+		// Flush the response to the visitor FIRST, then do the heavy lifting.
+		// fastcgi_finish_request() (PHP-FPM) or litespeed_finish_request() (LiteSpeed)
+		// sends the response immediately and continues PHP execution in the background.
+		if (function_exists('fastcgi_finish_request')) {
+			fastcgi_finish_request();
+		} elseif (function_exists('litespeed_finish_request')) {
+			litespeed_finish_request();
+		}
+
+		// Now safely process conversion events — visitor already has their response.
+		$delivery_worker = TrackSure_Delivery_Worker::get_instance();
+		if ($delivery_worker) {
+			$delivery_worker->process_outbox(10);
+		}
 	}
 
 	/**
