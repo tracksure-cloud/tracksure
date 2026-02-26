@@ -16,15 +16,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * URL Normalizer Service
  */
-class TrackSure_URL_Normalizer
-{
+class TrackSure_URL_Normalizer {
+
 
 	/**
 	 * Marketing/Attribution parameters to KEEP (case-insensitive).
@@ -210,9 +210,8 @@ class TrackSure_URL_Normalizer
 	 * @param array  $options Optional configuration.
 	 * @return string|null Normalized URL or null if should be excluded.
 	 */
-	public static function normalize($url, $options = [])
-	{
-		if (empty($url) || ! is_string($url)) {
+	public static function normalize( $url, $options = [] ) {
+		if ( empty( $url ) || ! is_string( $url ) ) {
 			return null;
 		}
 
@@ -230,13 +229,13 @@ class TrackSure_URL_Normalizer
 		);
 
 		// 1. Check if URL should be excluded entirely
-		if (self::should_exclude($url)) {
+		if ( self::should_exclude( $url ) ) {
 			return null;
 		}
 
 		// 2. Parse URL
-		$parsed = wp_parse_url($url);
-		if ($parsed === false || ! isset($parsed['path'])) {
+		$parsed = wp_parse_url( $url );
+		if ( $parsed === false || ! isset( $parsed['path'] ) ) {
 			return null;
 		}
 
@@ -244,51 +243,51 @@ class TrackSure_URL_Normalizer
 		$normalized = '';
 
 		// Scheme (optional)
-		if (isset($parsed['scheme'])) {
+		if ( isset( $parsed['scheme'] ) ) {
 			$normalized .= $parsed['scheme'] . '://';
 		}
 
 		// Host
-		if (isset($parsed['host'])) {
+		if ( isset( $parsed['host'] ) ) {
 			$host = $parsed['host'];
 
 			// Remove www if requested
-			if ($options['remove_www']) {
-				$host = preg_replace('/^www\./i', '', $host);
+			if ( $options['remove_www'] ) {
+				$host = preg_replace( '/^www\./i', '', $host );
 			}
 
 			// Lowercase domain
-			$normalized .= strtolower($host);
+			$normalized .= strtolower( $host );
 		}
 
 		// Path
 		$path = $parsed['path'];
 
 		// Apply e-commerce normalization patterns
-		if ($options['apply_ecommerce_rules']) {
-			$path = self::apply_ecommerce_rules($path);
+		if ( $options['apply_ecommerce_rules'] ) {
+			$path = self::apply_ecommerce_rules( $path );
 		}
 
 		// Remove trailing slash if requested
-		if ($options['remove_trailing_slash'] && $path !== '/') {
-			$path = rtrim($path, '/');
+		if ( $options['remove_trailing_slash'] && $path !== '/' ) {
+			$path = rtrim( $path, '/' );
 		}
 
 		// Lowercase path if requested
-		if ($options['lowercase']) {
-			$path = strtolower($path);
+		if ( $options['lowercase'] ) {
+			$path = strtolower( $path );
 		}
 
 		$normalized .= $path;
 
 		// 4. Query string processing
-		if ($options['keep_query_string'] && isset($parsed['query'])) {
+		if ( $options['keep_query_string'] && isset( $parsed['query'] ) ) {
 			$filtered_query = self::filter_query_string(
 				$parsed['query'],
 				$options['keep_marketing_params']
 			);
 
-			if (! empty($filtered_query)) {
+			if ( ! empty( $filtered_query ) ) {
 				$normalized .= '?' . $filtered_query;
 			}
 		}
@@ -301,7 +300,7 @@ class TrackSure_URL_Normalizer
 		 * @param string $original Original URL.
 		 * @param array $options Normalization options.
 		 */
-		return apply_filters('tracksure_normalized_url', $normalized, $url, $options);
+		return apply_filters( 'tracksure_normalized_url', $normalized, $url, $options );
 	}
 
 	/**
@@ -310,10 +309,9 @@ class TrackSure_URL_Normalizer
 	 * @param string $url URL to check.
 	 * @return bool True if should exclude.
 	 */
-	private static function should_exclude($url)
-	{
-		foreach (self::$excluded_url_patterns as $pattern) {
-			if (stripos($url, $pattern) !== false) {
+	private static function should_exclude( $url ) {
+		foreach ( self::$excluded_url_patterns as $pattern ) {
+			if ( stripos( $url, $pattern ) !== false ) {
 				return true;
 			}
 		}
@@ -324,7 +322,7 @@ class TrackSure_URL_Normalizer
 		 * @param bool $should_exclude Whether to exclude URL.
 		 * @param string $url URL being checked.
 		 */
-		return apply_filters('tracksure_should_exclude_url', false, $url);
+		return apply_filters( 'tracksure_should_exclude_url', false, $url );
 	}
 
 	/**
@@ -333,10 +331,9 @@ class TrackSure_URL_Normalizer
 	 * @param string $path URL path.
 	 * @return string Normalized path.
 	 */
-	private static function apply_ecommerce_rules($path)
-	{
-		foreach (self::$ecommerce_patterns as $rule) {
-			$path = preg_replace($rule['pattern'], $rule['replacement'], $path);
+	private static function apply_ecommerce_rules( $path ) {
+		foreach ( self::$ecommerce_patterns as $rule ) {
+			$path = preg_replace( $rule['pattern'], $rule['replacement'], $path );
 		}
 
 		/**
@@ -345,7 +342,7 @@ class TrackSure_URL_Normalizer
 		 * @param string $path Normalized path.
 		 * @param array $patterns E-commerce patterns applied.
 		 */
-		return apply_filters('tracksure_ecommerce_normalized_path', $path, self::$ecommerce_patterns);
+		return apply_filters( 'tracksure_ecommerce_normalized_path', $path, self::$ecommerce_patterns );
 	}
 
 	/**
@@ -355,33 +352,32 @@ class TrackSure_URL_Normalizer
 	 * @param bool   $keep_marketing Keep marketing parameters.
 	 * @return string Filtered query string.
 	 */
-	private static function filter_query_string($query_string, $keep_marketing = true)
-	{
-		parse_str($query_string, $params);
+	private static function filter_query_string( $query_string, $keep_marketing = true ) {
+		parse_str( $query_string, $params );
 
-		if (! $keep_marketing) {
+		if ( ! $keep_marketing ) {
 			return ''; // Remove all query params
 		}
 
 		$filtered = [];
 
-		foreach ($params as $key => $value) {
-			$key_lower = strtolower($key);
+		foreach ( $params as $key => $value ) {
+			$key_lower = strtolower( $key );
 
 			// Keep if it's a marketing parameter
-			if (in_array($key_lower, array_map('strtolower', self::$marketing_params), true)) {
-				$filtered[$key] = $value;
+			if ( in_array( $key_lower, array_map( 'strtolower', self::$marketing_params ), true ) ) {
+				$filtered[ $key ] = $value;
 				continue;
 			}
 
 			// Skip if it's a noise parameter
-			if (in_array($key_lower, array_map('strtolower', self::$noise_params), true)) {
+			if ( in_array( $key_lower, array_map( 'strtolower', self::$noise_params ), true ) ) {
 				continue;
 			}
 
 			// Keep other meaningful parameters (search terms, filters, etc.)
 			// This is a whitelist approach - only keep non-noise params
-			$filtered[$key] = $value;
+			$filtered[ $key ] = $value;
 		}
 
 		/**
@@ -390,9 +386,9 @@ class TrackSure_URL_Normalizer
 		 * @param array $filtered Filtered parameters.
 		 * @param array $params Original parameters.
 		 */
-		$filtered = apply_filters('tracksure_filtered_query_params', $filtered, $params);
+		$filtered = apply_filters( 'tracksure_filtered_query_params', $filtered, $params );
 
-		return http_build_query($filtered);
+		return http_build_query( $filtered );
 	}
 
 	/**
@@ -401,13 +397,12 @@ class TrackSure_URL_Normalizer
 	 * @param string $url URL to process.
 	 * @return string Clean path.
 	 */
-	public static function get_clean_path($url)
-	{
-		if (empty($url)) {
+	public static function get_clean_path( $url ) {
+		if ( empty( $url ) ) {
 			return '/';
 		}
 
-		$parsed = wp_parse_url($url);
+		$parsed = wp_parse_url( $url );
 		return $parsed['path'] ?? '/';
 	}
 
@@ -417,23 +412,22 @@ class TrackSure_URL_Normalizer
 	 * @param string $url URL to process.
 	 * @return array Marketing parameters.
 	 */
-	public static function extract_marketing_params($url)
-	{
-		if (empty($url)) {
+	public static function extract_marketing_params( $url ) {
+		if ( empty( $url ) ) {
 			return [];
 		}
 
-		$parsed = wp_parse_url($url);
-		if (! isset($parsed['query'])) {
+		$parsed = wp_parse_url( $url );
+		if ( ! isset( $parsed['query'] ) ) {
 			return [];
 		}
 
-		parse_str($parsed['query'], $params);
+		parse_str( $parsed['query'], $params );
 		$marketing = [];
 
-		foreach ($params as $key => $value) {
-			if (in_array(strtolower($key), array_map('strtolower', self::$marketing_params), true)) {
-				$marketing[$key] = $value;
+		foreach ( $params as $key => $value ) {
+			if ( in_array( strtolower( $key ), array_map( 'strtolower', self::$marketing_params ), true ) ) {
+				$marketing[ $key ] = $value;
 			}
 		}
 
@@ -446,10 +440,9 @@ class TrackSure_URL_Normalizer
 	 *
 	 * @param string|array $param Parameter name(s) to add.
 	 */
-	public static function add_marketing_param($param)
-	{
+	public static function add_marketing_param( $param ) {
 		$params                 = (array) $param;
-		self::$marketing_params = array_unique(array_merge(self::$marketing_params, $params));
+		self::$marketing_params = array_unique( array_merge( self::$marketing_params, $params ) );
 	}
 
 	/**
@@ -459,10 +452,10 @@ class TrackSure_URL_Normalizer
 	 * @param string|array $pattern Pattern(s) to add.
 	 */
 	// public static function add_exclusion_pattern( $pattern ) {
-	// 	$patterns	= (array) $pattern;
-	// 	self::$excluded_url_patterns	= array_unique( array_merge( self::$excluded_url_patterns, $patterns ) );
+	// $patterns   = (array) $pattern;
+	// self::$excluded_url_patterns    = array_unique( array_merge( self::$excluded_url_patterns, $patterns ) );
 
-	// 	self::$marketing_params = array_unique(array_merge(self::$marketing_params, $params));
+	// self::$marketing_params = array_unique(array_merge(self::$marketing_params, $params));
 	// }
 
 	/**
@@ -471,9 +464,8 @@ class TrackSure_URL_Normalizer
 	 *
 	 * @param string|array $pattern Pattern(s) to add.
 	 */
-	public static function add_exclusion_pattern($pattern)
-	{
-		$patterns = (array) $pattern;
-		self::$excluded_url_patterns = array_unique(array_merge(self::$excluded_url_patterns, $patterns));
+	public static function add_exclusion_pattern( $pattern ) {
+		$patterns                    = (array) $pattern;
+		self::$excluded_url_patterns = array_unique( array_merge( self::$excluded_url_patterns, $patterns ) );
 	}
 }

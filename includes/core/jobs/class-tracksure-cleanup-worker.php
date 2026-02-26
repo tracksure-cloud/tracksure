@@ -13,15 +13,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Cleanup worker class.
  */
-class TrackSure_Cleanup_Worker
-{
+class TrackSure_Cleanup_Worker {
+
 
 	/**
 	 * Maximum seconds a single cleanup run is allowed to take.
@@ -65,9 +65,8 @@ class TrackSure_Cleanup_Worker
 	 *
 	 * @return TrackSure_Cleanup_Worker
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -76,8 +75,7 @@ class TrackSure_Cleanup_Worker
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		$this->db = TrackSure_DB::get_instance();
 	}
 
@@ -86,59 +84,57 @@ class TrackSure_Cleanup_Worker
 	 *
 	 * @return bool True if we should stop processing.
 	 */
-	private function is_time_exceeded()
-	{
+	private function is_time_exceeded() {
 		$max_time = self::TIME_BOX_SECONDS;
 
 		// Respect the server's max_execution_time if it is lower.
-		$ini_max = (int) ini_get('max_execution_time');
-		if ($ini_max > 0) {
-			$max_time = min($max_time, max(5, $ini_max - 5));
+		$ini_max = (int) ini_get( 'max_execution_time' );
+		if ( $ini_max > 0 ) {
+			$max_time = min( $max_time, max( 5, $ini_max - 5 ) );
 		}
 
-		return (microtime(true) - $this->start_time) >= $max_time;
+		return ( microtime( true ) - $this->start_time ) >= $max_time;
 	}
 
 	/**
 	 * Clean up old data with time-boxing and concurrency lock.
 	 */
-	public function cleanup()
-	{
+	public function cleanup() {
 		// Concurrency lock — prevent overlapping cron runs.
-		if (get_transient('tracksure_cleanup_lock')) {
+		if ( get_transient( 'tracksure_cleanup_lock' ) ) {
 			return;
 		}
-		set_transient('tracksure_cleanup_lock', 1, 5 * MINUTE_IN_SECONDS);
+		set_transient( 'tracksure_cleanup_lock', 1, 5 * MINUTE_IN_SECONDS );
 
-		$this->start_time = microtime(true);
+		$this->start_time = microtime( true );
 
-		$retention_days = absint(get_option('tracksure_retention_days', 90));
+		$retention_days = absint( get_option( 'tracksure_retention_days', 90 ) );
 
-		if ($retention_days === 0) {
-			delete_transient('tracksure_cleanup_lock');
+		if ( $retention_days === 0 ) {
+			delete_transient( 'tracksure_cleanup_lock' );
 			return; // Unlimited retention.
 		}
 
-		$cutoff_date = gmdate('Y-m-d H:i:s', strtotime("-{$retention_days} days"));
+		$cutoff_date = gmdate( 'Y-m-d H:i:s', strtotime( "-{$retention_days} days" ) );
 
-		$this->cleanup_events($cutoff_date);
-		if (! $this->is_time_exceeded()) {
-			$this->cleanup_sessions($cutoff_date);
+		$this->cleanup_events( $cutoff_date );
+		if ( ! $this->is_time_exceeded() ) {
+			$this->cleanup_sessions( $cutoff_date );
 		}
-		if (! $this->is_time_exceeded()) {
-			$this->cleanup_touchpoints($cutoff_date);
+		if ( ! $this->is_time_exceeded() ) {
+			$this->cleanup_touchpoints( $cutoff_date );
 		}
-		if (! $this->is_time_exceeded()) {
-			$this->cleanup_conversions($cutoff_date);
+		if ( ! $this->is_time_exceeded() ) {
+			$this->cleanup_conversions( $cutoff_date );
 		}
-		if (! $this->is_time_exceeded()) {
-			$this->cleanup_outbox($cutoff_date);
+		if ( ! $this->is_time_exceeded() ) {
+			$this->cleanup_outbox( $cutoff_date );
 		}
-		if (! $this->is_time_exceeded()) {
-			$this->cleanup_aggregates($cutoff_date);
+		if ( ! $this->is_time_exceeded() ) {
+			$this->cleanup_aggregates( $cutoff_date );
 		}
 
-		delete_transient('tracksure_cleanup_lock');
+		delete_transient( 'tracksure_cleanup_lock' );
 
 		/**
 		 * Fires after cleanup.
@@ -148,7 +144,7 @@ class TrackSure_Cleanup_Worker
 		 * @param string $cutoff_date Cutoff date.
 		 * @param int    $retention_days Retention days.
 		 */
-		do_action('tracksure_cleanup_completed', $cutoff_date, $retention_days);
+		do_action( 'tracksure_cleanup_completed', $cutoff_date, $retention_days );
 	}
 
 	/**
@@ -159,14 +155,13 @@ class TrackSure_Cleanup_Worker
 	 * @param string $cutoff_date Cutoff date (rows older than this are deleted).
 	 * @return int Total deleted rows.
 	 */
-	private function batched_delete($table, $column, $cutoff_date)
-	{
+	private function batched_delete( $table, $column, $cutoff_date ) {
 		global $wpdb;
 
 		$total_deleted = 0;
 
 		do {
-			if ($this->is_time_exceeded()) {
+			if ( $this->is_time_exceeded() ) {
 				break;
 			}
 
@@ -182,7 +177,7 @@ class TrackSure_Cleanup_Worker
 			$total_deleted += $deleted;
 
 			// If we deleted fewer than BATCH_SIZE, the table is clean.
-		} while ($deleted >= self::BATCH_SIZE);
+		} while ( $deleted >= self::BATCH_SIZE );
 
 		return $total_deleted;
 	}
@@ -192,10 +187,9 @@ class TrackSure_Cleanup_Worker
 	 *
 	 * @param string $cutoff_date Cutoff date.
 	 */
-	private function cleanup_events($cutoff_date)
-	{
+	private function cleanup_events( $cutoff_date ) {
 		global $wpdb;
-		$this->batched_delete("{$wpdb->prefix}tracksure_events", 'created_at', $cutoff_date);
+		$this->batched_delete( "{$wpdb->prefix}tracksure_events", 'created_at', $cutoff_date );
 	}
 
 	/**
@@ -203,10 +197,9 @@ class TrackSure_Cleanup_Worker
 	 *
 	 * @param string $cutoff_date Cutoff date.
 	 */
-	private function cleanup_sessions($cutoff_date)
-	{
+	private function cleanup_sessions( $cutoff_date ) {
 		global $wpdb;
-		$this->batched_delete("{$wpdb->prefix}tracksure_sessions", 'started_at', $cutoff_date);
+		$this->batched_delete( "{$wpdb->prefix}tracksure_sessions", 'started_at', $cutoff_date );
 	}
 
 	/**
@@ -214,10 +207,9 @@ class TrackSure_Cleanup_Worker
 	 *
 	 * @param string $cutoff_date Cutoff date.
 	 */
-	private function cleanup_touchpoints($cutoff_date)
-	{
+	private function cleanup_touchpoints( $cutoff_date ) {
 		global $wpdb;
-		$this->batched_delete("{$wpdb->prefix}tracksure_touchpoints", 'touched_at', $cutoff_date);
+		$this->batched_delete( "{$wpdb->prefix}tracksure_touchpoints", 'touched_at', $cutoff_date );
 	}
 
 	/**
@@ -225,10 +217,9 @@ class TrackSure_Cleanup_Worker
 	 *
 	 * @param string $cutoff_date Cutoff date.
 	 */
-	private function cleanup_conversions($cutoff_date)
-	{
+	private function cleanup_conversions( $cutoff_date ) {
 		global $wpdb;
-		$this->batched_delete("{$wpdb->prefix}tracksure_conversions", 'converted_at', $cutoff_date);
+		$this->batched_delete( "{$wpdb->prefix}tracksure_conversions", 'converted_at', $cutoff_date );
 	}
 
 	/**
@@ -238,15 +229,14 @@ class TrackSure_Cleanup_Worker
 	 *
 	 * @param string $cutoff_date Cutoff date (unused — outbox has its own windows).
 	 */
-	private function cleanup_outbox($cutoff_date)
-	{
+	private function cleanup_outbox( $cutoff_date ) {
 		global $wpdb;
 		$table = "{$wpdb->prefix}tracksure_outbox";
 
 		// Delete completed items older than 7 days.
-		$seven_days_ago = gmdate('Y-m-d H:i:s', strtotime('-7 days'));
+		$seven_days_ago = gmdate( 'Y-m-d H:i:s', strtotime( '-7 days' ) );
 		do {
-			if ($this->is_time_exceeded()) {
+			if ( $this->is_time_exceeded() ) {
 				return;
 			}
 			$deleted = (int) $wpdb->query(
@@ -256,12 +246,12 @@ class TrackSure_Cleanup_Worker
 					self::BATCH_SIZE
 				)
 			);
-		} while ($deleted >= self::BATCH_SIZE);
+		} while ( $deleted >= self::BATCH_SIZE );
 
 		// Delete failed items older than 30 days.
-		$thirty_days_ago = gmdate('Y-m-d H:i:s', strtotime('-30 days'));
+		$thirty_days_ago = gmdate( 'Y-m-d H:i:s', strtotime( '-30 days' ) );
 		do {
-			if ($this->is_time_exceeded()) {
+			if ( $this->is_time_exceeded() ) {
 				return;
 			}
 			$deleted = (int) $wpdb->query(
@@ -271,7 +261,7 @@ class TrackSure_Cleanup_Worker
 					self::BATCH_SIZE
 				)
 			);
-		} while ($deleted >= self::BATCH_SIZE);
+		} while ( $deleted >= self::BATCH_SIZE );
 	}
 
 	/**
@@ -279,16 +269,15 @@ class TrackSure_Cleanup_Worker
 	 *
 	 * @param string $cutoff_date Cutoff date.
 	 */
-	private function cleanup_aggregates($cutoff_date)
-	{
+	private function cleanup_aggregates( $cutoff_date ) {
 		global $wpdb;
-		$this->batched_delete("{$wpdb->prefix}tracksure_agg_hourly", 'hour_start', $cutoff_date);
+		$this->batched_delete( "{$wpdb->prefix}tracksure_agg_hourly", 'hour_start', $cutoff_date );
 
-		if (! $this->is_time_exceeded()) {
+		if ( ! $this->is_time_exceeded() ) {
 			$this->batched_delete(
 				"{$wpdb->prefix}tracksure_agg_daily",
 				'date',
-				gmdate('Y-m-d', strtotime($cutoff_date))
+				gmdate( 'Y-m-d', strtotime( $cutoff_date ) )
 			);
 		}
 	}

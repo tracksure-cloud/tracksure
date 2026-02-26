@@ -40,15 +40,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * FluentCart Integration Class
  */
-class TrackSure_FluentCart_Integration
-{
+class TrackSure_FluentCart_Integration {
+
 
 
 
@@ -113,20 +113,19 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param TrackSure_Core $core Core instance.
 	 */
-	public function __construct($core)
-	{
+	public function __construct( $core ) {
 		$this->core            = $core;
-		$this->event_builder   = $core->get_service('event_builder');
-		$this->event_recorder  = $core->get_service('event_recorder');
-		$this->session_manager = $core->get_service('session_manager');
+		$this->event_builder   = $core->get_service( 'event_builder' );
+		$this->event_recorder  = $core->get_service( 'event_recorder' );
+		$this->session_manager = $core->get_service( 'session_manager' );
 
 		// Initialize adapter and normalizer.
-		require_once plugin_dir_path(__FILE__) . '../adapters/class-tracksure-fluentcart-adapter.php';
+		require_once plugin_dir_path( __FILE__ ) . '../adapters/class-tracksure-fluentcart-adapter.php';
 		$this->adapter    = new TrackSure_FluentCart_Adapter();
 		$this->normalizer = TrackSure_Data_Normalizer::get_instance();
 
 		// Check if FluentCart is active.
-		if (! $this->adapter->is_active()) {
+		if ( ! $this->adapter->is_active() ) {
 			return;
 		}
 
@@ -145,61 +144,59 @@ class TrackSure_FluentCart_Integration
 	 * - fluent_cart/order_refunded - Order refunded (OrderRefund.php:141)
 	 * - fluent_cart/order_fully_refunded - Order fully refunded (OrderRefund.php:144)
 	 */
-	private function init_hooks()
-	{
+	private function init_hooks() {
 		// Product view - Track on template_redirect when viewing fluent-products post type.
-		add_action('template_redirect', array($this, 'track_view_item_on_product_page'), 10);
+		add_action( 'template_redirect', array( $this, 'track_view_item_on_product_page' ), 10 );
 
 		// Add to cart - FluentCart fires this after item added.
-		add_action('fluent_cart/cart/item_added', array($this, 'track_add_to_cart'), 10, 1);
+		add_action( 'fluent_cart/cart/item_added', array( $this, 'track_add_to_cart' ), 10, 1 );
 
 		// View cart - When checkout page starts loading.
-		add_action('fluent_cart/before_checkout_page_start', array($this, 'track_view_cart'), 10, 1);
+		add_action( 'fluent_cart/before_checkout_page_start', array( $this, 'track_view_cart' ), 10, 1 );
 
 		// Begin checkout - ACTUAL FluentCart hook.
-		add_action('fluent_cart/before_checkout_form', array($this, 'track_begin_checkout'), 10, 1);
+		add_action( 'fluent_cart/before_checkout_form', array( $this, 'track_begin_checkout' ), 10, 1 );
 
 		// Add payment info - Before payment methods displayed.
-		add_action('fluent_cart/before_payment_methods', array($this, 'track_add_payment_info'), 10, 1);
+		add_action( 'fluent_cart/before_payment_methods', array( $this, 'track_add_payment_info' ), 10, 1 );
 
 		// Purchase - ACTUAL FluentCart hook.
-		add_action('fluent_cart/order_paid_done', array($this, 'track_purchase'), 10, 1);
+		add_action( 'fluent_cart/order_paid_done', array( $this, 'track_purchase' ), 10, 1 );
 		// Fallback: fire purchase when order is created (covers offline/manual payments that never hit order_paid_done).
-		add_action('fluent_cart/order_created', array($this, 'track_purchase'), 10, 1);
+		add_action( 'fluent_cart/order_created', array( $this, 'track_purchase' ), 10, 1 );
 
 		// Refund - ACTUAL FluentCart hooks.
-		add_action('fluent_cart/order_refunded', array($this, 'track_refund'), 10, 1);
-		add_action('fluent_cart/order_fully_refunded', array($this, 'track_refund'), 10, 1);
-		add_action('fluent_cart/order_partially_refunded', array($this, 'track_refund'), 10, 1);
+		add_action( 'fluent_cart/order_refunded', array( $this, 'track_refund' ), 10, 1 );
+		add_action( 'fluent_cart/order_fully_refunded', array( $this, 'track_refund' ), 10, 1 );
+		add_action( 'fluent_cart/order_partially_refunded', array( $this, 'track_refund' ), 10, 1 );
 
 		// Fallback checkout tracking (guards if FluentCart hooks don’t run).
-		add_action('template_redirect', array($this, 'maybe_track_checkout_events'), 11);
+		add_action( 'template_redirect', array( $this, 'maybe_track_checkout_events' ), 11 );
 
 		// Output browser events.
-		add_action('wp_footer', array($this, 'output_browser_events'), 999);
+		add_action( 'wp_footer', array( $this, 'output_browser_events' ), 999 );
 
 		// Enqueue FluentCart AJAX event listener
-		add_action('wp_enqueue_scripts', array($this, 'enqueue_fluentcart_ajax_listener'), 20);
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_fluentcart_ajax_listener' ), 20 );
 
 		// REMOVED: AJAX tracking script - causes SDK not loaded errors
 		// FluentCart add_to_cart tracking is handled server-side via hooks above
 
 		// Login: Track successful login
-		add_action('wp_login', array($this, 'track_login'), 10, 2);
+		add_action( 'wp_login', array( $this, 'track_login' ), 10, 2 );
 	}
 
 	/**
 	 * Track product view on product page via template_redirect.
 	 * FluentCart doesn't have a dedicated product_view hook.
 	 */
-	public function track_view_item_on_product_page()
-	{
-		if (! $this->event_builder) {
+	public function track_view_item_on_product_page() {
+		if ( ! $this->event_builder ) {
 			return;
 		}
 
 		// Check if this is a FluentCart product page.
-		if (! $this->is_fluentcart_product_page()) {
+		if ( ! $this->is_fluentcart_product_page() ) {
 			return;
 		}
 
@@ -207,17 +204,17 @@ class TrackSure_FluentCart_Integration
 		global $wp_query;
 		$product_id = get_the_ID();
 
-		if (! $product_id) {
+		if ( ! $product_id ) {
 			return;
 		}
 
 		// FluentCart uses custom post type 'fluent-products' (plural).
-		if (get_post_type($product_id) !== 'fluent-products') {
+		if ( get_post_type( $product_id ) !== 'fluent-products' ) {
 			return;
 		}
 
-		$product_data = $this->adapter->extract_product_data($product_id);
-		if (! $product_data) {
+		$product_data = $this->adapter->extract_product_data( $product_id );
+		if ( ! $product_data ) {
 			return;
 		}
 
@@ -226,11 +223,11 @@ class TrackSure_FluentCart_Integration
 			array(
 				'item_id'   => $product_data['item_id'],   // Required at root per registry
 				'item_name' => $product_data['item_name'], // Product name for Meta content_name
-				'quantity'  => isset($product_data['quantity']) ? $product_data['quantity'] : 1, // Quantity for Meta
+				'quantity'  => isset( $product_data['quantity'] ) ? $product_data['quantity'] : 1, // Quantity for Meta
 				'currency'  => $product_data['currency'],
 				'value'     => $product_data['price'],     // Value for Meta Pixel
 				'price'     => $product_data['price'],     // Fallback for mappers that check price
-				'items'     => array($product_data),
+				'items'     => array( $product_data ),
 			),
 			array(
 				'event_source'   => 'server',
@@ -239,16 +236,16 @@ class TrackSure_FluentCart_Integration
 		);
 
 		// CRITICAL: Pass page_context to root level for Event Recorder.
-		if (isset($event['page_context']['page_url'])) {
+		if ( isset( $event['page_context']['page_url'] ) ) {
 			$event['page_url'] = $event['page_context']['page_url'];
 		}
-		if (isset($event['page_context']['page_title'])) {
+		if ( isset( $event['page_context']['page_title'] ) ) {
 			$event['page_title'] = $event['page_context']['page_title'];
 		}
 
 		// Record the event.
-		$this->event_recorder->record($event);
-		$this->queue_browser_event($event);  // CRITICAL: Queue for browser so Meta Pixel can track it
+		$this->event_recorder->record( $event );
+		$this->queue_browser_event( $event );  // CRITICAL: Queue for browser so Meta Pixel can track it
 	}
 
 	/**
@@ -259,10 +256,9 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @return bool
 	 */
-	private function is_fluentcart_product_page()
-	{
+	private function is_fluentcart_product_page() {
 		// FluentCart uses 'fluent-products' (plural) as post type.
-		$result = is_singular('fluent-products') && defined('FLUENTCART_VERSION');
+		$result = is_singular( 'fluent-products' ) && defined( 'FLUENTCART_VERSION' );
 
 		return $result;
 	}
@@ -272,10 +268,9 @@ class TrackSure_FluentCart_Integration
 	 * 
 	 * This script listens to FluentCart's AJAX responses and fires TrackSure events.
 	 */
-	public function enqueue_fluentcart_ajax_listener()
-	{
+	public function enqueue_fluentcart_ajax_listener() {
 		// Only enqueue on pages where FluentCart might be present
-		if (! $this->adapter->is_active()) {
+		if ( ! $this->adapter->is_active() ) {
 			return;
 		}
 
@@ -305,7 +300,7 @@ class TrackSure_FluentCart_Integration
 		$script .= '  }';
 		$script .= '})();';
 
-		wp_add_inline_script('ts-web', $script, 'after');
+		wp_add_inline_script( 'ts-web', $script, 'after' );
 	}
 
 	/**
@@ -313,14 +308,13 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param int|object $product Product ID or object.
 	 */
-	public function track_view_item($product)
-	{
-		if (! $this->event_builder) {
+	public function track_view_item( $product ) {
+		if ( ! $this->event_builder ) {
 			return;
 		}
 
-		$product_data = $this->adapter->extract_product_data($product);
-		if (! $product_data) {
+		$product_data = $this->adapter->extract_product_data( $product );
+		if ( ! $product_data ) {
 			return;
 		}
 
@@ -329,7 +323,7 @@ class TrackSure_FluentCart_Integration
 			array(
 				'value'    => $product_data['price'],
 				'currency' => $product_data['currency'],
-				'items'    => array($product_data),
+				'items'    => array( $product_data ),
 			),
 			array(
 				'event_source'   => 'server',
@@ -338,15 +332,15 @@ class TrackSure_FluentCart_Integration
 		);
 
 		// CRITICAL: Pass page_context to root level for Event Recorder.
-		if (isset($event['page_context']['page_url'])) {
+		if ( isset( $event['page_context']['page_url'] ) ) {
 			$event['page_url'] = $event['page_context']['page_url'];
 		}
-		if (isset($event['page_context']['page_title'])) {
+		if ( isset( $event['page_context']['page_title'] ) ) {
 			$event['page_title'] = $event['page_context']['page_title'];
 		}
 
-		$this->event_recorder->record($event);
-		$this->queue_browser_event($event);
+		$this->event_recorder->record( $event );
+		$this->queue_browser_event( $event );
 	}
 
 	/**
@@ -357,17 +351,16 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param array $data Hook data containing cart and item.
 	 */
-	public function track_add_to_cart($data)
-	{
-		if (! $this->event_builder || ! is_array($data)) {
+	public function track_add_to_cart( $data ) {
+		if ( ! $this->event_builder || ! is_array( $data ) ) {
 			return;
 		}
 
 		// FluentCart hook only passes 'cart' object, NOT 'item'
 		// cart_data is stored as JSON string in cart->attributes['cart_data']
-		$cart = isset($data['cart']) ? $data['cart'] : null;
+		$cart = isset( $data['cart'] ) ? $data['cart'] : null;
 
-		if (! $cart) {
+		if ( ! $cart ) {
 			return;
 		}
 
@@ -376,62 +369,62 @@ class TrackSure_FluentCart_Integration
 		$cart_data_json = null;
 		try {
 			// Try direct property access first
-			if (isset($cart->cart_data)) {
+			if ( isset( $cart->cart_data ) ) {
 				$cart_data_json = $cart->cart_data;
 			}
 			// Try getAttribute method (Laravel Eloquent)
-			elseif (method_exists($cart, 'getAttribute')) {
-				$cart_data_json = $cart->getAttribute('cart_data');
+			elseif ( method_exists( $cart, 'getAttribute' ) ) {
+				$cart_data_json = $cart->getAttribute( 'cart_data' );
 			}
 			// Try getAttributes method for protected attributes array
-			elseif (method_exists($cart, 'getAttributes')) {
+			elseif ( method_exists( $cart, 'getAttributes' ) ) {
 				$attrs = $cart->getAttributes();
-				if (isset($attrs['cart_data'])) {
+				if ( isset( $attrs['cart_data'] ) ) {
 					$cart_data_json = $attrs['cart_data'];
 				}
 			}
-		} catch (Exception $e) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('[TrackSure FluentCart] Error accessing cart_data: ' . $e->getMessage());
+		} catch ( Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[TrackSure FluentCart] Error accessing cart_data: ' . $e->getMessage() );
 			}
 			return;
 		}
 
-		if (! $cart_data_json) {
+		if ( ! $cart_data_json ) {
 			return;
 		}
 
 		// cart_data is already an array (hook passes it decoded)
 		// If it's a string, decode it. If it's already an array, use it directly.
-		if (is_string($cart_data_json)) {
-			$cart_items = json_decode($cart_data_json, true);
+		if ( is_string( $cart_data_json ) ) {
+			$cart_items = json_decode( $cart_data_json, true );
 		} else {
 			$cart_items = $cart_data_json; // Already an array
 		}
 
-		if (! is_array($cart_items) || empty($cart_items)) {
+		if ( ! is_array( $cart_items ) || empty( $cart_items ) ) {
 			return;
 		}
 
 		// Get the last item (most recently added)
-		$item = end($cart_items);
-		if (! $item) {
+		$item = end( $cart_items );
+		if ( ! $item ) {
 			return;
 		}
 
 		// FluentCart items have 'post_id' (WordPress post ID), not 'product_id'
-		$product_id = isset($item['post_id']) ? $item['post_id'] : (isset($item['id']) ? $item['id'] : 0);
-		if (! $product_id) {
+		$product_id = isset( $item['post_id'] ) ? $item['post_id'] : ( isset( $item['id'] ) ? $item['id'] : 0 );
+		if ( ! $product_id ) {
 			return;
 		}
 
-		$product_data = $this->adapter->extract_product_data($product_id);
-		if (! $product_data) {
+		$product_data = $this->adapter->extract_product_data( $product_id );
+		if ( ! $product_data ) {
 			return;
 		}
 
 		// Update quantity from cart item (FluentCart items are arrays).
-		if (isset($item['quantity'])) {
+		if ( isset( $item['quantity'] ) ) {
 			$product_data['quantity'] = (int) $item['quantity'];
 		}
 
@@ -442,7 +435,7 @@ class TrackSure_FluentCart_Integration
 				'quantity' => $product_data['quantity'], // Registry requires quantity at root
 				'value'    => $product_data['price'] * $product_data['quantity'],
 				'currency' => $product_data['currency'],
-				'items'    => array($product_data),
+				'items'    => array( $product_data ),
 			),
 			array(
 				'event_source'   => 'server',
@@ -451,15 +444,15 @@ class TrackSure_FluentCart_Integration
 		);
 
 		// CRITICAL: Pass page_context to root level for Event Recorder.
-		if (isset($event['page_context']['page_url'])) {
+		if ( isset( $event['page_context']['page_url'] ) ) {
 			$event['page_url'] = $event['page_context']['page_url'];
 		}
-		if (isset($event['page_context']['page_title'])) {
+		if ( isset( $event['page_context']['page_title'] ) ) {
 			$event['page_title'] = $event['page_context']['page_title'];
 		}
 
-		$this->event_recorder->record($event);
-		$this->queue_browser_event($event);
+		$this->event_recorder->record( $event );
+		$this->queue_browser_event( $event );
 	}
 
 	/**
@@ -470,26 +463,25 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param array $data Hook data containing cart.
 	 */
-	public function track_view_cart($data = array())
-	{
+	public function track_view_cart( $data = array() ) {
 		// Prevent duplicate view_cart for the same session.
-		$session_id     = ($this->session_manager && method_exists($this->session_manager, 'get_session_id_from_browser'))
+		$session_id     = ( $this->session_manager && method_exists( $this->session_manager, 'get_session_id_from_browser' ) )
 			? $this->session_manager->get_session_id_from_browser()
 			: '';
 		$view_cart_flag = $session_id ? 'tracksure_fc_view_cart_' . $session_id : '';
-		if ($view_cart_flag && get_transient($view_cart_flag)) {
+		if ( $view_cart_flag && get_transient( $view_cart_flag ) ) {
 			return;
 		}
 
-		if (! $this->event_builder) {
+		if ( ! $this->event_builder ) {
 			return;
 		}
 
 		// Extract cart from hook data if available.
-		$cart = isset($data['cart']) ? $data['cart'] : null;
+		$cart = isset( $data['cart'] ) ? $data['cart'] : null;
 
-		$cart_data = $this->adapter->extract_cart_data($cart);
-		if (! $cart_data || empty($cart_data['cart_items'])) {
+		$cart_data = $this->adapter->extract_cart_data( $cart );
+		if ( ! $cart_data || empty( $cart_data['cart_items'] ) ) {
 			return;
 		}
 
@@ -499,7 +491,7 @@ class TrackSure_FluentCart_Integration
 				'value'    => $cart_data['cart_value'],
 				'currency' => $cart_data['currency'],
 				'items'    => $cart_data['cart_items'],
-				'coupon'   => isset($cart_data['coupon_codes']) && ! empty($cart_data['coupon_codes']) ? implode(',', $cart_data['coupon_codes']) : '',
+				'coupon'   => isset( $cart_data['coupon_codes'] ) && ! empty( $cart_data['coupon_codes'] ) ? implode( ',', $cart_data['coupon_codes'] ) : '',
 			),
 			array(
 				'event_source'   => 'server',
@@ -508,18 +500,18 @@ class TrackSure_FluentCart_Integration
 		);
 
 		// CRITICAL: Pass page_context to root level for Event Recorder.
-		if (isset($event['page_context']['page_url'])) {
+		if ( isset( $event['page_context']['page_url'] ) ) {
 			$event['page_url'] = $event['page_context']['page_url'];
 		}
-		if (isset($event['page_context']['page_title'])) {
+		if ( isset( $event['page_context']['page_title'] ) ) {
 			$event['page_title'] = $event['page_context']['page_title'];
 		}
 
-		$this->event_recorder->record($event);
-		$this->queue_browser_event($event);
+		$this->event_recorder->record( $event );
+		$this->queue_browser_event( $event );
 
-		if ($view_cart_flag) {
-			set_transient($view_cart_flag, true, HOUR_IN_SECONDS);
+		if ( $view_cart_flag ) {
+			set_transient( $view_cart_flag, true, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -531,26 +523,25 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param array $data Hook data containing cart.
 	 */
-	public function track_begin_checkout($data = array())
-	{
+	public function track_begin_checkout( $data = array() ) {
 		// Prevent duplicate begin_checkout for the same session.
-		$session_id = ($this->session_manager && method_exists($this->session_manager, 'get_session_id_from_browser'))
+		$session_id = ( $this->session_manager && method_exists( $this->session_manager, 'get_session_id_from_browser' ) )
 			? $this->session_manager->get_session_id_from_browser()
 			: '';
 		$begin_flag = $session_id ? 'tracksure_fc_begin_checkout_' . $session_id : '';
-		if ($begin_flag && get_transient($begin_flag)) {
+		if ( $begin_flag && get_transient( $begin_flag ) ) {
 			return;
 		}
 
-		if (! $this->event_builder) {
+		if ( ! $this->event_builder ) {
 			return;
 		}
 
 		// Extract cart from hook data if available.
-		$cart = isset($data['cart']) ? $data['cart'] : null;
+		$cart = isset( $data['cart'] ) ? $data['cart'] : null;
 
-		$cart_data = $this->adapter->extract_cart_data($cart);
-		if (! $cart_data || empty($cart_data['cart_items'])) {
+		$cart_data = $this->adapter->extract_cart_data( $cart );
+		if ( ! $cart_data || empty( $cart_data['cart_items'] ) ) {
 			return;
 		}
 
@@ -560,9 +551,9 @@ class TrackSure_FluentCart_Integration
 				'value'    => $cart_data['cart_value'],
 				'currency' => $cart_data['currency'],
 				'items'    => $cart_data['cart_items'],
-				'tax'      => isset($cart_data['tax']) ? $cart_data['tax'] : 0,
-				'shipping' => isset($cart_data['shipping']) ? $cart_data['shipping'] : 0,
-				'coupon'   => isset($cart_data['coupon_codes']) && ! empty($cart_data['coupon_codes']) ? implode(',', $cart_data['coupon_codes']) : '',
+				'tax'      => isset( $cart_data['tax'] ) ? $cart_data['tax'] : 0,
+				'shipping' => isset( $cart_data['shipping'] ) ? $cart_data['shipping'] : 0,
+				'coupon'   => isset( $cart_data['coupon_codes'] ) && ! empty( $cart_data['coupon_codes'] ) ? implode( ',', $cart_data['coupon_codes'] ) : '',
 			),
 			array(
 				'event_source'   => 'server',
@@ -571,18 +562,18 @@ class TrackSure_FluentCart_Integration
 		);
 
 		// CRITICAL: Pass page_context to root level for Event Recorder.
-		if (isset($event['page_context']['page_url'])) {
+		if ( isset( $event['page_context']['page_url'] ) ) {
 			$event['page_url'] = $event['page_context']['page_url'];
 		}
-		if (isset($event['page_context']['page_title'])) {
+		if ( isset( $event['page_context']['page_title'] ) ) {
 			$event['page_title'] = $event['page_context']['page_title'];
 		}
 
-		$this->event_recorder->record($event);
-		$this->queue_browser_event($event);
+		$this->event_recorder->record( $event );
+		$this->queue_browser_event( $event );
 
-		if ($begin_flag) {
-			set_transient($begin_flag, true, HOUR_IN_SECONDS);
+		if ( $begin_flag ) {
+			set_transient( $begin_flag, true, HOUR_IN_SECONDS );
 		}
 	}
 
@@ -594,22 +585,21 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param array $data Hook data containing cart.
 	 */
-	public function track_add_payment_info($data = array())
-	{
-		if (! $this->event_builder) {
+	public function track_add_payment_info( $data = array() ) {
+		if ( ! $this->event_builder ) {
 			return;
 		}
 
 		// Extract cart from hook data if available.
-		$cart = isset($data['cart']) ? $data['cart'] : null;
+		$cart = isset( $data['cart'] ) ? $data['cart'] : null;
 
-		$cart_data = $this->adapter->extract_cart_data($cart);
-		if (! $cart_data || empty($cart_data['cart_items'])) {
+		$cart_data = $this->adapter->extract_cart_data( $cart );
+		if ( ! $cart_data || empty( $cart_data['cart_items'] ) ) {
 			return;
 		}
 
 		// Try to get payment method from cart.
-		$payment_method = isset($cart->payment_method) ? $cart->payment_method : 'unknown';
+		$payment_method = isset( $cart->payment_method ) ? $cart->payment_method : 'unknown';
 
 
 		$event = $this->event_builder->build_event(
@@ -627,15 +617,15 @@ class TrackSure_FluentCart_Integration
 		);
 
 		// CRITICAL: Pass page_context to root level for Event Recorder.
-		if (isset($event['page_context']['page_url'])) {
+		if ( isset( $event['page_context']['page_url'] ) ) {
 			$event['page_url'] = $event['page_context']['page_url'];
 		}
-		if (isset($event['page_context']['page_title'])) {
+		if ( isset( $event['page_context']['page_title'] ) ) {
 			$event['page_title'] = $event['page_context']['page_title'];
 		}
 
-		$this->event_recorder->record($event);
-		$this->queue_browser_event($event);
+		$this->event_recorder->record( $event );
+		$this->queue_browser_event( $event );
 	}
 
 	/**
@@ -646,25 +636,24 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param array $data Hook data containing order.
 	 */
-	public function track_purchase($data)
-	{
-		if (! $this->event_builder || ! is_array($data)) {
+	public function track_purchase( $data ) {
+		if ( ! $this->event_builder || ! is_array( $data ) ) {
 			return;
 		}
 
-		$order = isset($data['order']) ? $data['order'] : null;
-		if (! $order) {
+		$order = isset( $data['order'] ) ? $data['order'] : null;
+		if ( ! $order ) {
 			return;
 		}
 
-		$order_data = $this->adapter->extract_order_data($order);
-		if (! $order_data) {
+		$order_data = $this->adapter->extract_order_data( $order );
+		if ( ! $order_data ) {
 			return;
 		}
 
 		// Check if already tracked (prevent duplicate tracking).
 		$order_id = $order_data['transaction_id'];
-		if (get_transient("tracksure_fluentcart_purchase_{$order_id}")) {
+		if ( get_transient( "tracksure_fluentcart_purchase_{$order_id}" ) ) {
 			return;
 		}
 
@@ -685,26 +674,26 @@ class TrackSure_FluentCart_Integration
 		);
 
 		// CRITICAL: Pass page_context to root level for Event Recorder.
-		if (isset($event['page_context']['page_url'])) {
+		if ( isset( $event['page_context']['page_url'] ) ) {
 			$event['page_url'] = $event['page_context']['page_url'];
 		}
-		if (isset($event['page_context']['page_title'])) {
+		if ( isset( $event['page_context']['page_title'] ) ) {
 			$event['page_title'] = $event['page_context']['page_title'];
 		}
 
 		// Add custom properties.
-		if (! empty($order_data['coupon_codes'])) {
-			$event['event_params']['coupon'] = implode(',', $order_data['coupon_codes']);
+		if ( ! empty( $order_data['coupon_codes'] ) ) {
+			$event['event_params']['coupon'] = implode( ',', $order_data['coupon_codes'] );
 		}
-		if (isset($order_data['is_first_purchase'])) {
+		if ( isset( $order_data['is_first_purchase'] ) ) {
 			$event['event_params']['is_first_purchase'] = $order_data['is_first_purchase'];
 		}
 
-		$this->event_recorder->record($event);
-		$this->queue_browser_event($event);
+		$this->event_recorder->record( $event );
+		$this->queue_browser_event( $event );
 
 		// Mark as tracked (1 hour expiry).
-		set_transient("tracksure_fluentcart_purchase_{$order_id}", true, HOUR_IN_SECONDS);
+		set_transient( "tracksure_fluentcart_purchase_{$order_id}", true, HOUR_IN_SECONDS );
 	}
 
 	/**
@@ -719,27 +708,26 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param array $data Hook data containing order and refund.
 	 */
-	public function track_refund($data)
-	{
-		if (! $this->event_builder) {
+	public function track_refund( $data ) {
+		if ( ! $this->event_builder ) {
 			return;
 		}
 
 		// Extract order from data array.
 		$order = null;
-		if (is_array($data)) {
-			$order = isset($data['order']) ? $data['order'] : null;
-		} elseif (is_object($data)) {
+		if ( is_array( $data ) ) {
+			$order = isset( $data['order'] ) ? $data['order'] : null;
+		} elseif ( is_object( $data ) ) {
 			// Fallback: sometimes order object is passed directly.
 			$order = $data;
 		}
 
-		if (! $order) {
+		if ( ! $order ) {
 			return;
 		}
 
-		$order_data = $this->adapter->extract_order_data($order);
-		if (! $order_data) {
+		$order_data = $this->adapter->extract_order_data( $order );
+		if ( ! $order_data ) {
 			return;
 		}
 
@@ -758,15 +746,15 @@ class TrackSure_FluentCart_Integration
 		);
 
 		// CRITICAL: Pass page_context to root level for Event Recorder.
-		if (isset($event['page_context']['page_url'])) {
+		if ( isset( $event['page_context']['page_url'] ) ) {
 			$event['page_url'] = $event['page_context']['page_url'];
 		}
-		if (isset($event['page_context']['page_title'])) {
+		if ( isset( $event['page_context']['page_title'] ) ) {
 			$event['page_title'] = $event['page_context']['page_title'];
 		}
 
-		$this->event_recorder->record($event);
-		$this->queue_browser_event($event);
+		$this->event_recorder->record( $event );
+		$this->queue_browser_event( $event );
 	}
 
 	/**
@@ -780,29 +768,28 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @return bool True if on checkout page.
 	 */
-	private function is_fluentcart_checkout_page()
-	{
+	private function is_fluentcart_checkout_page() {
 		// Method 1: Check FluentCart helper function if exists.
-		if (function_exists('fluentcart_is_checkout_page')) {
+		if ( function_exists( 'fluentcart_is_checkout_page' ) ) {
 			return fluentcart_is_checkout_page();
 		}
 
 		// Method 2: Check if FluentCart settings define checkout page.
-		if (function_exists('fluentcart_get_option')) {
-			$checkout_page_id = fluentcart_get_option('checkout_page_id');
-			if ($checkout_page_id && is_page($checkout_page_id)) {
+		if ( function_exists( 'fluentcart_get_option' ) ) {
+			$checkout_page_id = fluentcart_get_option( 'checkout_page_id' );
+			if ( $checkout_page_id && is_page( $checkout_page_id ) ) {
 				return true;
 			}
 		}
 
 		// Method 3: Check page slug.
 		global $post;
-		if ($post && isset($post->post_name) && strpos($post->post_name, 'checkout') !== false) {
+		if ( $post && isset( $post->post_name ) && strpos( $post->post_name, 'checkout' ) !== false ) {
 			return true;
 		}
 
 		// Method 4: Check request URI.
-		if (isset($_SERVER['REQUEST_URI']) && strpos(sanitize_text_field(wp_unslash($_SERVER['REQUEST_URI'])), '/checkout') !== false) {
+		if ( isset( $_SERVER['REQUEST_URI'] ) && strpos( sanitize_text_field( wp_unslash( $_SERVER['REQUEST_URI'] ) ), '/checkout' ) !== false ) {
 
 			return true;
 		}
@@ -814,15 +801,14 @@ class TrackSure_FluentCart_Integration
 	 * Fallback to ensure checkout events fire even if FluentCart hooks don’t run.
 	 * Executes on template_redirect when on checkout page.
 	 */
-	public function maybe_track_checkout_events()
-	{
-		if (! $this->is_fluentcart_checkout_page()) {
+	public function maybe_track_checkout_events() {
+		if ( ! $this->is_fluentcart_checkout_page() ) {
 			return;
 		}
 
 		// Ensure we only fire once per page load (not per session - too aggressive)
 		static $checkout_tracked = false;
-		if ($checkout_tracked) {
+		if ( $checkout_tracked ) {
 			return;
 		}
 
@@ -833,11 +819,11 @@ class TrackSure_FluentCart_Integration
 
 		// Try to get cart from global session or FluentCart's cart singleton if available
 		// FluentCart stores cart in wp_fluent_carts table and retrieves via hash in cookie
-		if (class_exists('\\FluentCart\\App\\Models\\Cart')) {
+		if ( class_exists( '\\FluentCart\\App\\Models\\Cart' ) ) {
 			// FluentCart uses 'fc_cart_hash' cookie to identify cart
-			$cart_hash = isset($_COOKIE['fc_cart_hash']) ? sanitize_text_field(wp_unslash($_COOKIE['fc_cart_hash'])) : null;
+			$cart_hash = isset( $_COOKIE['fc_cart_hash'] ) ? sanitize_text_field( wp_unslash( $_COOKIE['fc_cart_hash'] ) ) : null;
 
-			if ($cart_hash) {
+			if ( $cart_hash ) {
 				try {
 					// Query cart from database using hash
 					global $wpdb;
@@ -849,23 +835,23 @@ class TrackSure_FluentCart_Integration
 						)
 					);
 
-					if ($cart_row) {
+					if ( $cart_row ) {
 						// Create Cart model instance from database row
 						$cart = new \FluentCart\App\Models\Cart();
-						foreach ($cart_row as $key => $value) {
+						foreach ( $cart_row as $key => $value ) {
 							$cart->$key = $value;
 						}
 					}
-				} catch (Exception $e) {
-					if (defined('WP_DEBUG') && WP_DEBUG) {
-						error_log('[TrackSure FluentCart] Error getting cart from database: ' . $e->getMessage());
+				} catch ( Exception $e ) {
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+						error_log( '[TrackSure FluentCart] Error getting cart from database: ' . $e->getMessage() );
 					}
 				}
 			}
 		}
 
-		$cart_data = $this->adapter ? $this->adapter->extract_cart_data($cart) : false;
-		if (! $cart_data || empty($cart_data['items'])) {
+		$cart_data = $this->adapter ? $this->adapter->extract_cart_data( $cart ) : false;
+		if ( ! $cart_data || empty( $cart_data['items'] ) ) {
 			return;
 		}
 
@@ -873,7 +859,7 @@ class TrackSure_FluentCart_Integration
 		$checkout_tracked = true;
 
 		// Fire begin_checkout directly
-		$this->track_begin_checkout(array('cart' => $cart));
+		$this->track_begin_checkout( array( 'cart' => $cart ) );
 	}
 
 	/**
@@ -884,30 +870,29 @@ class TrackSure_FluentCart_Integration
 	 *
 	 * @param array $event Event data.
 	 */
-	private function queue_browser_event($event)
-	{
+	private function queue_browser_event( $event ) {
 		// Store in memory for regular page loads
 		$this->browser_events[] = $event;
 
 		// For AJAX requests, store in transient AND attach to AJAX response
-		$is_async_request = (function_exists('wp_doing_ajax') && wp_doing_ajax()) || (defined('REST_REQUEST') && REST_REQUEST);
-		if ($is_async_request) {
+		$is_async_request = ( function_exists( 'wp_doing_ajax' ) && wp_doing_ajax() ) || ( defined( 'REST_REQUEST' ) && REST_REQUEST );
+		if ( $is_async_request ) {
 			// Store in transient for next page load (fallback)
 			$user_id       = get_current_user_id();
-			$guest_id      = $user_id ? $user_id : (isset($_COOKIE['_ts_cid']) ? sanitize_text_field(wp_unslash($_COOKIE['_ts_cid'])) : wp_generate_uuid4());
-			$transient_key = 'tracksure_fc_browser_events_' . md5($guest_id);
-			$stored_events = get_transient($transient_key);
-			if (! is_array($stored_events)) {
+			$guest_id      = $user_id ? $user_id : ( isset( $_COOKIE['_ts_cid'] ) ? sanitize_text_field( wp_unslash( $_COOKIE['_ts_cid'] ) ) : wp_generate_uuid4() );
+			$transient_key = 'tracksure_fc_browser_events_' . md5( $guest_id );
+			$stored_events = get_transient( $transient_key );
+			if ( ! is_array( $stored_events ) ) {
 				$stored_events = array();
 			}
 			$stored_events[] = $event;
-			set_transient($transient_key, $stored_events, 300); // 5 min expiry
+			set_transient( $transient_key, $stored_events, 300 ); // 5 min expiry
 
 			// Use WordPress AJAX filter to inject event into response
 			add_filter(
 				'fluent_cart/ajax_response',
-				function ($response) use ($event) {
-					if (! isset($response['tracksure_events'])) {
+				function ( $response ) use ( $event ) {
+					if ( ! isset( $response['tracksure_events'] ) ) {
 						$response['tracksure_events'] = array();
 					}
 					$response['tracksure_events'][] = $event;
@@ -921,52 +906,51 @@ class TrackSure_FluentCart_Integration
 	/**
 	 * Output queued browser events.
 	 */
-	public function output_browser_events()
-	{
+	public function output_browser_events() {
 		// Load events from transient (for AJAX-triggered events)
 		$user_id       = get_current_user_id();
-		$guest_id      = $user_id ? $user_id : (isset($_COOKIE['_ts_cid']) ? sanitize_text_field(wp_unslash($_COOKIE['_ts_cid'])) : '');
-		$transient_key = 'tracksure_fc_browser_events_' . md5($guest_id);
-		$stored_events = get_transient($transient_key);
-		if (is_array($stored_events) && ! empty($stored_events)) {
+		$guest_id      = $user_id ? $user_id : ( isset( $_COOKIE['_ts_cid'] ) ? sanitize_text_field( wp_unslash( $_COOKIE['_ts_cid'] ) ) : '' );
+		$transient_key = 'tracksure_fc_browser_events_' . md5( $guest_id );
+		$stored_events = get_transient( $transient_key );
+		if ( is_array( $stored_events ) && ! empty( $stored_events ) ) {
 			// Check if we're on checkout page - if so, filter out add_to_cart events (they're superseded by begin_checkout)
 			$is_checkout_page = $this->is_fluentcart_checkout_page();
 
 			// Deduplicate by event_id to avoid double output when same event exists in memory.
 			$existing_ids = array();
-			foreach ($this->browser_events as $queued) {
-				if (isset($queued['event_id'])) {
-					$existing_ids[$queued['event_id']] = true;
+			foreach ( $this->browser_events as $queued ) {
+				if ( isset( $queued['event_id'] ) ) {
+					$existing_ids[ $queued['event_id'] ] = true;
 				}
 			}
 
-			foreach ($stored_events as $stored_event) {
-				$stored_id = isset($stored_event['event_id']) ? $stored_event['event_id'] : null;
+			foreach ( $stored_events as $stored_event ) {
+				$stored_id = isset( $stored_event['event_id'] ) ? $stored_event['event_id'] : null;
 
 				// Skip duplicate events
-				if ($stored_id && isset($existing_ids[$stored_id])) {
+				if ( $stored_id && isset( $existing_ids[ $stored_id ] ) ) {
 					continue;
 				}
 
 				// CRITICAL: On checkout page, don't show old add_to_cart events from cart drawer
 				// They're superseded by begin_checkout which fires on this page
-				if ($is_checkout_page && isset($stored_event['event_name']) && $stored_event['event_name'] === 'add_to_cart') {
+				if ( $is_checkout_page && isset( $stored_event['event_name'] ) && $stored_event['event_name'] === 'add_to_cart' ) {
 					continue;
 				}
 
 				$this->browser_events[] = $stored_event;
 			}
-			delete_transient($transient_key); // Clear after retrieval
+			delete_transient( $transient_key ); // Clear after retrieval
 		}
 
 
-		if (empty($this->browser_events)) {
+		if ( empty( $this->browser_events ) ) {
 			return;
 		}
 
 		// Build inline script for browser events with retry mechanism (like WooCommerce).
 		$events_script  = "(function() {\n";
-		$events_script .= "  console.log('[TrackSure FluentCart] Preparing to send " . count($this->browser_events) . " browser event(s)');\n";
+		$events_script .= "  console.log('[TrackSure FluentCart] Preparing to send " . count( $this->browser_events ) . " browser event(s)');\n";
 		$events_script .= "  \n";
 		$events_script .= "  function sendFluentCartEvents() {\n";
 		$events_script .= "    if (!window.TrackSure || typeof window.TrackSure.sendToPixels !== 'function') {\n";
@@ -977,9 +961,9 @@ class TrackSure_FluentCart_Integration
 		$events_script .= "    \n";
 		$events_script .= "    console.log('[TrackSure FluentCart] ✅ Event Bridge ready! Sending events...');\n";
 
-		foreach ($this->browser_events as $event) {
-			$json           = wp_json_encode($event, JSON_HEX_TAG | JSON_HEX_AMP);
-			$event_name     = esc_js($event['event_name'] ?? 'unknown');
+		foreach ( $this->browser_events as $event ) {
+			$json           = wp_json_encode( $event, JSON_HEX_TAG | JSON_HEX_AMP );
+			$event_name     = esc_js( $event['event_name'] ?? 'unknown' );
 			$events_script .= "    \n";
 			$events_script .= "    // TrackSure Event: {$event_name}\n";
 			$events_script .= "    console.log('[TrackSure FluentCart] Sending {$event_name} event:', {$json});\n";
@@ -1000,7 +984,7 @@ class TrackSure_FluentCart_Integration
 		// Output safely using WordPress inline script tag function
 		wp_print_inline_script_tag(
 			$events_script,
-			array('id' => 'tracksure-fluentcart-events')
+			array( 'id' => 'tracksure-fluentcart-events' )
 		);
 	}
 
@@ -1012,8 +996,7 @@ class TrackSure_FluentCart_Integration
 	 * @param string  $user_login Username.
 	 * @param WP_User $user User object.
 	 */
-	public function track_login($user_login, $user)
-	{
+	public function track_login( $user_login, $user ) {
 		// Build login event.
 		$event = $this->event_builder->build_event(
 			'login',
@@ -1025,8 +1008,8 @@ class TrackSure_FluentCart_Integration
 			)
 		);
 
-		if ($event) {
-			$this->event_recorder->record($event);
+		if ( $event ) {
+			$this->event_recorder->record( $event );
 		}
 	}
 }

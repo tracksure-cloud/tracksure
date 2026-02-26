@@ -22,15 +22,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * TrackSure Rate Limiter class.
  */
-class TrackSure_Rate_Limiter
-{
+class TrackSure_Rate_Limiter {
+
 
 
 
@@ -69,9 +69,8 @@ class TrackSure_Rate_Limiter
 	 *
 	 * @return TrackSure_Rate_Limiter
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -80,10 +79,9 @@ class TrackSure_Rate_Limiter
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		// Allow customization via filter.
-		$this->limits = apply_filters('tracksure_rate_limits', $this->limits);
+		$this->limits = apply_filters( 'tracksure_rate_limits', $this->limits );
 	}
 
 	/**
@@ -93,13 +91,12 @@ class TrackSure_Rate_Limiter
 	 * @param string $ip IP address.
 	 * @return bool True if allowed, false if rate limited.
 	 */
-	public function check_rate_limit($client_id, $ip)
-	{
+	public function check_rate_limit( $client_id, $ip ) {
 		// Check client rate limit.
-		$client_allowed = $this->check_client_rate($client_id);
+		$client_allowed = $this->check_client_rate( $client_id );
 
 		// Check IP rate limit.
-		$ip_allowed = $this->check_ip_rate($ip);
+		$ip_allowed = $this->check_ip_rate( $ip );
 
 		// Must pass both checks.
 		return $client_allowed && $ip_allowed;
@@ -111,23 +108,22 @@ class TrackSure_Rate_Limiter
 	 * @param string $client_id Client UUID.
 	 * @return bool True if allowed.
 	 */
-	private function check_client_rate($client_id)
-	{
-		if (empty($client_id)) {
+	private function check_client_rate( $client_id ) {
+		if ( empty( $client_id ) ) {
 			return true; // Allow if no client_id (shouldn't happen, but fail open)
 		}
 
-		$key   = 'tracksure_rate_client_' . md5($client_id);
-		$count = (int) get_transient($key);
+		$key   = 'tracksure_rate_client_' . md5( $client_id );
+		$count = (int) get_transient( $key );
 
 		// Check if limit exceeded.
-		if ($count >= $this->limits['client_per_minute']) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( $count >= $this->limits['client_per_minute'] ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
 				error_log(
 					sprintf(
 						'[TrackSure] Rate limit exceeded for client: %s (count: %d, limit: %d)',
-						substr($client_id, 0, 8) . '...',
+						substr( $client_id, 0, 8 ) . '...',
 						$count,
 						$this->limits['client_per_minute']
 					)
@@ -135,13 +131,13 @@ class TrackSure_Rate_Limiter
 			}
 
 			// Fire action for monitoring (Free/Pro can hook here).
-			do_action('tracksure_rate_limit_exceeded', 'client', $client_id, $count);
+			do_action( 'tracksure_rate_limit_exceeded', 'client', $client_id, $count );
 
 			return false;
 		}
 
 		// Increment counter.
-		set_transient($key, $count + 1, $this->limits['client_window']);
+		set_transient( $key, $count + 1, $this->limits['client_window'] );
 
 		return true;
 	}
@@ -152,18 +148,17 @@ class TrackSure_Rate_Limiter
 	 * @param string $ip IP address.
 	 * @return bool True if allowed.
 	 */
-	private function check_ip_rate($ip)
-	{
-		if (empty($ip)) {
+	private function check_ip_rate( $ip ) {
+		if ( empty( $ip ) ) {
 			return true; // Allow if no IP (shouldn't happen, but fail open)
 		}
 
-		$key   = 'tracksure_rate_ip_' . md5($ip);
-		$count = (int) get_transient($key);
+		$key   = 'tracksure_rate_ip_' . md5( $ip );
+		$count = (int) get_transient( $key );
 
 		// Check if limit exceeded.
-		if ($count >= $this->limits['ip_per_minute']) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( $count >= $this->limits['ip_per_minute'] ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
 				error_log(
 					sprintf(
@@ -176,13 +171,13 @@ class TrackSure_Rate_Limiter
 			}
 
 			// Fire action for monitoring (Free/Pro can hook here).
-			do_action('tracksure_rate_limit_exceeded', 'ip', $ip, $count);
+			do_action( 'tracksure_rate_limit_exceeded', 'ip', $ip, $count );
 
 			return false;
 		}
 
 		// Increment counter.
-		set_transient($key, $count + 1, $this->limits['ip_window']);
+		set_transient( $key, $count + 1, $this->limits['ip_window'] );
 
 		return true;
 	}
@@ -193,18 +188,17 @@ class TrackSure_Rate_Limiter
 	 * @param string $client_id Client UUID.
 	 * @return array Status with count, limit, remaining, reset_at.
 	 */
-	public function get_client_status($client_id)
-	{
-		$key       = 'tracksure_rate_client_' . md5($client_id);
-		$count     = (int) get_transient($key);
+	public function get_client_status( $client_id ) {
+		$key       = 'tracksure_rate_client_' . md5( $client_id );
+		$count     = (int) get_transient( $key );
 		$limit     = $this->limits['client_per_minute'];
-		$remaining = max(0, $limit - $count);
+		$remaining = max( 0, $limit - $count );
 
 		return array(
 			'count'            => $count,
 			'limit'            => $limit,
 			'remaining'        => $remaining,
-			'reset_in_seconds' => $this->get_ttl($key),
+			'reset_in_seconds' => $this->get_ttl( $key ),
 		);
 	}
 
@@ -214,18 +208,17 @@ class TrackSure_Rate_Limiter
 	 * @param string $ip IP address.
 	 * @return array Status with count, limit, remaining, reset_at.
 	 */
-	public function get_ip_status($ip)
-	{
-		$key       = 'tracksure_rate_ip_' . md5($ip);
-		$count     = (int) get_transient($key);
+	public function get_ip_status( $ip ) {
+		$key       = 'tracksure_rate_ip_' . md5( $ip );
+		$count     = (int) get_transient( $key );
 		$limit     = $this->limits['ip_per_minute'];
-		$remaining = max(0, $limit - $count);
+		$remaining = max( 0, $limit - $count );
 
 		return array(
 			'count'            => $count,
 			'limit'            => $limit,
 			'remaining'        => $remaining,
-			'reset_in_seconds' => $this->get_ttl($key),
+			'reset_in_seconds' => $this->get_ttl( $key ),
 		);
 	}
 
@@ -235,8 +228,7 @@ class TrackSure_Rate_Limiter
 	 * @param string $key Transient key.
 	 * @return int Seconds until expiration.
 	 */
-	private function get_ttl($key)
-	{
+	private function get_ttl( $key ) {
 		global $wpdb;
 
 		$timeout_key = '_transient_timeout_' . $key;
@@ -247,8 +239,8 @@ class TrackSure_Rate_Limiter
 			)
 		);
 
-		if ($timeout) {
-			return max(0, (int) $timeout - time());
+		if ( $timeout ) {
+			return max( 0, (int) $timeout - time() );
 		}
 
 		return 0;
@@ -260,10 +252,9 @@ class TrackSure_Rate_Limiter
 	 * @param string $client_id Client UUID.
 	 * @return bool Success.
 	 */
-	public function clear_client_limit($client_id)
-	{
-		$key = 'tracksure_rate_client_' . md5($client_id);
-		return delete_transient($key);
+	public function clear_client_limit( $client_id ) {
+		$key = 'tracksure_rate_client_' . md5( $client_id );
+		return delete_transient( $key );
 	}
 
 	/**
@@ -272,10 +263,9 @@ class TrackSure_Rate_Limiter
 	 * @param string $ip IP address.
 	 * @return bool Success.
 	 */
-	public function clear_ip_limit($ip)
-	{
-		$key = 'tracksure_rate_ip_' . md5($ip);
-		return delete_transient($key);
+	public function clear_ip_limit( $ip ) {
+		$key = 'tracksure_rate_ip_' . md5( $ip );
+		return delete_transient( $key );
 	}
 
 	/**
@@ -283,22 +273,21 @@ class TrackSure_Rate_Limiter
 	 *
 	 * @return array Statistics.
 	 */
-	public function get_statistics()
-	{
+	public function get_statistics() {
 		global $wpdb;
 
 		// Count active rate limit keys.
 		$client_keys = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$wpdb->esc_like('_transient_tracksure_rate_client_') . '%'
+				$wpdb->esc_like( '_transient_tracksure_rate_client_' ) . '%'
 			)
 		);
 
 		$ip_keys = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->options} WHERE option_name LIKE %s",
-				$wpdb->esc_like('_transient_tracksure_rate_ip_') . '%'
+				$wpdb->esc_like( '_transient_tracksure_rate_ip_' ) . '%'
 			)
 		);
 

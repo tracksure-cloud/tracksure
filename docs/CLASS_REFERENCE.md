@@ -182,6 +182,7 @@ $db->tables->funnel_steps
 **Event Methods**:
 
 - `insert_event($data)` - Insert event (returns event_id)
+- `insert_events_batch($events)` - Insert multiple events in a single multi-row INSERT. Deduplicates via `WHERE NOT IN (SELECT fingerprint FROM events WHERE fingerprint IN (...))` subquery. Returns count of inserted events.
 - `get_event($event_id)` - Get event by ID
 - `get_events($where, $limit)` - Query events
 
@@ -420,6 +421,8 @@ if ($limiter->check_client_limit($client_id)) {
 **File**: `includes/core/services/class-tracksure-session-manager.php`  
 **Service Name**: `session_manager`  
 **Purpose**: Manages visitor sessions and attribution
+
+> **Change Note**: PHP `@session_start()` has been replaced with a transient-based fingerprint system. Session identity is now derived from an IP + User-Agent + Accept-Language hash stored and retrieved via `set_transient()` / `get_transient()`. This eliminates native PHP session side-effects and improves compatibility with full-page caches.
 
 **Key Methods**:
 
@@ -799,6 +802,8 @@ $evaluator->evaluate($event_data, $session);
 **Service Name**: `conversion_recorder`  
 **Purpose**: Records conversion events to database
 
+> **Change Note**: Conversion recording is now deferred to the `shutdown` hook via `register_shutdown_function()`. This ensures the HTTP response is sent to the client before the (potentially heavy) conversion write occurs, avoiding any added latency on the user-facing request.
+
 **Methods**:
 
 - `record($goal_id, $event_id, $session, $value)` - Record conversion
@@ -883,6 +888,8 @@ $evaluator->evaluate($event_data, $session);
 **File**: `includes/core/services/class-tracksure-geolocation.php`  
 **Service Name**: `geolocation`  
 **Purpose**: IP-based geolocation
+
+> **Change Note**: The HTTP request timeout for external geolocation lookups has been reduced to **3 seconds** (previously 10 s) to avoid blocking the request pipeline on slow upstream responses.
 
 **Methods**:
 
@@ -1269,6 +1276,8 @@ All jobs use `TrackSure_Action_Scheduler` for cron-like scheduling.
 **Schedule**: Daily at 3 AM  
 **Purpose**: Removes old data based on retention settings
 
+> **Change Note**: DELETE operations are now batched in chunks of 500 rows per query to avoid long-running queries and excessive table-lock durations.
+
 **Methods**:
 
 - `run()` - Execute cleanup
@@ -1286,6 +1295,8 @@ All jobs use `TrackSure_Action_Scheduler` for cron-like scheduling.
 **Schedule**: Every hour  
 **Purpose**: Aggregates hourly statistics
 
+> **Change Note**: The aggregator is now time-boxed to 20 seconds (`TIME_BOX_SECONDS = 20`) to prevent runaway execution on large datasets. A WP transient lock (`ts_agg_lock`) is acquired before processing and released on completion, preventing concurrent aggregation runs.
+
 **Methods**:
 
 - `run()` - Aggregate last hour
@@ -1301,6 +1312,8 @@ All jobs use `TrackSure_Action_Scheduler` for cron-like scheduling.
 **File**: `includes/core/jobs/class-tracksure-daily-aggregator.php`  
 **Schedule**: Daily at 1 AM  
 **Purpose**: Aggregates daily statistics
+
+> **Change Note**: Same time-boxing and concurrency-lock behaviour as `TrackSure_Hourly_Aggregator` — 20-second execution cap (`TIME_BOX_SECONDS = 20`) and WP transient lock (`ts_agg_lock`).
 
 **Methods**:
 
@@ -1580,10 +1593,26 @@ All jobs use `TrackSure_Action_Scheduler` for cron-like scheduling.
 
 ---
 
+### **TrackSure_Tracker_Assets**
+
+**File**: `includes/core/tracking/class-tracksure-tracker-assets.php`  
+**Purpose**: Enqueue frontend tracking JavaScript
+
+> **Change Note**: The tracking JS (`tracksure-tracker.js`) is now loaded with the `defer` attribute, so it no longer blocks the critical rendering path while still executing after HTML parsing.
+
+**Methods**:
+
+- `enqueue()` - Enqueue tracker script with `defer`
+- `get_inline_config()` - Return inline `window.tsConfig` object
+
+---
+
 ### **TrackSure_Admin_Extensions**
 
 **File**: `includes/core/admin/class-tracksure-admin-extensions.php`  
 **Purpose**: Extensibility for admin UI
+
+> **Change Note**: The shared React component registry has been renamed from `window.trackSureProComponents` to `window.trackSureExtensionComponents`. All extensions (Pro, Free, and 3rd-party) now merge their components into this single registry via a spread pattern (e.g., `window.trackSureExtensionComponents = { ...window.trackSureExtensionComponents, ...myComponents }`).
 
 **Methods**:
 

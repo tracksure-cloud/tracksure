@@ -45,7 +45,7 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -56,8 +56,8 @@ if (! defined('ABSPATH')) {
  *
  * @since 1.0.0
  */
-class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
-{
+class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
+
 
 
 
@@ -76,10 +76,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 *
 	 * @since 1.0.0
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$core     = TrackSure_Core::get_instance();
-		$this->db = $core->get_service('db');
+		$this->db = $core->get_service( 'db' );
 	}
 
 	/**
@@ -93,16 +92,15 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 *
 	 * @return void
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		// GET /goals - List all goals.
 		register_rest_route(
 			$this->namespace,
 			'/goals',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_goals'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_goals' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -112,8 +110,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array($this, 'create_goal'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'create_goal' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $this->get_goal_schema(),
 			)
 		);
@@ -124,9 +122,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals/(?P<id>\d+)',
 			array(
 				'methods'             => WP_REST_Server::EDITABLE,
-				'callback'            => array($this, 'update_goal'),
-				'permission_callback' => array($this, 'check_admin_permission'),
-				'args'                => $this->get_goal_schema(true),
+				'callback'            => array( $this, 'update_goal' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
+				'args'                => $this->get_goal_schema( true ),
 			)
 		);
 
@@ -136,8 +134,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals/(?P<id>\d+)',
 			array(
 				'methods'             => WP_REST_Server::DELETABLE,
-				'callback'            => array($this, 'delete_goal'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'delete_goal' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -147,8 +145,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals/(?P<id>\d+)/performance',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_goal_performance'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_goal_performance' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'date_start' => array(
 						'type'     => 'string',
@@ -170,8 +168,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals/performance',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_batch_performance'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_batch_performance' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'goal_ids'   => array(
 						'type'        => 'string',
@@ -200,8 +198,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals/(?P<id>\d+)/timeline',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_goal_timeline'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_goal_timeline' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'page'       => array(
 						'type'    => 'integer',
@@ -234,12 +232,12 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals/(?P<id>\d+)/sources',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_goal_sources'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_goal_sources' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'attribution_model' => array(
 						'type'    => 'string',
-						'enum'    => array('first_touch', 'last_touch', 'linear', 'time_decay', 'position_based'),
+						'enum'    => array( 'first_touch', 'last_touch', 'linear', 'time_decay', 'position_based' ),
 						'default' => 'last_touch',
 					),
 					'date_start'        => array(
@@ -262,8 +260,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals/(?P<id>\d+)/devices',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_goal_devices'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_goal_devices' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'date_start' => array(
 						'type'     => 'string',
@@ -285,20 +283,20 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'/goals/overview',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_goals_overview'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_goals_overview' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'start_date' => array(
 						'type'        => 'string',
 						'format'      => 'date',
 						'required'    => false,
-						'description' => __('Start date for the reporting period (YYYY-MM-DD)', 'tracksure'),
+						'description' => __( 'Start date for the reporting period (YYYY-MM-DD)', 'tracksure' ),
 					),
 					'end_date'   => array(
 						'type'        => 'string',
 						'format'      => 'date',
 						'required'    => false,
-						'description' => __('End date for the reporting period (YYYY-MM-DD)', 'tracksure'),
+						'description' => __( 'End date for the reporting period (YYYY-MM-DD)', 'tracksure' ),
 					),
 				),
 			)
@@ -317,8 +315,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error Response with goals array or error.
 	 */
-	public function get_goals($request)
-	{
+	public function get_goals( $request ) {
 		global $wpdb;
 
 		$goals = $wpdb->get_results(
@@ -347,30 +344,30 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		);
 
 		// Parse conditions JSON, trigger_config JSON, and type-cast values.
-		foreach ($goals as $goal) {
-			if (! empty($goal->conditions)) {
-				$goal->conditions = json_decode($goal->conditions, true);
+		foreach ( $goals as $goal ) {
+			if ( ! empty( $goal->conditions ) ) {
+				$goal->conditions = json_decode( $goal->conditions, true );
 			} else {
 				$goal->conditions = array();
 			}
-			if (! empty($goal->trigger_config)) {
-				$decoded = json_decode($goal->trigger_config);
+			if ( ! empty( $goal->trigger_config ) ) {
+				$decoded              = json_decode( $goal->trigger_config );
 				$goal->trigger_config = $decoded !== null ? $decoded : null;
 			} else {
 				$goal->trigger_config = null;
 			}
 			// match_logic is a plain string ('all' or 'any'), NOT JSON.
-			if (empty($goal->match_logic) || ! in_array($goal->match_logic, array('all', 'any'), true)) {
+			if ( empty( $goal->match_logic ) || ! in_array( $goal->match_logic, array( 'all', 'any' ), true ) ) {
 				$goal->match_logic = 'all';
 			}
-			$goal->cooldown_minutes = (int) ($goal->cooldown_minutes ?? 0);
+			$goal->cooldown_minutes = (int) ( $goal->cooldown_minutes ?? 0 );
 		}
 
 		// Return goals wrapped in object for consistency with frontend expectations.
 		return $this->prepare_success(
 			array(
 				'goals' => $goals,
-				'total' => count($goals),
+				'total' => count( $goals ),
 			)
 		);
 	}
@@ -387,34 +384,33 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object with goal data.
 	 * @return WP_REST_Response|WP_Error Success response with created goal or error.
 	 */
-	public function create_goal($request)
-	{
+	public function create_goal( $request ) {
 		global $wpdb;
 
 		// Validate goal data BEFORE creating.
 		$validator = new TrackSure_Goal_Validator();
 		$goal_data = array(
-			'name'             => $request->get_param('name'),
-			'description'      => $request->get_param('description'),
-			'event_name'       => $request->get_param('event_name'),
-			'trigger_type'     => $request->get_param('trigger_type'),
-			'conditions'       => $request->get_param('conditions'),
-			'match_logic'      => $request->get_param('match_logic'),
-			'value_type'       => $request->get_param('value_type'),
-			'fixed_value'      => $request->get_param('fixed_value') ?? $request->get_param('value'),
-			'trigger_config'   => $request->get_param('trigger_config'),
-			'frequency'        => $request->get_param('frequency'),
-			'cooldown_minutes' => $request->get_param('cooldown_minutes'),
-			'is_active'        => $request->get_param('is_active'),
+			'name'             => $request->get_param( 'name' ),
+			'description'      => $request->get_param( 'description' ),
+			'event_name'       => $request->get_param( 'event_name' ),
+			'trigger_type'     => $request->get_param( 'trigger_type' ),
+			'conditions'       => $request->get_param( 'conditions' ),
+			'match_logic'      => $request->get_param( 'match_logic' ),
+			'value_type'       => $request->get_param( 'value_type' ),
+			'fixed_value'      => $request->get_param( 'fixed_value' ) ?? $request->get_param( 'value' ),
+			'trigger_config'   => $request->get_param( 'trigger_config' ),
+			'frequency'        => $request->get_param( 'frequency' ),
+			'cooldown_minutes' => $request->get_param( 'cooldown_minutes' ),
+			'is_active'        => $request->get_param( 'is_active' ),
 		);
 
-		$validation = $validator->validate_and_prepare($goal_data);
+		$validation = $validator->validate_and_prepare( $goal_data );
 
-		if (! $validation['valid']) {
+		if ( ! $validation['valid'] ) {
 			return new WP_Error(
 				'invalid_goal_data',
-				implode(' ', $validation['errors']),
-				array('status' => 400)
+				implode( ' ', $validation['errors'] ),
+				array( 'status' => 400 )
 			);
 		}
 
@@ -422,8 +418,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 
 		// Use validated and sanitized data.
 		$data               = $validation['data'];
-		$data['created_at'] = gmdate('Y-m-d H:i:s');
-		$data['updated_at'] = gmdate('Y-m-d H:i:s');
+		$data['created_at'] = gmdate( 'Y-m-d H:i:s' );
+		$data['updated_at'] = gmdate( 'Y-m-d H:i:s' );
 
 		/**
 		 * Filter goal data before database insert.
@@ -435,32 +431,32 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		 * @param array           $data    Validated and sanitized goal data.
 		 * @param WP_REST_Request $request Original REST request object.
 		 */
-		$data = apply_filters('tracksure_before_create_goal', $data, $request);
+		$data = apply_filters( 'tracksure_before_create_goal', $data, $request );
 
 		// Determine formats dynamically based on data keys.
 		$formats = array();
-		foreach ($data as $key => $value) {
-			if (in_array($key, array('is_active', 'cooldown_minutes'), true)) {
+		foreach ( $data as $key => $value ) {
+			if ( in_array( $key, array( 'is_active', 'cooldown_minutes' ), true ) ) {
 				$formats[] = '%d';
-			} elseif ($key === 'fixed_value') {
+			} elseif ( $key === 'fixed_value' ) {
 				$formats[] = '%f';
 			} else {
 				$formats[] = '%s';
 			}
 		}
 
-		$result = $wpdb->insert($table, $data, $formats);
+		$result = $wpdb->insert( $table, $data, $formats );
 
-		if (! $result) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( ! $result ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] Goal creation failed. Last error: ' . $wpdb->last_error);
+				error_log( '[TrackSure] Goal creation failed. Last error: ' . $wpdb->last_error );
 			}
 
 			return new WP_Error(
 				'goal_create_failed',
-				$wpdb->last_error ? $wpdb->last_error : __('Failed to create goal.', 'tracksure'),
-				array('status' => 500)
+				$wpdb->last_error ? $wpdb->last_error : __( 'Failed to create goal.', 'tracksure' ),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -475,18 +471,18 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Decode JSON fields.
-		$goal->conditions = json_decode($goal->conditions, true);
-		if (! empty($goal->trigger_config)) {
-			$goal->trigger_config = json_decode($goal->trigger_config, true);
+		$goal->conditions = json_decode( $goal->conditions, true );
+		if ( ! empty( $goal->trigger_config ) ) {
+			$goal->trigger_config = json_decode( $goal->trigger_config, true );
 		}
 		$goal->is_active = (bool) $goal->is_active;
-		if (isset($goal->fixed_value) && $goal->fixed_value) {
+		if ( isset( $goal->fixed_value ) && $goal->fixed_value ) {
 			$goal->fixed_value = (float) $goal->fixed_value;
 		}
 
 		// Sanitize output.
-		$goal->name        = esc_html($goal->name);
-		$goal->description = ! empty($goal->description) ? esc_html($goal->description) : '';
+		$goal->name        = esc_html( $goal->name );
+		$goal->description = ! empty( $goal->description ) ? esc_html( $goal->description ) : '';
 
 		// Clear goal caches.
 		$this->clear_goals_cache();
@@ -500,9 +496,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		 * @param object          $goal    Full goal object.
 		 * @param WP_REST_Request $request Original REST request.
 		 */
-		do_action('tracksure_after_create_goal', $goal_id, $goal, $request);
+		do_action( 'tracksure_after_create_goal', $goal_id, $goal, $request );
 
-		return $this->prepare_success($goal, 201);
+		return $this->prepare_success( $goal, 201 );
 	}
 
 	/**
@@ -517,12 +513,11 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object with goal data.
 	 * @return WP_REST_Response|WP_Error Success response with updated goal or error.
 	 */
-	public function update_goal($request)
-	{
+	public function update_goal( $request ) {
 		global $wpdb;
 
 		$table   = $wpdb->prefix . 'tracksure_goals';
-		$goal_id = absint($request->get_param('id'));
+		$goal_id = absint( $request->get_param( 'id' ) );
 
 		// Check if goal exists.
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
@@ -534,44 +529,44 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		if (! $exists) {
+		if ( ! $exists ) {
 			return new WP_Error(
 				'goal_not_found',
-				__('Goal not found.', 'tracksure'),
-				array('status' => 404)
+				__( 'Goal not found.', 'tracksure' ),
+				array( 'status' => 404 )
 			);
 		}
 
 		// Validate goal data BEFORE updating.
 		$validator = new TrackSure_Goal_Validator();
 		$goal_data = array(
-			'name'             => $request->get_param('name'),
-			'description'      => $request->get_param('description'),
-			'event_name'       => $request->get_param('event_name'),
-			'trigger_type'     => $request->get_param('trigger_type'),
-			'conditions'       => $request->get_param('conditions'),
-			'match_logic'      => $request->get_param('match_logic'),
-			'value_type'       => $request->get_param('value_type'),
-			'fixed_value'      => $request->get_param('fixed_value') ?? $request->get_param('value'),
-			'trigger_config'   => $request->get_param('trigger_config'),
-			'frequency'        => $request->get_param('frequency'),
-			'cooldown_minutes' => $request->get_param('cooldown_minutes'),
-			'is_active'        => $request->get_param('is_active'),
+			'name'             => $request->get_param( 'name' ),
+			'description'      => $request->get_param( 'description' ),
+			'event_name'       => $request->get_param( 'event_name' ),
+			'trigger_type'     => $request->get_param( 'trigger_type' ),
+			'conditions'       => $request->get_param( 'conditions' ),
+			'match_logic'      => $request->get_param( 'match_logic' ),
+			'value_type'       => $request->get_param( 'value_type' ),
+			'fixed_value'      => $request->get_param( 'fixed_value' ) ?? $request->get_param( 'value' ),
+			'trigger_config'   => $request->get_param( 'trigger_config' ),
+			'frequency'        => $request->get_param( 'frequency' ),
+			'cooldown_minutes' => $request->get_param( 'cooldown_minutes' ),
+			'is_active'        => $request->get_param( 'is_active' ),
 		);
 
-		$validation = $validator->validate_and_prepare($goal_data);
+		$validation = $validator->validate_and_prepare( $goal_data );
 
-		if (! $validation['valid']) {
+		if ( ! $validation['valid'] ) {
 			return new WP_Error(
 				'invalid_goal_data',
-				implode(' ', $validation['errors']),
-				array('status' => 400)
+				implode( ' ', $validation['errors'] ),
+				array( 'status' => 400 )
 			);
 		}
 
 		// Use validated and sanitized data.
 		$data               = $validation['data'];
-		$data['updated_at'] = current_time('mysql', true);
+		$data['updated_at'] = current_time( 'mysql', true );
 
 		/**
 		 * Filter goal data before database update.
@@ -582,15 +577,15 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		 * @param int             $goal_id Goal ID being updated.
 		 * @param WP_REST_Request $request Original REST request object.
 		 */
-		$data = apply_filters('tracksure_before_update_goal', $data, $goal_id, $request);
+		$data = apply_filters( 'tracksure_before_update_goal', $data, $goal_id, $request );
 
-		$result = $wpdb->update($table, $data, array('goal_id' => $goal_id));
+		$result = $wpdb->update( $table, $data, array( 'goal_id' => $goal_id ) );
 
-		if ($result === false) {
+		if ( $result === false ) {
 			return new WP_Error(
 				'goal_update_failed',
-				__('Failed to update goal.', 'tracksure'),
-				array('status' => 500)
+				__( 'Failed to update goal.', 'tracksure' ),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -604,18 +599,18 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Decode JSON fields.
-		$goal->conditions = json_decode($goal->conditions, true);
-		if (! empty($goal->trigger_config)) {
-			$goal->trigger_config = json_decode($goal->trigger_config, true);
+		$goal->conditions = json_decode( $goal->conditions, true );
+		if ( ! empty( $goal->trigger_config ) ) {
+			$goal->trigger_config = json_decode( $goal->trigger_config, true );
 		}
 		$goal->is_active = (bool) $goal->is_active;
-		if ($goal->fixed_value) {
+		if ( $goal->fixed_value ) {
 			$goal->fixed_value = (float) $goal->fixed_value;
 		}
 
 		// Sanitize output.
-		$goal->name        = esc_html($goal->name);
-		$goal->description = ! empty($goal->description) ? esc_html($goal->description) : '';
+		$goal->name        = esc_html( $goal->name );
+		$goal->description = ! empty( $goal->description ) ? esc_html( $goal->description ) : '';
 
 		// Clear goal caches.
 		$this->clear_goals_cache();
@@ -629,12 +624,12 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		 * @param object          $goal    Full goal object.
 		 * @param WP_REST_Request $request Original REST request.
 		 */
-		do_action('tracksure_after_update_goal', $goal_id, $goal, $request);
+		do_action( 'tracksure_after_update_goal', $goal_id, $goal, $request );
 
 		return $this->prepare_success(
 			array(
 				'goal'    => $goal,
-				'message' => __('Goal updated successfully.', 'tracksure'),
+				'message' => __( 'Goal updated successfully.', 'tracksure' ),
 			)
 		);
 	}
@@ -651,12 +646,11 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object with goal ID.
 	 * @return WP_REST_Response|WP_Error Success message or error.
 	 */
-	public function delete_goal($request)
-	{
+	public function delete_goal( $request ) {
 		global $wpdb;
 
 		$table   = $wpdb->prefix . 'tracksure_goals';
-		$goal_id = absint($request->get_param('id'));
+		$goal_id = absint( $request->get_param( 'id' ) );
 
 		/**
 		 * Fires before a goal is deleted.
@@ -667,15 +661,15 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		 *
 		 * @param int $goal_id Goal ID being deleted.
 		 */
-		do_action('tracksure_before_delete_goal', $goal_id);
+		do_action( 'tracksure_before_delete_goal', $goal_id );
 
-		$result = $wpdb->delete($table, array('goal_id' => $goal_id), array('%d'));
+		$result = $wpdb->delete( $table, array( 'goal_id' => $goal_id ), array( '%d' ) );
 
-		if (! $result) {
+		if ( ! $result ) {
 			return new WP_Error(
 				'goal_delete_failed',
-				__('Failed to delete goal. Goal may not exist.', 'tracksure'),
-				array('status' => 500)
+				__( 'Failed to delete goal. Goal may not exist.', 'tracksure' ),
+				array( 'status' => 500 )
 			);
 		}
 
@@ -689,11 +683,11 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		 *
 		 * @param int $goal_id Goal ID that was deleted.
 		 */
-		do_action('tracksure_after_delete_goal', $goal_id);
+		do_action( 'tracksure_after_delete_goal', $goal_id );
 
 		return $this->prepare_success(
 			array(
-				'message' => __('Goal deleted successfully.', 'tracksure'),
+				'message' => __( 'Goal deleted successfully.', 'tracksure' ),
 			)
 		);
 	}
@@ -704,24 +698,23 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_goal_performance($request)
-	{
+	public function get_goal_performance( $request ) {
 		global $wpdb;
 
-		$goal_id = absint($request->get_param('id'));
+		$goal_id = absint( $request->get_param( 'id' ) );
 
 		// Accept both parameter naming conventions for compatibility.
-		$date_start = sanitize_text_field($request->get_param('date_start'))
-			?: sanitize_text_field($request->get_param('start_date'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'))
-			?: sanitize_text_field($request->get_param('end_date'));
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) )
+			?: sanitize_text_field( $request->get_param( 'start_date' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) )
+			?: sanitize_text_field( $request->get_param( 'end_date' ) );
 
 		// Check cache first (5 minute TTL).
-		$cache_key = 'tracksure_goal_perf_' . $goal_id . '_' . md5($date_start . $date_end);
-		$cached    = get_transient($cache_key);
+		$cache_key = 'tracksure_goal_perf_' . $goal_id . '_' . md5( $date_start . $date_end );
+		$cached    = get_transient( $cache_key );
 
-		if ($cached !== false) {
-			return $this->prepare_success($cached);
+		if ( $cached !== false ) {
+			return $this->prepare_success( $cached );
 		}
 
 
@@ -757,7 +750,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 
-		$conversion_rate = $total_sessions > 0 ? round(($performance->conversions / $total_sessions) * 100, 2) : 0;
+		$conversion_rate = $total_sessions > 0 ? round( ( $performance->conversions / $total_sessions ) * 100, 2 ) : 0;
 
 		$result = array(
 			'conversions'     => (int) $performance->conversions,
@@ -767,9 +760,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		);
 
 		// Cache for 5 minutes.
-		set_transient($cache_key, $result, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $result, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($result);
+		return $this->prepare_success( $result );
 	}
 
 	/**
@@ -781,57 +774,56 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_batch_performance($request)
-	{
+	public function get_batch_performance( $request ) {
 		global $wpdb;
 
 		// Parse parameters (accept both naming conventions).
-		$goal_ids_param = $request->get_param('goal_ids');
-		$date_start     = $request->get_param('date_start') ?: $request->get_param('start_date');
-		$date_end       = $request->get_param('date_end') ?: $request->get_param('end_date');
+		$goal_ids_param = $request->get_param( 'goal_ids' );
+		$date_start     = $request->get_param( 'date_start' ) ?: $request->get_param( 'start_date' );
+		$date_end       = $request->get_param( 'date_end' ) ?: $request->get_param( 'end_date' );
 
 		// Validate goal_ids.
-		if (empty($goal_ids_param)) {
+		if ( empty( $goal_ids_param ) ) {
 			return new WP_Error(
 				'missing_goal_ids',
-				__('goal_ids parameter is required', 'tracksure'),
-				array('status' => 400)
+				__( 'goal_ids parameter is required', 'tracksure' ),
+				array( 'status' => 400 )
 			);
 		}
 
 		// Check cache first (5 minute TTL).
-		$cache_key = 'tracksure_goals_perf_' . md5($goal_ids_param . $date_start . $date_end);
-		$cached    = get_transient($cache_key);
+		$cache_key = 'tracksure_goals_perf_' . md5( $goal_ids_param . $date_start . $date_end );
+		$cached    = get_transient( $cache_key );
 
-		if ($cached !== false) {
-			return $this->prepare_success($cached);
+		if ( $cached !== false ) {
+			return $this->prepare_success( $cached );
 		}
 
-		$goal_ids = array_map('intval', explode(',', $goal_ids_param));
-		$goal_ids = array_filter($goal_ids); // Remove zeros
+		$goal_ids = array_map( 'intval', explode( ',', $goal_ids_param ) );
+		$goal_ids = array_filter( $goal_ids ); // Remove zeros
 
-		if (empty($goal_ids)) {
+		if ( empty( $goal_ids ) ) {
 			return new WP_Error(
 				'invalid_goal_ids',
-				__('No valid goal IDs provided after parsing', 'tracksure'),
-				array('status' => 400)
+				__( 'No valid goal IDs provided after parsing', 'tracksure' ),
+				array( 'status' => 400 )
 			);
 		}
 
 		// Default to last 30 days if dates not provided.
-		if (empty($date_start)) {
-			$date_start = gmdate('Y-m-d', strtotime('-30 days'));
+		if ( empty( $date_start ) ) {
+			$date_start = gmdate( 'Y-m-d', strtotime( '-30 days' ) );
 		}
-		if (empty($date_end)) {
-			$date_end = gmdate('Y-m-d');
+		if ( empty( $date_end ) ) {
+			$date_end = gmdate( 'Y-m-d' );
 		}
 
 		// Build placeholders for IN clause.
-		$placeholders = implode(',', array_fill(0, count($goal_ids), '%d'));
+		$placeholders = implode( ',', array_fill( 0, count( $goal_ids ), '%d' ) );
 
 		// Prepare query parameters (datetime format for index usage).
 		$query_params = array_merge(
-			array($date_start . ' 00:00:00', $date_end . ' 23:59:59'),
+			array( $date_start . ' 00:00:00', $date_end . ' 23:59:59' ),
 			$goal_ids
 		);
 
@@ -861,10 +853,10 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
 
 		// Check for database errors.
-		if ($wpdb->last_error) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( $wpdb->last_error ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] Goals batch performance query failed: ' . $wpdb->last_error);
+				error_log( '[TrackSure] Goals batch performance query failed: ' . $wpdb->last_error );
 			}
 			return $this->prepare_error(
 				'query_failed',
@@ -891,7 +883,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 
 		// Format response.
 		$performance = array();
-		foreach ($results as $row) {
+		foreach ( $results as $row ) {
 			$goal_id     = (int) $row['goal_id'];
 			$conversions = (int) $row['conversions'];
 			$revenue     = (float) $row['total_revenue'];
@@ -899,21 +891,21 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 
 			// Calculate conversion rate.
 			$conversion_rate = $total_sessions > 0
-				? ($conversions / $total_sessions) * 100
+				? ( $conversions / $total_sessions ) * 100
 				: 0;
 
-			$performance[$goal_id] = array(
+			$performance[ $goal_id ] = array(
 				'conversions'     => $conversions,
-				'revenue'         => round($revenue, 2),
-				'avg_value'       => round($avg_value, 2),
-				'conversion_rate' => round($conversion_rate, 2),
+				'revenue'         => round( $revenue, 2 ),
+				'avg_value'       => round( $avg_value, 2 ),
+				'conversion_rate' => round( $conversion_rate, 2 ),
 			);
 		}
 
 		// Fill in missing goals with zero data.
-		foreach ($goal_ids as $goal_id) {
-			if (! isset($performance[$goal_id])) {
-				$performance[$goal_id] = array(
+		foreach ( $goal_ids as $goal_id ) {
+			if ( ! isset( $performance[ $goal_id ] ) ) {
+				$performance[ $goal_id ] = array(
 					'conversions'     => 0,
 					'revenue'         => 0,
 					'avg_value'       => 0,
@@ -923,9 +915,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		}
 
 		// Cache for 5 minutes.
-		set_transient($cache_key, $performance, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $performance, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success(array('performance' => $performance));
+		return $this->prepare_success( array( 'performance' => $performance ) );
 	}
 
 	/**
@@ -934,17 +926,16 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_goal_timeline($request)
-	{
+	public function get_goal_timeline( $request ) {
 		global $wpdb;
 
-		$goal_id    = absint($request->get_param('id'));
-		$page       = absint($request->get_param('page')) ?: 1;
-		$per_page   = absint($request->get_param('per_page')) ?: 20;
-		$date_start = $request->get_param('date_start') ?: gmdate('Y-m-d', strtotime('-30 days'));
-		$date_end   = $request->get_param('date_end') ?: gmdate('Y-m-d');
+		$goal_id    = absint( $request->get_param( 'id' ) );
+		$page       = absint( $request->get_param( 'page' ) ) ?: 1;
+		$per_page   = absint( $request->get_param( 'per_page' ) ) ?: 20;
+		$date_start = $request->get_param( 'date_start' ) ?: gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$date_end   = $request->get_param( 'date_end' ) ?: gmdate( 'Y-m-d' );
 
-		$offset = ($page - 1) * $per_page;
+		$offset = ( $page - 1 ) * $per_page;
 
 		// ========================================.
 		// PHASE 2: TRANSIENT CACHE (5 min TTL).
@@ -957,9 +948,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			$page
 		);
 
-		$cached = get_transient($cache_key);
-		if ($cached !== false && is_array($cached)) {
-			return $this->prepare_success($cached);
+		$cached = get_transient( $cache_key );
+		if ( $cached !== false && is_array( $cached ) ) {
+			return $this->prepare_success( $cached );
 		}
 
 
@@ -1016,39 +1007,39 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
 		// Format conversions and extract context from event_params.
-		foreach ($conversions as &$conversion) {
+		foreach ( $conversions as &$conversion ) {
 			$conversion['conversion_id'] = (int) $conversion['conversion_id'];
 			$conversion['value']         = (float) $conversion['value'];
 
 			// Parse event_params to extract product/form/click context.
-			if (! empty($conversion['event_params'])) {
-				$event_params = json_decode($conversion['event_params'], true);
-				if (is_array($event_params)) {
+			if ( ! empty( $conversion['event_params'] ) ) {
+				$event_params = json_decode( $conversion['event_params'], true );
+				if ( is_array( $event_params ) ) {
 					// Product/Item data (WooCommerce standard).
-					if (isset($event_params['item_id'])) {
+					if ( isset( $event_params['item_id'] ) ) {
 						$conversion['product_id'] = $event_params['item_id'];
 					}
-					if (isset($event_params['item_name'])) {
+					if ( isset( $event_params['item_name'] ) ) {
 						$conversion['product_name'] = $event_params['item_name'];
 					}
 
 					// Use item_url if page_url is missing (server-side WooCommerce events).
-					if (empty($conversion['page_url']) && isset($event_params['item_url'])) {
+					if ( empty( $conversion['page_url'] ) && isset( $event_params['item_url'] ) ) {
 						$conversion['page_url'] = $event_params['item_url'];
 					}
 
 					// Form data
-					if (isset($event_params['form_id'])) {
+					if ( isset( $event_params['form_id'] ) ) {
 						$conversion['form_id'] = $event_params['form_id'];
 					}
 
 					// Click data.
-					if (isset($event_params['element_selector'])) {
+					if ( isset( $event_params['element_selector'] ) ) {
 						$conversion['element_selector'] = $event_params['element_selector'];
 					}
 				}
 			}
-			unset($conversion['event_params']); // Remove raw params from response
+			unset( $conversion['event_params'] ); // Remove raw params from response
 
 			// Set defaults for null values.
 			$conversion['source']   = $conversion['source'] ?: '(direct)';
@@ -1070,9 +1061,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'per_page'    => $per_page,
 		);
 
-		set_transient($cache_key, $result, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $result, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($result);
+		return $this->prepare_success( $result );
 	}
 
 	/**
@@ -1081,14 +1072,13 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_goal_sources($request)
-	{
+	public function get_goal_sources( $request ) {
 		global $wpdb;
 
-		$goal_id           = absint($request->get_param('id'));
-		$attribution_model = sanitize_text_field($request->get_param('attribution_model')) ?: 'last_touch';
-		$date_start        = $request->get_param('date_start') ?: gmdate('Y-m-d', strtotime('-30 days'));
-		$date_end          = $request->get_param('date_end') ?: gmdate('Y-m-d');
+		$goal_id           = absint( $request->get_param( 'id' ) );
+		$attribution_model = sanitize_text_field( $request->get_param( 'attribution_model' ) ) ?: 'last_touch';
+		$date_start        = $request->get_param( 'date_start' ) ?: gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$date_end          = $request->get_param( 'date_end' ) ?: gmdate( 'Y-m-d' );
 
 		// ========================================.
 		// PHASE 2: TRANSIENT CACHE (5 min TTL).
@@ -1101,16 +1091,16 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			$date_end
 		);
 
-		$cached = get_transient($cache_key);
-		if ($cached !== false && is_array($cached)) {
-			return $this->prepare_success($cached);
+		$cached = get_transient( $cache_key );
+		if ( $cached !== false && is_array( $cached ) ) {
+			return $this->prepare_success( $cached );
 		}
 
 
 		// Multi-touch models use the conversion_attribution table.
-		$multi_touch_models = array('linear', 'time_decay', 'position_based');
+		$multi_touch_models = array( 'linear', 'time_decay', 'position_based' );
 
-		if (in_array($attribution_model, $multi_touch_models, true)) {
+		if ( in_array( $attribution_model, $multi_touch_models, true ) ) {
 			// Query conversion_attribution table for multi-touch models.
 			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$sources = $wpdb->get_results(
@@ -1164,14 +1154,14 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		}
 
 		// Calculate total for percentages.
-		$total_conversions = array_sum(array_column($sources, 'conversions'));
+		$total_conversions = array_sum( array_column( $sources, 'conversions' ) );
 
 		// Format sources with percentages.
-		foreach ($sources as &$source) {
+		foreach ( $sources as &$source ) {
 			$source['conversions'] = (int) $source['conversions'];
 			$source['revenue']     = (float) $source['revenue'];
 			$source['percentage']  = $total_conversions > 0
-				? round(($source['conversions'] / $total_conversions) * 100, 1)
+				? round( ( $source['conversions'] / $total_conversions ) * 100, 1 )
 				: 0;
 		}
 
@@ -1184,9 +1174,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			'sources'           => $sources,
 		);
 
-		set_transient($cache_key, $result, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $result, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($result);
+		return $this->prepare_success( $result );
 	}
 
 	/**
@@ -1210,31 +1200,30 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Full request data.
 	 * @return WP_REST_Response Response object with overview data.
 	 */
-	public function get_goals_overview($request)
-	{
+	public function get_goals_overview( $request ) {
 		global $wpdb;
 
 		// ========================================.
 		// PHASE 1: PARSE & VALIDATE DATE RANGE.
 		// ========================================.
-		$end_date   = $request->get_param('end_date');
-		$start_date = $request->get_param('start_date');
+		$end_date   = $request->get_param( 'end_date' );
+		$start_date = $request->get_param( 'start_date' );
 
 		// Default to last 30 days if not specified.
-		if (empty($end_date)) {
-			$end_date = gmdate('Y-m-d');
+		if ( empty( $end_date ) ) {
+			$end_date = gmdate( 'Y-m-d' );
 		}
-		if (empty($start_date)) {
-			$start_date = gmdate('Y-m-d', strtotime($end_date . ' -30 days'));
+		if ( empty( $start_date ) ) {
+			$start_date = gmdate( 'Y-m-d', strtotime( $end_date . ' -30 days' ) );
 		}
 
 		// ========================================.
 		// PHASE 2: CHECK CACHE.
 		// ========================================.
-		$cache_key = 'tracksure_goals_overview_' . md5($start_date . '_' . $end_date);
-		$cached    = get_transient($cache_key);
-		if ($cached !== false) {
-			return $this->prepare_success($cached);
+		$cache_key = 'tracksure_goals_overview_' . md5( $start_date . '_' . $end_date );
+		$cached    = get_transient( $cache_key );
+		if ( $cached !== false ) {
+			return $this->prepare_success( $cached );
 		}
 
 
@@ -1259,23 +1248,23 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		$total_conversions = (int) ($current_stats['total_conversions'] ?? 0);
-		$total_value       = (float) ($current_stats['total_value'] ?? 0);
-		$unique_visitors   = (int) ($current_stats['unique_visitors'] ?? 0);
+		$total_conversions = (int) ( $current_stats['total_conversions'] ?? 0 );
+		$total_value       = (float) ( $current_stats['total_value'] ?? 0 );
+		$unique_visitors   = (int) ( $current_stats['unique_visitors'] ?? 0 );
 
 		// Calculate conversion rate (conversions / unique visitors).
 		// Note: In production, you'd want to get total sessions instead
 		$conversion_rate = $unique_visitors > 0
-			? round(($total_conversions / $unique_visitors) * 100, 2)
+			? round( ( $total_conversions / $unique_visitors ) * 100, 2 )
 			: 0;
 
 		// ========================================.
 		// PHASE 4: CALCULATE PREVIOUS PERIOD FOR TRENDS.
 		// ========================================.
 		// Calculate date difference to determine previous period.
-		$period_length   = (strtotime($end_date) - strtotime($start_date)) / DAY_IN_SECONDS;
-		$prev_start_date = gmdate('Y-m-d', strtotime($start_date . ' -' . ceil($period_length) . ' days'));
-		$prev_end_date   = gmdate('Y-m-d', strtotime($end_date . ' -' . ceil($period_length) . ' days'));
+		$period_length   = ( strtotime( $end_date ) - strtotime( $start_date ) ) / DAY_IN_SECONDS;
+		$prev_start_date = gmdate( 'Y-m-d', strtotime( $start_date . ' -' . ceil( $period_length ) . ' days' ) );
+		$prev_end_date   = gmdate( 'Y-m-d', strtotime( $end_date . ' -' . ceil( $period_length ) . ' days' ) );
 
 		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 		$previous_stats = $wpdb->get_row(
@@ -1294,11 +1283,11 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 
-		$prev_conversions = (int) ($previous_stats['total_conversions'] ?? 0);
-		$prev_value       = (float) ($previous_stats['total_value'] ?? 0);
-		$prev_visitors    = (int) ($previous_stats['unique_visitors'] ?? 0);
+		$prev_conversions = (int) ( $previous_stats['total_conversions'] ?? 0 );
+		$prev_value       = (float) ( $previous_stats['total_value'] ?? 0 );
+		$prev_visitors    = (int) ( $previous_stats['unique_visitors'] ?? 0 );
 		$prev_rate        = $prev_visitors > 0
-			? round(($prev_conversions / $prev_visitors) * 100, 2)
+			? round( ( $prev_conversions / $prev_visitors ) * 100, 2 )
 			: 0;
 
 		// ========================================.
@@ -1334,7 +1323,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 
 		// Format daily data.
 		$daily_conversions = array();
-		foreach ($daily_data as $day) {
+		foreach ( $daily_data as $day ) {
 			$daily_conversions[] = array(
 				'date'        => $day['date'],
 				'conversions' => (int) $day['conversions'],
@@ -1373,10 +1362,10 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 
 		// Format top goals.
 		$top_goals = array();
-		foreach ($top_goals_data as $goal) {
+		foreach ( $top_goals_data as $goal ) {
 			$top_goals[] = array(
 				'goal_id'      => (int) $goal['goal_id'],
-				'name'         => esc_html($goal['name']),
+				'name'         => esc_html( $goal['name'] ),
 				'trigger_type' => $goal['trigger_type'],
 				'conversions'  => (int) $goal['conversions'],
 				'value'        => (float) $goal['value'],
@@ -1407,9 +1396,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		// ========================================.
 		// PHASE 9: CACHE RESULT (5 min TTL).
 		// ========================================.
-		set_transient($cache_key, $result, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $result, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($result);
+		return $this->prepare_success( $result );
 	}
 
 	/**
@@ -1426,13 +1415,12 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object with goal ID and optional date range.
 	 * @return WP_REST_Response Response with devices array.
 	 */
-	public function get_goal_devices($request)
-	{
+	public function get_goal_devices( $request ) {
 		global $wpdb;
 
-		$goal_id    = absint($request->get_param('id'));
-		$date_start = $request->get_param('date_start') ?: gmdate('Y-m-d', strtotime('-30 days'));
-		$date_end   = $request->get_param('date_end') ?: gmdate('Y-m-d');
+		$goal_id    = absint( $request->get_param( 'id' ) );
+		$date_start = $request->get_param( 'date_start' ) ?: gmdate( 'Y-m-d', strtotime( '-30 days' ) );
+		$date_end   = $request->get_param( 'date_end' ) ?: gmdate( 'Y-m-d' );
 
 		// Check cache.
 		$cache_key = sprintf(
@@ -1442,9 +1430,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 			$date_end
 		);
 
-		$cached = get_transient($cache_key);
-		if ($cached !== false && is_array($cached)) {
-			return $this->prepare_success($cached);
+		$cached = get_transient( $cache_key );
+		if ( $cached !== false && is_array( $cached ) ) {
+			return $this->prepare_success( $cached );
 		}
 
 		// Aggregate device + browser from sessions linked to conversions.
@@ -1471,15 +1459,15 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 
 		// Calculate total for percentages.
 		$total_conversions = 0;
-		foreach ($devices as $row) {
+		foreach ( $devices as $row ) {
 			$total_conversions += (int) $row['conversions'];
 		}
 
 		// Format response with percentages.
-		foreach ($devices as &$row) {
+		foreach ( $devices as &$row ) {
 			$row['conversions'] = (int) $row['conversions'];
 			$row['percentage']  = $total_conversions > 0
-				? round(($row['conversions'] / $total_conversions) * 100, 1)
+				? round( ( $row['conversions'] / $total_conversions ) * 100, 1 )
 				: 0;
 		}
 
@@ -1490,9 +1478,9 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		);
 
 		// Cache for 5 minutes.
-		set_transient($cache_key, $result, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $result, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($result);
+		return $this->prepare_success( $result );
 	}
 
 	/**
@@ -1501,8 +1489,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * @param bool $update Whether this is for update (id not required).
 	 * @return array Schema arguments.
 	 */
-	private function get_goal_schema($update = false)
-	{
+	private function get_goal_schema( $update = false ) {
 		return array(
 			'name'        => array(
 				'type'     => 'string',
@@ -1534,13 +1521,12 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 	 * Called after create/update/delete operations to ensure
 	 * server-side and client-side goal lists are refreshed.
 	 */
-	private function clear_goals_cache()
-	{
+	private function clear_goals_cache() {
 		// Clear server-side cache (used by Goal Evaluator).
-		delete_transient('tracksure_active_goals_server');
+		delete_transient( 'tracksure_active_goals_server' );
 
 		// Clear client-side cache (used by front-end tracking).
-		delete_transient('tracksure_active_goals');
+		delete_transient( 'tracksure_active_goals' );
 
 		// Clear Goal Evaluator in-memory cache.
 		$evaluator = TrackSure_Goal_Evaluator::get_instance();

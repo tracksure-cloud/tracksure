@@ -13,85 +13,82 @@
  * @since 2.0.0
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-class TrackSure_Checkout_Tracking
-{
-
+class TrackSure_Checkout_Tracking {
 
 
 
-  /**
-   * Initialize checkout tracking
-   */
-  public function __construct()
-  {
-    // Inject fields on checkout pages.
-    add_action('wp_footer', array($this, 'inject_checkout_tracking_fields'), 1);
 
-    // Extract tracking data from POST on order creation.
-    add_filter('tracksure_event_data', array($this, 'extract_tracking_from_post'), 10, 2);
-  }
 
-  /**
-   * Check if current page is a checkout page (any e-commerce solution)
-   *
-   * @return bool
-   */
-  private function is_checkout_page()
-  {
-    // WooCommerce.
-    if (function_exists('is_checkout') && is_checkout()) {
-      return true;
-    }
+	/**
+	 * Initialize checkout tracking
+	 */
+	public function __construct() {
+		// Inject fields on checkout pages.
+		add_action( 'wp_footer', array( $this, 'inject_checkout_tracking_fields' ), 1 );
 
-    // FluentCart (fluent-cart, fluent-checkout).
-    if (class_exists('FluentCart\App\App')) {
-      global $post;
-      if ($post && has_shortcode($post->post_content, 'fluent_cart')) {
-        return true;
-      }
-    }
+		// Extract tracking data from POST on order creation.
+		add_filter( 'tracksure_event_data', array( $this, 'extract_tracking_from_post' ), 10, 2 );
+	}
 
-    // Easy Digital Downloads.
-    if (function_exists('edd_is_checkout') && edd_is_checkout()) {
-      return true;
-    }
+	/**
+	 * Check if current page is a checkout page (any e-commerce solution)
+	 *
+	 * @return bool
+	 */
+	private function is_checkout_page() {
+		// WooCommerce.
+		if ( function_exists( 'is_checkout' ) && is_checkout() ) {
+			return true;
+		}
 
-    // SureCart
-    if (function_exists('surecart') && is_page()) {
-      global $post;
-      if ($post && (
-        has_block('surecart/checkout', $post) ||
-        strpos($post->post_content, 'surecart') !== false
-      )) {
-        return true;
-      }
-    }
+		// FluentCart (fluent-cart, fluent-checkout).
+		if ( class_exists( 'FluentCart\App\App' ) ) {
+			global $post;
+			if ( $post && has_shortcode( $post->post_content, 'fluent_cart' ) ) {
+				return true;
+			}
+		}
 
-    return false;
-  }
+		// Easy Digital Downloads.
+		if ( function_exists( 'edd_is_checkout' ) && edd_is_checkout() ) {
+			return true;
+		}
 
-  /**
-   * Inject hidden tracking fields into checkout forms
-   */
-  public function inject_checkout_tracking_fields()
-  {
-    // Only on checkout pages.
-    if (! $this->is_checkout_page()) {
-      return;
-    }
+		// SureCart
+		if ( function_exists( 'surecart' ) && is_page() ) {
+			global $post;
+			if ( $post && (
+			has_block( 'surecart/checkout', $post ) ||
+			strpos( $post->post_content, 'surecart' ) !== false
+			) ) {
+				return true;
+			}
+		}
 
-    // Don't inject if tracking disabled.
-    if (! get_option('tracksure_tracking_enabled', true)) {
-      return;
-    }
+		return false;
+	}
 
-    // Generate nonce for secure tracking.
-    $nonce = wp_create_nonce('tracksure_checkout_tracking');
+	/**
+	 * Inject hidden tracking fields into checkout forms
+	 */
+	public function inject_checkout_tracking_fields() {
+		// Only on checkout pages.
+		if ( ! $this->is_checkout_page() ) {
+			return;
+		}
 
-    // Build the entire JavaScript as a PHP string.
-    $checkout_script = "(function() {
+		// Don't inject if tracking disabled.
+		if ( ! get_option( 'tracksure_tracking_enabled', true ) ) {
+			return;
+		}
+
+		// Generate nonce for secure tracking.
+		$nonce = wp_create_nonce( 'tracksure_checkout_tracking' );
+
+		// Build the entire JavaScript as a PHP string.
+		$checkout_script = "(function() {
   'use strict';
 
   /**
@@ -237,7 +234,7 @@ class TrackSure_Checkout_Tracking
       },
       {
         name: '_ts_nonce',
-        value: '" . esc_js($nonce) . "'
+        value: '" . esc_js( $nonce ) . "'
       }
     ];
 
@@ -412,111 +409,109 @@ class TrackSure_Checkout_Tracking
   }
 })();";
 
-    // Register a dummy script handle and add the inline script.
-    // Use false for source to indicate inline-only script.
-    wp_register_script('ts-checkout', false, array(), TRACKSURE_VERSION, true);
-    wp_enqueue_script('ts-checkout');
-    wp_add_inline_script('ts-checkout', $checkout_script);
-  }
+		// Register a dummy script handle and add the inline script.
+		// Use false for source to indicate inline-only script.
+		wp_register_script( 'ts-checkout', false, array(), TRACKSURE_VERSION, true );
+		wp_enqueue_script( 'ts-checkout' );
+		wp_add_inline_script( 'ts-checkout', $checkout_script );
+	}
 
-  /**  * Validate UUID format (version 4).
-   *
-   * @param string $uuid UUID to validate.
-   * @return bool True if valid UUID format.
-   */
-  private function is_valid_uuid($uuid)
-  {
-    return (bool) preg_match('/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i', $uuid);
-  }
+	/**  * Validate UUID format (version 4).
+	 *
+	 * @param string $uuid UUID to validate.
+	 * @return bool True if valid UUID format.
+	 */
+	private function is_valid_uuid( $uuid ) {
+		return (bool) preg_match( '/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/i', $uuid );
+	}
 
-  /**  * Extract tracking data from POST and merge into event data
-   *
-   * @param array  $event_data Event data array.
-   * @param string $event_name Event name.
-   * @return array Modified event data.
-   */
-  public function extract_tracking_from_post($event_data, $event_name)
-  {
-    // Only for purchase/checkout events.
-    $checkout_events = array('purchase', 'begin_checkout', 'add_payment_info');
-    if (! in_array($event_name, $checkout_events, true)) {
-      return $event_data;
-    }
+	/**  * Extract tracking data from POST and merge into event data
+	 *
+	 * @param array  $event_data Event data array.
+	 * @param string $event_name Event name.
+	 * @return array Modified event data.
+	 */
+	public function extract_tracking_from_post( $event_data, $event_name ) {
+		// Only for purchase/checkout events.
+		$checkout_events = array( 'purchase', 'begin_checkout', 'add_payment_info' );
+		if ( ! in_array( $event_name, $checkout_events, true ) ) {
+			return $event_data;
+		}
 
-    // Verify nonce — required before reading any $_POST data.
-    if (
-      ! isset($_POST['_ts_nonce'])
-      || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['_ts_nonce'])), 'tracksure_checkout_tracking')
-    ) {
-      // Nonce missing or invalid — do not read $_POST, fall back to session-based tracking.
-      return $event_data;
-    }
+		// Verify nonce — required before reading any $_POST data.
+		if (
+		! isset( $_POST['_ts_nonce'] )
+		|| ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['_ts_nonce'] ) ), 'tracksure_checkout_tracking' )
+		) {
+			// Nonce missing or invalid — do not read $_POST, fall back to session-based tracking.
+			return $event_data;
+		}
 
-    // Nonce verified — safe to extract tracking IDs from POST.
-    if (isset($_POST['_ts_eid']) && ! empty($_POST['_ts_eid'])) {
-      $sanitized = sanitize_text_field(wp_unslash($_POST['_ts_eid']));
-      // Validate event_id format (UUID or ts_timestamp_randomstring format).
-      if ($this->is_valid_uuid($sanitized) || preg_match('/^ts_[0-9]+_[a-z0-9]+$/i', $sanitized)) {
-        $event_data['event_id'] = $sanitized;
-      }
-    }
+		// Nonce verified — safe to extract tracking IDs from POST.
+		if ( isset( $_POST['_ts_eid'] ) && ! empty( $_POST['_ts_eid'] ) ) {
+			$sanitized = sanitize_text_field( wp_unslash( $_POST['_ts_eid'] ) );
+			// Validate event_id format (UUID or ts_timestamp_randomstring format).
+			if ( $this->is_valid_uuid( $sanitized ) || preg_match( '/^ts_[0-9]+_[a-z0-9]+$/i', $sanitized ) ) {
+				$event_data['event_id'] = $sanitized;
+			}
+		}
 
-    if (isset($_POST['_ts_cid']) && ! empty($_POST['_ts_cid'])) {
-      $sanitized = sanitize_text_field(wp_unslash($_POST['_ts_cid']));
-      if ($this->is_valid_uuid($sanitized)) {
-        $event_data['client_id'] = $sanitized;
-      }
-    }
+		if ( isset( $_POST['_ts_cid'] ) && ! empty( $_POST['_ts_cid'] ) ) {
+			$sanitized = sanitize_text_field( wp_unslash( $_POST['_ts_cid'] ) );
+			if ( $this->is_valid_uuid( $sanitized ) ) {
+				$event_data['client_id'] = $sanitized;
+			}
+		}
 
-    if (isset($_POST['_ts_sid']) && ! empty($_POST['_ts_sid'])) {
-      $sanitized = sanitize_text_field(wp_unslash($_POST['_ts_sid']));
-      if ($this->is_valid_uuid($sanitized)) {
-        $event_data['session_id'] = $sanitized;
-      }
-    }
+		if ( isset( $_POST['_ts_sid'] ) && ! empty( $_POST['_ts_sid'] ) ) {
+			$sanitized = sanitize_text_field( wp_unslash( $_POST['_ts_sid'] ) );
+			if ( $this->is_valid_uuid( $sanitized ) ) {
+				$event_data['session_id'] = $sanitized;
+			}
+		}
 
-    // BILLING FIELDS: Extract checkout form data for EMQ enrichment.
-    // For guest users (not logged in), this is the ONLY source of email/phone/address.
-    // These dramatically improve Meta CAPI Event Match Quality and cross-device matching.
-    $billing_fields = array(
-      '_ts_b_email'  => 'email',
-      '_ts_b_phone'  => 'phone',
-      '_ts_b_fname'  => 'first_name',
-      '_ts_b_lname'  => 'last_name',
-      '_ts_b_city'   => 'city',
-      '_ts_b_state'  => 'state',
-      '_ts_b_zip'    => 'zip',
-      '_ts_b_country' => 'country',
-    );
+		// BILLING FIELDS: Extract checkout form data for EMQ enrichment.
+		// For guest users (not logged in), this is the ONLY source of email/phone/address.
+		// These dramatically improve Meta CAPI Event Match Quality and cross-device matching.
+		$billing_fields = array(
+			'_ts_b_email'   => 'email',
+			'_ts_b_phone'   => 'phone',
+			'_ts_b_fname'   => 'first_name',
+			'_ts_b_lname'   => 'last_name',
+			'_ts_b_city'    => 'city',
+			'_ts_b_state'   => 'state',
+			'_ts_b_zip'     => 'zip',
+			'_ts_b_country' => 'country',
+		);
 
-    $user_data = isset($event_data['user_data']) && is_array($event_data['user_data']) ? $event_data['user_data'] : array();
-    $has_billing = false;
+		$user_data   = isset( $event_data['user_data'] ) && is_array( $event_data['user_data'] ) ? $event_data['user_data'] : array();
+		$has_billing = false;
 
-    foreach ($billing_fields as $post_key => $data_key) {
-      // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above
-      if (isset($_POST[$post_key]) && ! empty($_POST[$post_key])) {
-        $value = sanitize_text_field(wp_unslash($_POST[$post_key]));
-        if (! empty($value)) {
-          // Only override if not already set (server data may be more authoritative).
-          if (empty($user_data[$data_key])) {
-            $user_data[$data_key] = $value;
-            $has_billing = true;
-          }
-        }
-      }
-    }
+		foreach ( $billing_fields as $post_key => $data_key ) {
+		  // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Nonce already verified above
+			if ( isset( $_POST[ $post_key ] ) && ! empty( $_POST[ $post_key ] ) ) {
+				$value = sanitize_text_field( wp_unslash( $_POST[ $post_key ] ) );
+				if ( ! empty( $value ) ) {
+					// Only override if not already set (server data may be more authoritative).
+					if ( empty( $user_data[ $data_key ] ) ) {
+						$user_data[ $data_key ] = $value;
+						$has_billing            = true;
+					}
+				}
+			}
+		}
 
-    // Validate email format.
-    if (! empty($user_data['email']) && ! is_email($user_data['email'])) {
-      unset($user_data['email']);
-    }
+		// Validate email format.
+		if ( ! empty( $user_data['email'] ) && ! is_email( $user_data['email'] ) ) {
+			unset( $user_data['email'] );
+		}
 
-    if ($has_billing) {
-      $event_data['user_data'] = $user_data;
-    }
+		if ( $has_billing ) {
+			$event_data['user_data'] = $user_data;
+		}
 
-    return $event_data;
-  }
+		return $event_data;
+	}
 }
 
 // Initialize.

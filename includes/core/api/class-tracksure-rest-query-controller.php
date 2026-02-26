@@ -25,15 +25,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Query controller class.
  */
-class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
-{
+class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
+
 
 
 
@@ -62,19 +62,17 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$core                  = TrackSure_Core::get_instance();
-		$this->db              = $core->get_service('db');
-		$this->session_manager = $core->get_service('session_manager');
-		$this->journey_engine  = $core->get_service('journey');
+		$this->db              = $core->get_service( 'db' );
+		$this->session_manager = $core->get_service( 'session_manager' );
+		$this->journey_engine  = $core->get_service( 'journey' );
 	}
 
 	/**
 	 * Register routes.
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		$date_args = $this->get_date_range_args(); // Now inherited from base class
 
 		// GET /query/overview - Overview metrics.
@@ -83,8 +81,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/overview',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_overview'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_overview' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $date_args,
 			)
 		);
@@ -95,8 +93,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/realtime',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_realtime'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_realtime' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -106,8 +104,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/sessions',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_sessions'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_sessions' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array_merge(
 					$date_args,
 					array(
@@ -132,8 +130,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/journey/(?P<session_id>[\w-]+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_journey'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_journey' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'session_id' => array(
 						'required' => true,
@@ -149,8 +147,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/funnel',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_funnel'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_funnel' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array_merge(
 					$date_args,
 					array(
@@ -169,8 +167,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/registry',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_registry'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_registry' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -180,8 +178,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/logs',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_logs'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_logs' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'limit' => array(
 						'type'    => 'integer',
@@ -191,7 +189,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 					),
 					'level' => array(
 						'type'    => 'string',
-						'enum'    => array('error', 'warning', 'info', 'debug'),
+						'enum'    => array( 'error', 'warning', 'info', 'debug' ),
 						'default' => null,
 					),
 				),
@@ -204,8 +202,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/traffic-sources',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_traffic_sources'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_traffic_sources' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $date_args,
 			)
 		);
@@ -216,15 +214,15 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/attribution',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_attribution'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_attribution' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array_merge(
 					$date_args,
 					array(
 						'model' => array(
 							'type'    => 'string',
 							'default' => 'last_touch',
-							'enum'    => array('first_touch', 'last_touch', 'linear', 'time_decay', 'position_based'),
+							'enum'    => array( 'first_touch', 'last_touch', 'linear', 'time_decay', 'position_based' ),
 						),
 					)
 				),
@@ -237,8 +235,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/pages',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_pages'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_pages' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $date_args,
 			)
 		);
@@ -249,15 +247,15 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/visitors',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_visitors'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_visitors' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array_merge(
 					$date_args,
 					array(
 						'filter' => array(
 							'type'    => 'string',
 							'default' => 'all',
-							'enum'    => array('all', 'converted', 'returning'),
+							'enum'    => array( 'all', 'converted', 'returning' ),
 						),
 					)
 				),
@@ -270,14 +268,14 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/visitor/(?P<visitor_id>\d+)/journey',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_visitor_journey'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_visitor_journey' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'visitor_id' => array(
 						'required'          => true,
 						'type'              => 'integer',
-						'validate_callback' => function ($param) {
-							return is_numeric($param) && $param > 0;
+						'validate_callback' => function ( $param ) {
+							return is_numeric( $param ) && $param > 0;
 						},
 					),
 				),
@@ -290,8 +288,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/active-pages',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_active_pages'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_active_pages' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'minutes' => array(
 						'type'    => 'integer',
@@ -309,8 +307,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/attribution/insights',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_attribution_insights'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_attribution_insights' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $date_args,
 			)
 		);
@@ -321,8 +319,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/attribution/paths',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_attribution_paths'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_attribution_paths' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array_merge(
 					$date_args,
 					array(
@@ -343,8 +341,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/attribution/device-patterns',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_device_patterns'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_device_patterns' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $date_args,
 			)
 		);
@@ -355,8 +353,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/conversions/breakdown',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_conversions_breakdown'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_conversions_breakdown' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $date_args,
 			)
 		);
@@ -367,8 +365,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/conversions/time-to-convert',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_time_to_convert_histogram'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_time_to_convert_histogram' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $date_args,
 			)
 		);
@@ -379,8 +377,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'/query/attribution/models',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_attribution_models'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_attribution_models' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => $date_args,
 			)
 		);
@@ -394,60 +392,59 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_overview($request)
-	{
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
-		$segment    = sanitize_text_field($request->get_param('segment'));
+	public function get_overview( $request ) {
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
+		$segment    = sanitize_text_field( $request->get_param( 'segment' ) );
 
 		// Validate date format (YYYY-MM-DD).
-		if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_start)) {
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date_start ) ) {
 			return new WP_Error(
 				'invalid_date_start',
 				'Invalid start date format. Use YYYY-MM-DD.',
-				array('status' => 400)
+				array( 'status' => 400 )
 			);
 		}
 
-		if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_end)) {
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date_end ) ) {
 			return new WP_Error(
 				'invalid_date_end',
 				'Invalid end date format. Use YYYY-MM-DD.',
-				array('status' => 400)
+				array( 'status' => 400 )
 			);
 		}
 
 		// Check cache first (5 minute TTL).
-		$cache_key = 'tracksure_overview_v2_' . md5(serialize(array($date_start, $date_end, $segment)));
-		$cached    = get_transient($cache_key);
+		$cache_key = 'tracksure_overview_v2_' . md5( serialize( array( $date_start, $date_end, $segment ) ) );
+		$cached    = get_transient( $cache_key );
 
-		if ($cached !== false) {
-			return $this->prepare_success($cached);
+		if ( $cached !== false ) {
+			return $this->prepare_success( $cached );
 		}
 
 		// Get enhanced visitor-based metrics.
-		$metrics = $this->db->get_enhanced_metrics($date_start, $date_end);
+		$metrics = $this->db->get_enhanced_metrics( $date_start, $date_end );
 
 		// Get device breakdown.
-		$devices = $this->db->get_device_breakdown($date_start, $date_end);
+		$devices = $this->db->get_device_breakdown( $date_start, $date_end );
 
 		// Get source breakdown (top 10).
-		$top_sources = $this->db->get_source_breakdown($date_start, $date_end, 10);
+		$top_sources = $this->db->get_source_breakdown( $date_start, $date_end, 10 );
 
 		// Get country breakdown (top 10).
-		$top_countries = $this->db->get_country_breakdown($date_start, $date_end, 10);
+		$top_countries = $this->db->get_country_breakdown( $date_start, $date_end, 10 );
 
 		// Get top pages (visitor-based).
-		$top_pages = $this->db->get_top_pages_visitor_based($date_start, $date_end, 10);
+		$top_pages = $this->db->get_top_pages_visitor_based( $date_start, $date_end, 10 );
 
 		// Get daily breakdown for chart (visitor-based).
-		$chart_data = $this->get_daily_breakdown($date_start, $date_end, $segment);
+		$chart_data = $this->get_daily_breakdown( $date_start, $date_end, $segment );
 
 		// Get previous period for comparison (Phase 1 - Comparative Metrics).
-		$previous_period = $this->get_previous_period($date_start, $date_end);
+		$previous_period = $this->get_previous_period( $date_start, $date_end );
 
 		// Get time intelligence insights (Phase 2 - Temporal Analysis).
-		$time_intelligence = $this->get_time_intelligence($date_end);
+		$time_intelligence = $this->get_time_intelligence( $date_end );
 
 		// Combine into comprehensive response.
 		$response = array(
@@ -459,7 +456,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'top_pages'         => $top_pages,
 			'chart_data'        => $chart_data,
 			'time_intelligence' => $time_intelligence,
-			'data_updated_at'   => gmdate('Y-m-d H:i:s'),
+			'data_updated_at'   => gmdate( 'Y-m-d H:i:s' ),
 		);
 
 		/**
@@ -473,12 +470,12 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		 * @param string $date_start Start date.
 		 * @param string $date_end End date.
 		 */
-		$response = apply_filters('tracksure_query_overview', $response, $date_start, $date_end);
+		$response = apply_filters( 'tracksure_query_overview', $response, $date_start, $date_end );
 
 		// Cache for 5 minutes.
-		set_transient($cache_key, $response, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $response, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($response);
+		return $this->prepare_success( $response );
 	}
 
 	/**
@@ -489,8 +486,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param string $segment Optional segment filter.
 	 * @return array Chart data with labels and series.
 	 */
-	private function get_daily_breakdown($date_start, $date_end, $segment = null)
-	{
+	private function get_daily_breakdown( $date_start, $date_end, $segment = null ) {
 		global $wpdb;
 
 		$start_datetime = $date_start . ' 00:00:00';
@@ -498,8 +494,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 
 		// Build WHERE clause for segment filtering.
 		$segment_where = '';
-		if (! empty($segment)) {
-			switch ($segment) {
+		if ( ! empty( $segment ) ) {
+			switch ( $segment ) {
 				case 'new':
 					$segment_where = ' AND s.session_number = 1';
 					break;
@@ -544,8 +540,8 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		$conversions  = array();
 		$revenue      = array();
 
-		foreach ($results as $row) {
-			$labels[]       = gmdate('M j', strtotime($row['date']));
+		foreach ( $results as $row ) {
+			$labels[]       = gmdate( 'M j', strtotime( $row['date'] ) );
 			$visitors[]     = (int) $row['visitors'];
 			$new_visitors[] = (int) $row['new_visitors'];
 			$sessions[]     = (int) $row['sessions'];
@@ -571,99 +567,98 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_realtime($request)
-	{
+	public function get_realtime( $request ) {
 		// Check cache first (10 second TTL - balance between freshness and performance).
 		$cache_key = 'tracksure_realtime_v4';
-		$cached    = get_transient($cache_key);
-		if ($cached !== false) {
-			return $this->prepare_success($cached);
+		$cached    = get_transient( $cache_key );
+		if ( $cached !== false ) {
+			return $this->prepare_success( $cached );
 		}
 
 		$active_sessions = $this->session_manager->get_realtime_sessions();
 
 		// Ensure active_sessions is always an array.
-		if (! is_array($active_sessions)) {
+		if ( ! is_array( $active_sessions ) ) {
 			$active_sessions = array();
 		}
 
 		// Get recent events (last 5 minutes - reduced from 30 for better performance).
-		$recent_events = $this->db->get_recent_events(5);
+		$recent_events = $this->db->get_recent_events( 5 );
 
 		// Ensure recent_events is always an array.
-		if (! is_array($recent_events)) {
+		if ( ! is_array( $recent_events ) ) {
 			$recent_events = array();
 		}
 
 		// Group sessions by current page to create active_pages array.
 		// Count UNIQUE VISITORS per page (not sessions) to prevent double-counting.
-		$active_pages = array();
+		$active_pages  = array();
 		$page_visitors = array(); // page => array of visitor_ids
 
-		foreach ($active_sessions as $session) {
+		foreach ( $active_sessions as $session ) {
 			// Convert stdClass to array if needed.
-			$session_array = is_object($session) ? (array) $session : $session;
+			$session_array = is_object( $session ) ? (array) $session : $session;
 
-			if (isset($session_array['current_page']) && ! empty($session_array['current_page'])) {
+			if ( isset( $session_array['current_page'] ) && ! empty( $session_array['current_page'] ) ) {
 				$page = $session_array['current_page'];
-				$vid  = isset($session_array['visitor_id']) ? $session_array['visitor_id'] : null;
-				if (! isset($page_visitors[$page])) {
-					$page_visitors[$page] = array();
+				$vid  = isset( $session_array['visitor_id'] ) ? $session_array['visitor_id'] : null;
+				if ( ! isset( $page_visitors[ $page ] ) ) {
+					$page_visitors[ $page ] = array();
 				}
-				if ($vid !== null) {
-					$page_visitors[$page][$vid] = true;
+				if ( $vid !== null ) {
+					$page_visitors[ $page ][ $vid ] = true;
 				}
 			}
 		}
 
 		// Convert to format expected by React: [{path: string, users: number}].
-		foreach ($page_visitors as $path => $visitors) {
+		foreach ( $page_visitors as $path => $visitors ) {
 			$active_pages[] = array(
 				'path'  => $path,
-				'users' => count($visitors),
+				'users' => count( $visitors ),
 			);
 		}
 
 		// Sort by most users first.
 		usort(
 			$active_pages,
-			function ($a, $b) {
+			function ( $a, $b ) {
 				return $b['users'] - $a['users'];
 			}
 		);
 
 		// Format recent_events to match React expectations: [{event: string, page: string, title: string, time: string}].
 		$formatted_events = array();
-		foreach ($recent_events as $event) {
+		foreach ( $recent_events as $event ) {
 			// Convert stdClass to array if needed.
-			$event_array = is_object($event) ? (array) $event : $event;
+			$event_array = is_object( $event ) ? (array) $event : $event;
 
-			$event_name = isset($event_array['event_name']) ? $event_array['event_name'] : 'page_view';
-			$page_url   = isset($event_array['page_url']) ? $event_array['page_url'] : '/';
-			$page_title = isset($event_array['page_title']) && ! empty($event_array['page_title'])
+			$event_name = isset( $event_array['event_name'] ) ? $event_array['event_name'] : 'page_view';
+			$page_url   = isset( $event_array['page_url'] ) ? $event_array['page_url'] : '/';
+			$page_title = isset( $event_array['page_title'] ) && ! empty( $event_array['page_title'] )
 				? $event_array['page_title']
 				: $page_url;
 
 			// Get Unix timestamp (already converted by DB query).
-			$timestamp = isset($event_array['occurred_at']) ? (int) $event_array['occurred_at'] : time();
+			$timestamp = isset( $event_array['occurred_at'] ) ? (int) $event_array['occurred_at'] : time();
 
 			$formatted_event = array(
 				'event'         => $event_name,
 				'page'          => $page_url,
 				'title'         => $page_title,
 				'time'          => $timestamp,
-				'is_conversion' => isset($event_array['is_conversion']) && $event_array['is_conversion'] == 1,
+				'is_conversion' => isset( $event_array['is_conversion'] ) && $event_array['is_conversion'] == 1,
 			);
 
 			// Add conversion value if it's a conversion event.
-			if ($formatted_event['is_conversion'] && isset($event_array['conversion_value'])) {
+			if ( $formatted_event['is_conversion'] && isset( $event_array['conversion_value'] ) ) {
 				$formatted_event['conversion_value'] = (float) $event_array['conversion_value'];
 			}
 
 			// Parse event_params if available.
-			if (! empty($event_array['event_params'])) {
-				$params = json_decode($event_array['event_params'], true);
-				if (is_array($params)) {
+			if ( ! empty( $event_array['event_params'] ) ) {
+				$params = json_decode( $event_array['event_params'], true );
+				if ( is_array( $params ) ) {
 					$formatted_event['params'] = $params;
 				}
 			}
@@ -679,29 +674,29 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		$source_visitors  = array(); // source_key => array of visitor_ids
 		$source_meta      = array(); // source_key => ['source' => ..., 'medium' => ...]
 
-		foreach ($active_sessions as $session) {
-			$session_array = is_object($session) ? (array) $session : $session;
-			$vid = isset($session_array['visitor_id']) ? $session_array['visitor_id'] : null;
+		foreach ( $active_sessions as $session ) {
+			$session_array = is_object( $session ) ? (array) $session : $session;
+			$vid           = isset( $session_array['visitor_id'] ) ? $session_array['visitor_id'] : null;
 
 			// Count unique visitors per device.
-			if (isset($session_array['device_type']) && ! empty($session_array['device_type'])) {
+			if ( isset( $session_array['device_type'] ) && ! empty( $session_array['device_type'] ) ) {
 				$device = $session_array['device_type'];
-				if (! isset($device_visitors[$device])) {
-					$device_visitors[$device] = array();
+				if ( ! isset( $device_visitors[ $device ] ) ) {
+					$device_visitors[ $device ] = array();
 				}
-				if ($vid !== null) {
-					$device_visitors[$device][$vid] = true;
+				if ( $vid !== null ) {
+					$device_visitors[ $device ][ $vid ] = true;
 				}
 			}
 
 			// Count unique visitors per country.
-			if (isset($session_array['country']) && ! empty($session_array['country'])) {
+			if ( isset( $session_array['country'] ) && ! empty( $session_array['country'] ) ) {
 				$country = $session_array['country'];
-				if (! isset($country_visitors[$country])) {
-					$country_visitors[$country] = array();
+				if ( ! isset( $country_visitors[ $country ] ) ) {
+					$country_visitors[ $country ] = array();
 				}
-				if ($vid !== null) {
-					$country_visitors[$country][$vid] = true;
+				if ( $vid !== null ) {
+					$country_visitors[ $country ][ $vid ] = true;
 				}
 			}
 
@@ -709,81 +704,84 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			$source = '(direct)';
 			$medium = '(none)';
 
-			if (isset($session_array['utm_source']) && ! empty($session_array['utm_source'])) {
+			if ( isset( $session_array['utm_source'] ) && ! empty( $session_array['utm_source'] ) ) {
 				$source = $session_array['utm_source'];
 			}
 
-			if (isset($session_array['utm_medium']) && ! empty($session_array['utm_medium'])) {
+			if ( isset( $session_array['utm_medium'] ) && ! empty( $session_array['utm_medium'] ) ) {
 				$medium = $session_array['utm_medium'];
 			}
 
 			$source_key = $source . ' / ' . $medium;
-			if (! isset($source_visitors[$source_key])) {
-				$source_visitors[$source_key] = array();
-				$source_meta[$source_key]     = array('source' => $source, 'medium' => $medium);
+			if ( ! isset( $source_visitors[ $source_key ] ) ) {
+				$source_visitors[ $source_key ] = array();
+				$source_meta[ $source_key ]     = array(
+					'source' => $source,
+					'medium' => $medium,
+				);
 			}
-			if ($vid !== null) {
-				$source_visitors[$source_key][$vid] = true;
+			if ( $vid !== null ) {
+				$source_visitors[ $source_key ][ $vid ] = true;
 			}
 		}
 
 		// Format devices array (unique visitors).
 		$active_devices = array();
-		foreach ($device_visitors as $device => $visitors) {
+		foreach ( $device_visitors as $device => $visitors ) {
 			$active_devices[] = array(
 				'device' => $device,
-				'users'  => count($visitors),
+				'users'  => count( $visitors ),
 			);
 		}
 		usort(
 			$active_devices,
-			function ($a, $b) {
+			function ( $a, $b ) {
 				return $b['users'] - $a['users'];
 			}
 		);
 
 		// Format countries array (unique visitors).
 		$active_countries = array();
-		foreach ($country_visitors as $country => $visitors) {
+		foreach ( $country_visitors as $country => $visitors ) {
 			$active_countries[] = array(
 				'country' => $country,
-				'users'   => count($visitors),
+				'users'   => count( $visitors ),
 			);
 		}
 		usort(
 			$active_countries,
-			function ($a, $b) {
+			function ( $a, $b ) {
 				return $b['users'] - $a['users'];
 			}
 		);
 
 		// Format sources array (unique visitors).
 		$active_sources = array();
-		foreach ($source_visitors as $source_key => $visitors) {
+		foreach ( $source_visitors as $source_key => $visitors ) {
 			$active_sources[] = array(
-				'source' => $source_meta[$source_key]['source'],
-				'medium' => $source_meta[$source_key]['medium'],
-				'users'  => count($visitors),
+				'source' => $source_meta[ $source_key ]['source'],
+				'medium' => $source_meta[ $source_key ]['medium'],
+				'users'  => count( $visitors ),
 			);
 		}
 		usort(
 			$active_sources,
-			function ($a, $b) {
+			function ( $a, $b ) {
 				return $b['users'] - $a['users'];
 			}
 		);
 
 		// Count unique visitors, not sessions (1 visitor with 2 sessions = 1 active user)
 		$unique_visitor_ids = array();
-		foreach ($active_sessions as $session) {
-			$s = is_object($session) ? (array) $session : $session;
-			if (! empty($s['visitor_id'])) {
-				$unique_visitor_ids[$s['visitor_id']] = true;
+		foreach ( $active_sessions as $session ) {
+			$s = is_object( $session ) ? (array) $session : $session;
+			if ( ! empty( $s['visitor_id'] ) ) {
+				$unique_visitor_ids[ $s['visitor_id'] ] = true;
 			}
 		}
 
 		$data = array(
-			'active_users'     => count($unique_visitor_ids),
+			'active_users'     => count( $unique_visitor_ids ),
 			'active_pages'     => $active_pages,
 			'active_devices'   => $active_devices,
 			'active_countries' => $active_countries,
@@ -799,12 +797,12 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		 *
 		 * @param array $data Realtime data.
 		 */
-		$data = apply_filters('tracksure_query_realtime', $data);
+		$data = apply_filters( 'tracksure_query_realtime', $data );
 
 		// Cache for 10 seconds (balance between real-time freshness and performance).
-		set_transient($cache_key, $data, 10);
+		set_transient( $cache_key, $data, 10 );
 
-		return $this->prepare_success($data);
+		return $this->prepare_success( $data );
 	}
 
 	/**
@@ -813,20 +811,19 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_sessions($request)
-	{
-		$date_start = $request->get_param('date_start');
-		$date_end   = $request->get_param('date_end');
-		$segment    = sanitize_text_field($request->get_param('segment'));
-		$page       = $request->get_param('page');
-		$per_page   = $request->get_param('per_page');
+	public function get_sessions( $request ) {
+		$date_start = $request->get_param( 'date_start' );
+		$date_end   = $request->get_param( 'date_end' );
+		$segment    = sanitize_text_field( $request->get_param( 'segment' ) );
+		$page       = $request->get_param( 'page' );
+		$per_page   = $request->get_param( 'per_page' );
 
 		// Check cache first (5 minute TTL).
-		$cache_key = 'tracksure_sessions_v2_' . md5(serialize(array($date_start, $date_end, $segment, $page, $per_page)));
-		$cached    = get_transient($cache_key);
+		$cache_key = 'tracksure_sessions_v2_' . md5( serialize( array( $date_start, $date_end, $segment, $page, $per_page ) ) );
+		$cached    = get_transient( $cache_key );
 
-		if ($cached !== false) {
-			return $this->prepare_success($cached);
+		if ( $cached !== false ) {
+			return $this->prepare_success( $cached );
 		}
 
 		// OPTIMIZED: Get sessions and count in a single efficient call.
@@ -841,12 +838,12 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		);
 
 		// Ensure sessions is always an array.
-		if (! isset($result['sessions']) || ! is_array($result['sessions'])) {
+		if ( ! isset( $result['sessions'] ) || ! is_array( $result['sessions'] ) ) {
 			$result['sessions'] = array();
 		}
 
 		// Ensure total is a number.
-		if (! isset($result['total']) || ! is_numeric($result['total'])) {
+		if ( ! isset( $result['total'] ) || ! is_numeric( $result['total'] ) ) {
 			$result['total'] = 0;
 		}
 
@@ -855,13 +852,13 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'total'       => (int) $result['total'],
 			'page'        => (int) $page,
 			'per_page'    => (int) $per_page,
-			'total_pages' => $per_page > 0 ? ceil($result['total'] / $per_page) : 0,
+			'total_pages' => $per_page > 0 ? ceil( $result['total'] / $per_page ) : 0,
 		);
 
 		// Cache for 5 minutes.
-		set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $data, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($data);
+		return $this->prepare_success( $data );
 	}
 
 	/**
@@ -870,13 +867,12 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_journey($request)
-	{
-		$session_id = $request->get_param('session_id');
+	public function get_journey( $request ) {
+		$session_id = $request->get_param( 'session_id' );
 
-		$journey = $this->journey_engine->get_session_journey($session_id);
+		$journey = $this->journey_engine->get_session_journey( $session_id );
 
-		if (empty($journey)) {
+		if ( empty( $journey ) ) {
 			return $this->prepare_error(
 				'session_not_found',
 				'Session not found.',
@@ -892,9 +888,9 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		 * @param array $journey Journey data.
 		 * @param int   $session_id Session ID.
 		 */
-		$journey = apply_filters('tracksure_query_journey', $journey, $session_id);
+		$journey = apply_filters( 'tracksure_query_journey', $journey, $session_id );
 
-		return $this->prepare_success($journey);
+		return $this->prepare_success( $journey );
 	}
 
 	/**
@@ -903,13 +899,12 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_visitor_journey($request)
-	{
-		$visitor_id = (int) $request->get_param('visitor_id');
+	public function get_visitor_journey( $request ) {
+		$visitor_id = (int) $request->get_param( 'visitor_id' );
 
-		$journey = $this->journey_engine->get_visitor_journey($visitor_id);
+		$journey = $this->journey_engine->get_visitor_journey( $visitor_id );
 
-		if (empty($journey)) {
+		if ( empty( $journey ) ) {
 			return $this->prepare_error(
 				'visitor_not_found',
 				'Visitor not found.',
@@ -925,9 +920,9 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		 * @param array $journey Journey data.
 		 * @param int   $visitor_id Visitor ID.
 		 */
-		$journey = apply_filters('tracksure_query_visitor_journey', $journey, $visitor_id);
+		$journey = apply_filters( 'tracksure_query_visitor_journey', $journey, $visitor_id );
 
-		return $this->prepare_success($journey);
+		return $this->prepare_success( $journey );
 	}
 
 	/**
@@ -938,11 +933,10 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_funnel($request)
-	{
-		$date_start = $request->get_param('date_start');
-		$date_end   = $request->get_param('date_end');
-		$steps      = $request->get_param('steps');
+	public function get_funnel( $request ) {
+		$date_start = $request->get_param( 'date_start' );
+		$date_end   = $request->get_param( 'date_end' );
+		$steps      = $request->get_param( 'steps' );
 
 		/**
 		 * Calculate funnel data.
@@ -967,7 +961,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			$date_end
 		);
 
-		return $this->prepare_success($funnel_data);
+		return $this->prepare_success( $funnel_data );
 	}
 
 	/**
@@ -978,10 +972,9 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_registry($request)
-	{
+	public function get_registry( $request ) {
 		$core     = TrackSure_Core::get_instance();
-		$registry = $core->get_service('registry');
+		$registry = $core->get_service( 'registry' );
 
 		/**
 		 * Filter registry data before sending to admin.
@@ -998,11 +991,11 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				'version'      => 1,
 				'events'       => $registry ? $registry->get_events() : array(),
 				'destinations' => array(),
-				'models'       => array('first_touch', 'last_touch', 'linear', 'time_decay', 'position_based'),
+				'models'       => array( 'first_touch', 'last_touch', 'linear', 'time_decay', 'position_based' ),
 			)
 		);
 
-		return $this->prepare_success($registry_data);
+		return $this->prepare_success( $registry_data );
 	}
 
 	/**
@@ -1013,14 +1006,13 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_logs($request)
-	{
+	public function get_logs( $request ) {
 		global $wpdb;
 
 		$core   = TrackSure_Core::get_instance();
-		$logger = $core->get_service('logger');
+		$logger = $core->get_service( 'logger' );
 
-		if (! $logger) {
+		if ( ! $logger ) {
 			return $this->prepare_success(
 				array(
 					'logs'    => array(),
@@ -1031,9 +1023,9 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 
 		// Check if logs table exists.
 		$table_name   = $wpdb->prefix . 'tracksure_logs';
-		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $table_name)) === $table_name;
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $table_name ) ) === $table_name;
 
-		if (! $table_exists) {
+		if ( ! $table_exists ) {
 			return $this->prepare_success(
 				array(
 					'logs'    => array(),
@@ -1042,15 +1034,15 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			);
 		}
 
-		$limit = (int) $request->get_param('limit');
-		$level = $request->get_param('level');
+		$limit = (int) $request->get_param( 'limit' );
+		$level = $request->get_param( 'level' );
 
-		$logs = $logger->get_recent_logs($limit, $level);
+		$logs = $logger->get_recent_logs( $limit, $level );
 
 		return $this->prepare_success(
 			array(
 				'logs'  => $logs,
-				'count' => count($logs),
+				'count' => count( $logs ),
 				'limit' => $limit,
 				'level' => $level,
 			)
@@ -1063,26 +1055,25 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_attribution($request)
-	{
+	public function get_attribution( $request ) {
 		global $wpdb;
 
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
-		$model      = sanitize_text_field($request->get_param('model'));
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
+		$model      = sanitize_text_field( $request->get_param( 'model' ) );
 		// Check if attribution table exists.
 		$attribution_table_exists = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM information_schema.tables
+				'SELECT COUNT(*) FROM information_schema.tables
 				 WHERE table_schema = DATABASE()
-				 AND table_name = %s",
+				 AND table_name = %s',
 				$wpdb->prefix . 'tracksure_conversion_attribution'
 			)
 		);
 
-		if (! $attribution_table_exists) {
+		if ( ! $attribution_table_exists ) {
 			// Fallback to session-based attribution.
-			return $this->get_simple_attribution($date_start, $date_end, $model);
+			return $this->get_simple_attribution( $date_start, $date_end, $model );
 		}
 
 		// Query attribution data by source/medium.
@@ -1114,21 +1105,21 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		$total_revenue     = 0;
 
 		$formatted = array_map(
-			function ($row) use (&$total_conversions, &$total_revenue) {
-				$conversions = absint($row->conversions ?? 0);
-				$revenue     = floatval($row->revenue ?? 0);
+			function ( $row ) use ( &$total_conversions, &$total_revenue ) {
+				$conversions = absint( $row->conversions ?? 0 );
+				$revenue     = floatval( $row->revenue ?? 0 );
 
 				$total_conversions += $conversions;
 				$total_revenue     += $revenue;
 
 				return array(
-					'source'      => sanitize_text_field($row->source ?? '(direct)'),
-					'medium'      => sanitize_text_field($row->medium ?? '(none)'),
-					'channel'     => sanitize_text_field($row->channel ?? 'direct'),
+					'source'      => sanitize_text_field( $row->source ?? '(direct)' ),
+					'medium'      => sanitize_text_field( $row->medium ?? '(none)' ),
+					'channel'     => sanitize_text_field( $row->channel ?? 'direct' ),
 					'conversions' => $conversions,
-					'revenue'     => round($revenue, 2),
-					'avg_credit'  => round(floatval($row->avg_credit ?? 0), 4),
-					'visitors'    => absint($row->visitors ?? 0),
+					'revenue'     => round( $revenue, 2 ),
+					'avg_credit'  => round( floatval( $row->avg_credit ?? 0 ), 4 ),
+					'visitors'    => absint( $row->visitors ?? 0 ),
 				);
 			},
 			$attribution_data ?: array()
@@ -1139,7 +1130,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				'model'             => $model,
 				'sources'           => $formatted,
 				'total_conversions' => $total_conversions,
-				'total_revenue'     => round($total_revenue, 2),
+				'total_revenue'     => round( $total_revenue, 2 ),
 			)
 		);
 	}
@@ -1152,11 +1143,10 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param string $model Attribution model.
 	 * @return WP_REST_Response
 	 */
-	private function get_simple_attribution($date_start, $date_end, $model)
-	{
+	private function get_simple_attribution( $date_start, $date_end, $model ) {
 		global $wpdb;
 		// Use session data as fallback.
-		if ($model === 'first_touch') {
+		if ( $model === 'first_touch' ) {
 			// Get first touch from visitor's first session.
 			$attribution_data = $wpdb->get_results(
 				$wpdb->prepare(
@@ -1203,20 +1193,20 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		$total_revenue     = 0;
 
 		$formatted = array_map(
-			function ($row) use (&$total_conversions, &$total_revenue) {
-				$conversions = absint($row->conversions ?? 0);
-				$revenue     = floatval($row->revenue ?? 0);
+			function ( $row ) use ( &$total_conversions, &$total_revenue ) {
+				$conversions = absint( $row->conversions ?? 0 );
+				$revenue     = floatval( $row->revenue ?? 0 );
 
 				$total_conversions += $conversions;
 				$total_revenue     += $revenue;
 
 				return array(
-					'source'      => sanitize_text_field($row->source ?? '(direct)'),
-					'medium'      => sanitize_text_field($row->medium ?? '(none)'),
+					'source'      => sanitize_text_field( $row->source ?? '(direct)' ),
+					'medium'      => sanitize_text_field( $row->medium ?? '(none)' ),
 					'conversions' => $conversions,
-					'revenue'     => round($revenue, 2),
+					'revenue'     => round( $revenue, 2 ),
 					'avg_credit'  => 1.0, // Full credit in simple model
-					'visitors'    => absint($row->visitors ?? 0),
+					'visitors'    => absint( $row->visitors ?? 0 ),
 				);
 			},
 			$attribution_data ?: array()
@@ -1227,7 +1217,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				'model'             => $model,
 				'sources'           => $formatted,
 				'total_conversions' => $total_conversions,
-				'total_revenue'     => round($total_revenue, 2),
+				'total_revenue'     => round( $total_revenue, 2 ),
 				'fallback'          => true, // Indicate this is simplified attribution
 			)
 		);
@@ -1239,30 +1229,29 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_traffic_sources($request)
-	{
+	public function get_traffic_sources( $request ) {
 		global $wpdb;
 
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
-		$segment    = sanitize_text_field($request->get_param('segment'));
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
+		$segment    = sanitize_text_field( $request->get_param( 'segment' ) );
 
 		// Validate date format.
-		if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_start) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_end)) {
-			return new WP_Error('invalid_date', 'Invalid date format. Use YYYY-MM-DD.', array('status' => 400));
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date_start ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date_end ) ) {
+			return new WP_Error( 'invalid_date', 'Invalid date format. Use YYYY-MM-DD.', array( 'status' => 400 ) );
 		}
 
 		// Check cache first (5 minute TTL).
-		$cache_key = 'tracksure_traffic_sources_v2_' . md5(serialize(array($date_start, $date_end, $segment)));
-		$cached    = get_transient($cache_key);
+		$cache_key = 'tracksure_traffic_sources_v2_' . md5( serialize( array( $date_start, $date_end, $segment ) ) );
+		$cached    = get_transient( $cache_key );
 
-		if ($cached !== false) {
-			return $this->prepare_success($cached);
+		if ( $cached !== false ) {
+			return $this->prepare_success( $cached );
 		}
 		// Build segment WHERE clause.
 		$segment_where = '';
-		if (! empty($segment)) {
-			switch ($segment) {
+		if ( ! empty( $segment ) ) {
+			switch ( $segment ) {
 				case 'new':
 					$segment_where = ' AND s.session_number = 1';
 					break;
@@ -1308,14 +1297,14 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		// Check if conversions table exists.
 		$conversions_table_exists = $wpdb->get_var(
 			$wpdb->prepare(
-				"SELECT COUNT(*) FROM information_schema.tables
+				'SELECT COUNT(*) FROM information_schema.tables
 				 WHERE table_schema = DATABASE()
-				 AND table_name = %s",
+				 AND table_name = %s',
 				$wpdb->prefix . 'tracksure_conversions'
 			)
 		);
 
-		if ($conversions_table_exists) {
+		if ( $conversions_table_exists ) {
 			$first_touch_attribution = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT 
@@ -1331,9 +1320,9 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				)
 			);
 
-			foreach ($first_touch_attribution as $row) {
+			foreach ( $first_touch_attribution as $row ) {
 				$key                     = $row->source . '|' . $row->medium;
-				$first_touch_map[$key] = array(
+				$first_touch_map[ $key ] = array(
 					'conversions' => (int) $row->first_touch_conversions,
 					'revenue'     => (float) $row->first_touch_revenue,
 				);
@@ -1354,9 +1343,9 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				)
 			);
 
-			foreach ($last_touch_attribution as $row) {
+			foreach ( $last_touch_attribution as $row ) {
 				$key                    = $row->source . '|' . $row->medium;
-				$last_touch_map[$key] = array(
+				$last_touch_map[ $key ] = array(
 					'conversions' => (int) $row->last_touch_conversions,
 					'revenue'     => (float) $row->last_touch_revenue,
 				);
@@ -1368,16 +1357,16 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		$total_unique_visitors = 0;
 		$source_array          = array();
 
-		foreach ($sources as $row) {
+		foreach ( $sources as $row ) {
 			$conversions     = (int) $row->conversions;
 			$revenue         = (float) $row->revenue;
 			$conversion_rate = (float) $row->conversion_rate;
 			$sessions        = (int) $row->sessions;
 			$unique_visitors = (int) $row->unique_visitors;
-			$aov             = $conversions > 0 ? round($revenue / $conversions, 2) : 0;
+			$aov             = $conversions > 0 ? round( $revenue / $conversions, 2 ) : 0;
 
 			$total_conversions    += $conversions;
-			$total_unique_visitors = max($total_unique_visitors, $unique_visitors); // Use max to avoid double counting
+			$total_unique_visitors = max( $total_unique_visitors, $unique_visitors ); // Use max to avoid double counting
 
 			$source_array[] = array(
 				'source'                  => $row->source,
@@ -1400,13 +1389,13 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			'sources'           => $source_array,
 			'total_conversions' => $total_conversions,
 			'unique_visitors'   => $total_unique_visitors,
-			'message'           => empty($sources) ? __('No traffic data yet', 'tracksure') : '',
+			'message'           => empty( $sources ) ? __( 'No traffic data yet', 'tracksure' ) : '',
 		);
 
 		// Cache for 5 minutes.
-		set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $data, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($data);
+		return $this->prepare_success( $data );
 	}
 
 	/**
@@ -1415,32 +1404,31 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_pages($request)
-	{
+	public function get_pages( $request ) {
 		global $wpdb;
 
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
-		$segment    = sanitize_text_field($request->get_param('segment'));
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
+		$segment    = sanitize_text_field( $request->get_param( 'segment' ) );
 
 		// Validate date format.
-		if (! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_start) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $date_end)) {
-			return new WP_Error('invalid_date', 'Invalid date format. Use YYYY-MM-DD.', array('status' => 400));
+		if ( ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date_start ) || ! preg_match( '/^\d{4}-\d{2}-\d{2}$/', $date_end ) ) {
+			return new WP_Error( 'invalid_date', 'Invalid date format. Use YYYY-MM-DD.', array( 'status' => 400 ) );
 		}
 
 		// Check cache first (5 minute TTL).
-		$cache_key = 'tracksure_pages_' . md5(serialize(array($date_start, $date_end, $segment)));
-		$cached    = get_transient($cache_key);
+		$cache_key = 'tracksure_pages_' . md5( serialize( array( $date_start, $date_end, $segment ) ) );
+		$cached    = get_transient( $cache_key );
 
-		if ($cached !== false) {
-			return $this->prepare_success($cached);
+		if ( $cached !== false ) {
+			return $this->prepare_success( $cached );
 		}
 		// Build segment WHERE clause.
 		$segment_join  = '';
 		$segment_where = '';
-		if (! empty($segment)) {
+		if ( ! empty( $segment ) ) {
 			$segment_join = "INNER JOIN {$wpdb->prefix}tracksure_sessions s ON e.session_id = s.session_id";
-			switch ($segment) {
+			switch ( $segment ) {
 				case 'new':
 					$segment_where = ' AND s.session_number = 1';
 					break;
@@ -1552,42 +1540,42 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 
 		$data = array(
 			'totals'     => array(
-				'total_views'       => (int) ($totals->total_views ?? 0),
-				'total_sessions'    => (int) ($totals->total_sessions ?? 0),
-				'total_conversions' => (int) ($totals->total_conversions ?? 0),
-				'total_revenue'     => (float) ($totals->total_revenue ?? 0),
-				'unique_pages'      => (int) ($totals->unique_pages ?? 0),
+				'total_views'       => (int) ( $totals->total_views ?? 0 ),
+				'total_sessions'    => (int) ( $totals->total_sessions ?? 0 ),
+				'total_conversions' => (int) ( $totals->total_conversions ?? 0 ),
+				'total_revenue'     => (float) ( $totals->total_revenue ?? 0 ),
+				'unique_pages'      => (int) ( $totals->unique_pages ?? 0 ),
 			),
 			'pages'      => array_map(
-				function ($row) use ($time_on_page, $bounce_rates) {
-					$conversions = isset($row->conversions) ? (int) $row->conversions : 0;
-					$revenue = isset($row->revenue) ? (float) $row->revenue : 0;
-					$aov = $conversions > 0 ? round($revenue / $conversions, 2) : 0;
+				function ( $row ) use ( $time_on_page, $bounce_rates ) {
+					$conversions = isset( $row->conversions ) ? (int) $row->conversions : 0;
+					$revenue = isset( $row->revenue ) ? (float) $row->revenue : 0;
+					$aov = $conversions > 0 ? round( $revenue / $conversions, 2 ) : 0;
 
 					// Get time on page for this URL.
 					$time_seconds = 0;
-					if (isset($time_on_page[$row->path]) && isset($time_on_page[$row->path]->avg_time_seconds)) {
-						$time_seconds = (int) $time_on_page[$row->path]->avg_time_seconds;
+					if ( isset( $time_on_page[ $row->path ] ) && isset( $time_on_page[ $row->path ]->avg_time_seconds ) ) {
+						$time_seconds = (int) $time_on_page[ $row->path ]->avg_time_seconds;
 					}
-					$minutes = floor($time_seconds / 60);
+					$minutes = floor( $time_seconds / 60 );
 					$seconds = $time_seconds % 60;
-					$time_formatted = sprintf('%d:%02d', $minutes, $seconds);
+					$time_formatted = sprintf( '%d:%02d', $minutes, $seconds );
 
 					// Get bounce rate for this URL.
 					$bounce_rate = 0;
-					if (isset($bounce_rates[$row->path]) && isset($bounce_rates[$row->path]->bounce_rate)) {
-						$bounce_rate = (float) $bounce_rates[$row->path]->bounce_rate;
+					if ( isset( $bounce_rates[ $row->path ] ) && isset( $bounce_rates[ $row->path ]->bounce_rate ) ) {
+						$bounce_rate = (float) $bounce_rates[ $row->path ]->bounce_rate;
 					}
-					$bounce_formatted = number_format($bounce_rate, 1) . '%';
+					$bounce_formatted = number_format( $bounce_rate, 1 ) . '%';
 
 					return array(
 						'path'            => $row->path,
-						'title'           => isset($row->title) ? $row->title : '',
+						'title'           => isset( $row->title ) ? $row->title : '',
 						'views'           => (int) $row->views,
-						'sessions'        => isset($row->sessions) ? (int) $row->sessions : 0,
+						'sessions'        => isset( $row->sessions ) ? (int) $row->sessions : 0,
 						'conversions'     => $conversions,
 						'revenue'         => $revenue,
-						'conversion_rate' => isset($row->conversion_rate) ? (float) $row->conversion_rate : 0,
+						'conversion_rate' => isset( $row->conversion_rate ) ? (float) $row->conversion_rate : 0,
 						'aov'             => $aov,
 						'time'            => $time_formatted,
 						'bounce'          => $bounce_formatted,
@@ -1595,14 +1583,14 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				},
 				$pages ?: array()
 			),
-			'breakdowns' => $this->get_pages_breakdowns($date_start, $date_end, $segment_join, $segment_where),
-			'message'    => empty($pages) ? __('No page data yet', 'tracksure') : '',
+			'breakdowns' => $this->get_pages_breakdowns( $date_start, $date_end, $segment_join, $segment_where ),
+			'message'    => empty( $pages ) ? __( 'No page data yet', 'tracksure' ) : '',
 		);
 
 		// Cache for 5 minutes.
-		set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $data, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($data);
+		return $this->prepare_success( $data );
 	}
 
 	/**
@@ -1614,8 +1602,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param string $segment_where Segment WHERE clause.
 	 * @return array Device, country, and source breakdowns.
 	 */
-	private function get_pages_breakdowns($date_start, $date_end, $segment_join = '', $segment_where = '')
-	{
+	private function get_pages_breakdowns( $date_start, $date_end, $segment_join = '', $segment_where = '' ) {
 		global $wpdb;
 		// Device breakdown
 		$devices = $wpdb->get_results(
@@ -1694,7 +1681,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 
 		// Format data
 		$formatted_devices = array_map(
-			function ($row) {
+			function ( $row ) {
 				return [
 					'device'      => $row->device_type,
 					'sessions'    => (int) $row->sessions,
@@ -1707,10 +1694,10 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		);
 
 		$formatted_countries = array_map(
-			function ($row) {
+			function ( $row ) {
 				return [
 					'country_code' => $row->country, // ISO code (e.g., "US", "GB")
-					'country'      => TrackSure_Countries::get_name($row->country), // Full name (e.g., "United States")
+					'country'      => TrackSure_Countries::get_name( $row->country ), // Full name (e.g., "United States")
 					'sessions'     => (int) $row->sessions,
 					'pageviews'    => (int) $row->pageviews,
 					'conversions'  => (int) $row->conversions,
@@ -1721,7 +1708,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		);
 
 		$formatted_sources = array_map(
-			function ($row) {
+			function ( $row ) {
 				return [
 					'source'      => $row->source_medium,
 					'sessions'    => (int) $row->sessions,
@@ -1748,26 +1735,25 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_visitors($request)
-	{
+	public function get_visitors( $request ) {
 		global $wpdb;
 
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
-		$filter     = sanitize_text_field($request->get_param('filter'));
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
+		$filter     = sanitize_text_field( $request->get_param( 'filter' ) );
 		// Check cache first (5 minute TTL).
-		$cache_key = 'tracksure_visitors_v2_' . md5($date_start . $date_end . $filter);
-		$cached    = get_transient($cache_key);
-		if (false !== $cached) {
-			return $this->prepare_success($cached);
+		$cache_key = 'tracksure_visitors_v2_' . md5( $date_start . $date_end . $filter );
+		$cached    = get_transient( $cache_key );
+		if ( false !== $cached ) {
+			return $this->prepare_success( $cached );
 		}
 
 		// OPTIMIZED: Pre-calculate first/last touch in separate indexed queries.
 		// Then join with main aggregation (10-100x faster than nested subqueries).
 		$filter_clause = '';
-		if ($filter === 'converted') {
+		if ( $filter === 'converted' ) {
 			$filter_clause = 'HAVING conversions > 0';
-		} elseif ($filter === 'returning') {
+		} elseif ( $filter === 'returning' ) {
 			$filter_clause = 'HAVING session_count > 1';
 		}
 
@@ -1812,7 +1798,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 
 		$data = array(
 			'visitors' => array_map(
-				function ($row) {
+				function ( $row ) {
 					return array(
 						'visitor_id'    => (int) $row->visitor_id,
 						'first_seen'    => (int) $row->first_seen,
@@ -1827,14 +1813,14 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				},
 				$visitors ?: array()
 			),
-			'total'    => count($visitors),
-			'message'  => empty($visitors) ? __('No visitors found for the selected period.', 'tracksure') : '',
+			'total'    => count( $visitors ),
+			'message'  => empty( $visitors ) ? __( 'No visitors found for the selected period.', 'tracksure' ) : '',
 		);
 
 		// Cache for 5 minutes (transient more reliable than wp_cache).
-		set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $data, 5 * MINUTE_IN_SECONDS );
 
-		return $this->prepare_success($data);
+		return $this->prepare_success( $data );
 	}
 
 	/**
@@ -1845,11 +1831,10 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_active_pages($request)
-	{
+	public function get_active_pages( $request ) {
 		global $wpdb;
 
-		$minutes = (int) $request->get_param('minutes');
+		$minutes      = (int) $request->get_param( 'minutes' );
 		$active_pages = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT 
@@ -1871,7 +1856,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 
 		$data = array(
 			'pages'              => array_map(
-				function ($row) {
+				function ( $row ) {
 					return array(
 						'path'               => $row->path,
 						'title'              => $row->title ? $row->title : $row->path,
@@ -1882,11 +1867,11 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 				},
 				$active_pages ?: array()
 			),
-			'total_active_users' => array_sum(array_column($active_pages, 'active_users')),
-			'timestamp'          => gmdate('Y-m-d H:i:s'),
+			'total_active_users' => array_sum( array_column( $active_pages, 'active_users' ) ),
+			'timestamp'          => gmdate( 'Y-m-d H:i:s' ),
 		);
 
-		return $this->prepare_success($data);
+		return $this->prepare_success( $data );
 	}
 
 	// get_date_range_args() removed - now inherited from base class TrackSure_REST_Controller.
@@ -1898,34 +1883,33 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param string $date_end Current period end date.
 	 * @return array Previous period metrics.
 	 */
-	private function get_previous_period($date_start, $date_end)
-	{
+	private function get_previous_period( $date_start, $date_end ) {
 		// Calculate period duration
-		$start = new DateTime($date_start);
-		$end   = new DateTime($date_end);
-		$diff  = $start->diff($end)->days;
+		$start = new DateTime( $date_start );
+		$end   = new DateTime( $date_end );
+		$diff  = $start->diff( $end )->days;
 
 		// Calculate previous period dates
 		$prev_end = clone $start;
-		$prev_end->modify('-1 day');
+		$prev_end->modify( '-1 day' );
 		$prev_start = clone $prev_end;
-		$prev_start->modify('-' . $diff . ' days');
+		$prev_start->modify( '-' . $diff . ' days' );
 
 		// Get metrics for previous period
 		$prev_metrics = $this->db->get_enhanced_metrics(
-			$prev_start->format('Y-m-d'),
-			$prev_end->format('Y-m-d')
+			$prev_start->format( 'Y-m-d' ),
+			$prev_end->format( 'Y-m-d' )
 		);
 
 		return array(
-			'unique_visitors'              => isset($prev_metrics['unique_visitors']) ? (float) $prev_metrics['unique_visitors'] : 0,
-			'total_conversions'            => isset($prev_metrics['total_conversions']) ? (float) $prev_metrics['total_conversions'] : 0,
-			'conversion_rate'              => isset($prev_metrics['conversion_rate']) ? (float) $prev_metrics['conversion_rate'] : 0,
-			'total_revenue'                => isset($prev_metrics['total_revenue']) ? (float) $prev_metrics['total_revenue'] : 0,
-			'total_sessions'               => isset($prev_metrics['total_sessions']) ? (float) $prev_metrics['total_sessions'] : 0,
-			'avg_session_duration_seconds' => isset($prev_metrics['avg_session_duration_seconds']) ? (float) $prev_metrics['avg_session_duration_seconds'] : 0,
-			'bounce_rate'                  => isset($prev_metrics['bounce_rate']) ? (float) $prev_metrics['bounce_rate'] : 0,
-			'events_per_session'           => isset($prev_metrics['events_per_session']) ? (float) $prev_metrics['events_per_session'] : 0,
+			'unique_visitors'              => isset( $prev_metrics['unique_visitors'] ) ? (float) $prev_metrics['unique_visitors'] : 0,
+			'total_conversions'            => isset( $prev_metrics['total_conversions'] ) ? (float) $prev_metrics['total_conversions'] : 0,
+			'conversion_rate'              => isset( $prev_metrics['conversion_rate'] ) ? (float) $prev_metrics['conversion_rate'] : 0,
+			'total_revenue'                => isset( $prev_metrics['total_revenue'] ) ? (float) $prev_metrics['total_revenue'] : 0,
+			'total_sessions'               => isset( $prev_metrics['total_sessions'] ) ? (float) $prev_metrics['total_sessions'] : 0,
+			'avg_session_duration_seconds' => isset( $prev_metrics['avg_session_duration_seconds'] ) ? (float) $prev_metrics['avg_session_duration_seconds'] : 0,
+			'bounce_rate'                  => isset( $prev_metrics['bounce_rate'] ) ? (float) $prev_metrics['bounce_rate'] : 0,
+			'events_per_session'           => isset( $prev_metrics['events_per_session'] ) ? (float) $prev_metrics['events_per_session'] : 0,
 		);
 	}
 
@@ -1935,17 +1919,16 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param string $date_end Current period end date.
 	 * @return array Time intelligence data.
 	 */
-	private function get_time_intelligence($date_end)
-	{
+	private function get_time_intelligence( $date_end ) {
 		global $wpdb;
 
 		// Use last 30 days for stable patterns
-		$end_date   = new DateTime($date_end);
+		$end_date   = new DateTime( $date_end );
 		$start_date = clone $end_date;
-		$start_date->modify('-30 days');
+		$start_date->modify( '-30 days' );
 
-		$start_datetime = $start_date->format('Y-m-d') . ' 00:00:00';
-		$end_datetime   = $end_date->format('Y-m-d') . ' 23:59:59';
+		$start_datetime = $start_date->format( 'Y-m-d' ) . ' 00:00:00';
+		$end_datetime   = $end_date->format( 'Y-m-d' ) . ' 23:59:59';
 		// Get best converting day
 		$best_day = $wpdb->get_row(
 			$wpdb->prepare(
@@ -2007,7 +1990,7 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 		// Format response
 		$intelligence = array();
 
-		if ($best_day) {
+		if ( $best_day ) {
 			$intelligence['best_converting_day'] = array(
 				'day'             => $best_day['day'],
 				'conversion_rate' => (float) $best_day['conversion_rate'],
@@ -2015,9 +1998,9 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			);
 		}
 
-		if (! empty($peak_hours)) {
+		if ( ! empty( $peak_hours ) ) {
 			$intelligence['peak_hours'] = array_map(
-				function ($row) {
+				function ( $row ) {
 					return array(
 						'hour'        => (int) $row['hour'],
 						'visitors'    => (int) $row['visitors'],
@@ -2028,19 +2011,19 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 			);
 		}
 
-		if (count($weekend_weekday) === 2) {
+		if ( count( $weekend_weekday ) === 2 ) {
 			$weekend_data = null;
 			$weekday_data = null;
 
-			foreach ($weekend_weekday as $row) {
-				if ($row['period'] === 'weekend') {
+			foreach ( $weekend_weekday as $row ) {
+				if ( $row['period'] === 'weekend' ) {
 					$weekend_data = $row;
 				} else {
 					$weekday_data = $row;
 				}
 			}
 
-			if ($weekend_data && $weekday_data) {
+			if ( $weekend_data && $weekday_data ) {
 				$intelligence['weekend_vs_weekday'] = array(
 					'weekend' => array(
 						'visitors'        => (int) $weekend_data['visitors'],
@@ -2065,17 +2048,16 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_attribution_insights($request)
-	{
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
+	public function get_attribution_insights( $request ) {
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
 
-		$core               = TrackSure_Core::get_instance();
-		$attribution_analytics = $core->get_service('attribution_analytics');
+		$core                  = TrackSure_Core::get_instance();
+		$attribution_analytics = $core->get_service( 'attribution_analytics' );
 
-		$insights = $attribution_analytics->get_journey_insights($date_start, $date_end);
+		$insights = $attribution_analytics->get_journey_insights( $date_start, $date_end );
 
-		return $this->prepare_success($insights);
+		return $this->prepare_success( $insights );
 	}
 
 	/**
@@ -2084,21 +2066,20 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_attribution_paths($request)
-	{
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
-		$limit      = absint($request->get_param('limit'));
+	public function get_attribution_paths( $request ) {
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
+		$limit      = absint( $request->get_param( 'limit' ) );
 
-		$core               = TrackSure_Core::get_instance();
-		$attribution_analytics = $core->get_service('attribution_analytics');
+		$core                  = TrackSure_Core::get_instance();
+		$attribution_analytics = $core->get_service( 'attribution_analytics' );
 
-		$paths = $attribution_analytics->get_conversion_paths($date_start, $date_end, $limit);
+		$paths = $attribution_analytics->get_conversion_paths( $date_start, $date_end, $limit );
 
 		return $this->prepare_success(
 			array(
 				'paths' => $paths,
-				'total' => count($paths),
+				'total' => count( $paths ),
 			)
 		);
 	}
@@ -2109,20 +2090,19 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_device_patterns($request)
-	{
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
+	public function get_device_patterns( $request ) {
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
 
-		$core               = TrackSure_Core::get_instance();
-		$attribution_analytics = $core->get_service('attribution_analytics');
+		$core                  = TrackSure_Core::get_instance();
+		$attribution_analytics = $core->get_service( 'attribution_analytics' );
 
-		$patterns = $attribution_analytics->get_device_patterns($date_start, $date_end);
+		$patterns = $attribution_analytics->get_device_patterns( $date_start, $date_end );
 
 		return $this->prepare_success(
 			array(
 				'patterns' => $patterns,
-				'total'    => count($patterns),
+				'total'    => count( $patterns ),
 			)
 		);
 	}
@@ -2133,17 +2113,16 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_conversions_breakdown($request)
-	{
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
+	public function get_conversions_breakdown( $request ) {
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
 
-		$core               = TrackSure_Core::get_instance();
-		$attribution_analytics = $core->get_service('attribution_analytics');
+		$core                  = TrackSure_Core::get_instance();
+		$attribution_analytics = $core->get_service( 'attribution_analytics' );
 
-		$breakdown = $attribution_analytics->get_conversion_breakdown($date_start, $date_end);
+		$breakdown = $attribution_analytics->get_conversion_breakdown( $date_start, $date_end );
 
-		return $this->prepare_success($breakdown);
+		return $this->prepare_success( $breakdown );
 	}
 
 	/**
@@ -2152,20 +2131,19 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_time_to_convert_histogram($request)
-	{
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
+	public function get_time_to_convert_histogram( $request ) {
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
 
-		$core               = TrackSure_Core::get_instance();
-		$attribution_analytics = $core->get_service('attribution_analytics');
+		$core                  = TrackSure_Core::get_instance();
+		$attribution_analytics = $core->get_service( 'attribution_analytics' );
 
-		$histogram = $attribution_analytics->get_time_to_convert_histogram($date_start, $date_end);
+		$histogram = $attribution_analytics->get_time_to_convert_histogram( $date_start, $date_end );
 
 		return $this->prepare_success(
 			array(
 				'buckets' => $histogram,
-				'total'   => array_sum(array_column($histogram, 'count')),
+				'total'   => array_sum( array_column( $histogram, 'count' ) ),
 			)
 		);
 	}
@@ -2176,20 +2154,19 @@ class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_attribution_models($request)
-	{
-		$date_start = sanitize_text_field($request->get_param('date_start'));
-		$date_end   = sanitize_text_field($request->get_param('date_end'));
+	public function get_attribution_models( $request ) {
+		$date_start = sanitize_text_field( $request->get_param( 'date_start' ) );
+		$date_end   = sanitize_text_field( $request->get_param( 'date_end' ) );
 
-		$core               = TrackSure_Core::get_instance();
-		$attribution_analytics = $core->get_service('attribution_analytics');
+		$core                  = TrackSure_Core::get_instance();
+		$attribution_analytics = $core->get_service( 'attribution_analytics' );
 
-		$models = $attribution_analytics->get_attribution_models_comparison($date_start, $date_end);
+		$models = $attribution_analytics->get_attribution_models_comparison( $date_start, $date_end );
 
 		return $this->prepare_success(
 			array(
-				'models'          => $models,
-				'available_models' => array_keys($models),
+				'models'           => $models,
+				'available_models' => array_keys( $models ),
 			)
 		);
 	}

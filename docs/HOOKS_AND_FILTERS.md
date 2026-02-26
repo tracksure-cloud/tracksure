@@ -882,6 +882,16 @@ do_action('tracksure_register_admin_extensions', $extensions_registry);
 - Register dashboard widgets
 - Add menu items
 
+> **JS Component Registry**: Each extension registered via this hook should also expose its React components on `window.trackSureExtensionComponents` (renamed from the earlier `window.trackSureProComponents`). The admin shell resolves component names from this global registry. Use the spread-merge pattern to avoid overwriting other extensions:
+>
+> ```javascript
+> window.trackSureExtensionComponents = {
+>   ...(window.trackSureExtensionComponents || {}),
+>   MyDashboardWidget,
+>   MySettingsPanel,
+> };
+> ```
+
 ---
 
 #### `tracksure_admin_enqueue_scripts`

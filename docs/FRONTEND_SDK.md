@@ -34,6 +34,7 @@ TrackSure Frontend SDK (`ts-web.js`) is a lightweight (~5KB gzipped), production
 ✅ **Event Deduplication**: UUID-based for browser + server + destination sync  
 ✅ **Zero Page Speed Impact**: Non-blocking, batched delivery, lazy loading  
 ✅ **Universal Compatibility**: Safari ITP, ad blockers, private mode, mobile
+✅ **Ad-Blocker Resilience**: All filenames and endpoints use neutral "ts" prefixed names (e.g., `ts-web.js`, `ts-pixel.php`, `/ts/collect`) to avoid common ad-blocker filter lists
 
 **Version**: 2.0.0  
 **File**: `assets/js/ts-web.js`  
@@ -76,7 +77,7 @@ If you need manual control:
 
 ```html
 <!-- Load SDK -->
-<script src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
+<script defer src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
 
 <!-- Configure -->
 <script>
@@ -765,7 +766,7 @@ Result: SAME event_id → Deduplicated ✅
 
 ### **Zero Impact on Page Speed**
 
-- **Non-blocking**: Loads asynchronously
+- **Non-blocking**: The tracking script is enqueued with the `defer` attribute, ensuring it never blocks HTML parsing or render
 - **Lazy evaluation**: Waits for page interactive
 - **Batched requests**: 10 events = 1 HTTP request
 - **No dependencies**: Pure JavaScript

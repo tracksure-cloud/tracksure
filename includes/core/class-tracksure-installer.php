@@ -12,15 +12,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * TrackSure Installer class.
  */
-class TrackSure_Installer
-{
+class TrackSure_Installer {
+
 
 
 
@@ -29,27 +29,26 @@ class TrackSure_Installer
 	/**
 	 * Run installation.
 	 */
-	public static function install()
-	{
+	public static function install() {
 		global $wpdb;
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 		// Create tables.
-		dbDelta(self::get_schema());
+		dbDelta( self::get_schema() );
 
 		// Set default options.
 		self::set_default_options();
 
 		// Update database version.
-		update_option('tracksure_db_version', TRACKSURE_DB_VERSION);
+		update_option( 'tracksure_db_version', TRACKSURE_DB_VERSION );
 
 		/**
 		 * Fires after TrackSure database is installed.
 		 *
 		 * @since 1.0.0
 		 */
-		do_action('tracksure_installed');
+		do_action( 'tracksure_installed' );
 	}
 
 	/**
@@ -57,12 +56,11 @@ class TrackSure_Installer
 	 *
 	 * @return string SQL schema.
 	 */
-	public static function get_schema()
-	{
+	public static function get_schema() {
 		global $wpdb;
 
 		$charset_collate = $wpdb->get_charset_collate();
-		$schema = "
+		$schema          = "
 		CREATE TABLE {$wpdb->prefix}tracksure_visitors (
 			visitor_id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
 			client_id VARCHAR(36) NOT NULL,
@@ -479,15 +477,14 @@ class TrackSure_Installer
 	/**
 	 * Set default options.
 	 */
-	private static function set_default_options()
-	{
+	private static function set_default_options() {
 		// Define default settings WITHOUT translations (to avoid early textdomain loading).
 		// Settings schema labels/descriptions are only needed in admin UI, not during install.
 		$defaults = array(
 			'tracksure_version'                 => TRACKSURE_VERSION,
 			'tracksure_db_version'              => TRACKSURE_DB_VERSION,
-			'tracksure_public_token'            => bin2hex(random_bytes(16)),
-			'tracksure_keep_data_on_uninstall'   => 0,
+			'tracksure_public_token'            => bin2hex( random_bytes( 16 ) ),
+			'tracksure_keep_data_on_uninstall'  => 0,
 			'tracksure_tracking_enabled'        => 0,
 			'tracksure_track_admins'            => 0,
 			'tracksure_session_timeout'         => 30,
@@ -508,13 +505,13 @@ class TrackSure_Installer
 			'tracksure_default_consent_state'   => 1,
 		);
 
-		foreach ($defaults as $key => $value) {
+		foreach ( $defaults as $key => $value ) {
 			// Skip if already exists.
-			if (false !== get_option($key)) {
+			if ( false !== get_option( $key ) ) {
 				continue;
 			}
 
-			add_option($key, $value, '', 'no'); // 'no' = don't autoload non-critical settings
+			add_option( $key, $value, '', 'no' ); // 'no' = don't autoload non-critical settings
 		}
 
 		// Note: Goals should be created by users via the admin panel, not automatically.
@@ -530,10 +527,9 @@ class TrackSure_Installer
 	 *
 	 * @since 1.0.0
 	 */
-	private static function create_default_funnels()
-	{
+	private static function create_default_funnels() {
 		// Check if Funnel_Analyzer class exists.
-		if (! class_exists('TrackSure_Funnel_Analyzer')) {
+		if ( ! class_exists( 'TrackSure_Funnel_Analyzer' ) ) {
 			return;
 		}
 

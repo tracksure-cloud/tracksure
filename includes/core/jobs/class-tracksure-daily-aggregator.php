@@ -20,15 +20,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * TrackSure Daily Aggregator class.
  */
-class TrackSure_Daily_Aggregator
-{
+class TrackSure_Daily_Aggregator {
+
 
 	/**
 	 * Maximum seconds a single aggregation run may take.
@@ -63,9 +63,8 @@ class TrackSure_Daily_Aggregator
 	 *
 	 * @return TrackSure_Daily_Aggregator
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -74,8 +73,7 @@ class TrackSure_Daily_Aggregator
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		$this->db = TrackSure_DB::get_instance();
 	}
 
@@ -83,20 +81,19 @@ class TrackSure_Daily_Aggregator
 	 * Aggregate yesterday.
 	 * Called by cron job daily.
 	 */
-	public function aggregate_yesterday()
-	{
+	public function aggregate_yesterday() {
 		// Concurrency lock — prevent overlapping cron runs.
-		if (get_transient('tracksure_daily_agg_lock')) {
+		if ( get_transient( 'tracksure_daily_agg_lock' ) ) {
 			return;
 		}
-		set_transient('tracksure_daily_agg_lock', 1, 10 * MINUTE_IN_SECONDS);
+		set_transient( 'tracksure_daily_agg_lock', 1, 10 * MINUTE_IN_SECONDS );
 
-		$this->start_time = microtime(true);
+		$this->start_time = microtime( true );
 
-		$date = gmdate('Y-m-d', strtotime('-1 day'));
-		$this->aggregate_date($date);
+		$date = gmdate( 'Y-m-d', strtotime( '-1 day' ) );
+		$this->aggregate_date( $date );
 
-		delete_transient('tracksure_daily_agg_lock');
+		delete_transient( 'tracksure_daily_agg_lock' );
 	}
 
 	/**
@@ -104,8 +101,7 @@ class TrackSure_Daily_Aggregator
 	 *
 	 * @param string $date Date (Y-m-d format).
 	 */
-	public function aggregate_date($date)
-	{
+	public function aggregate_date( $date ) {
 		global $wpdb;
 		// Roll up hourly data into daily.
 		$sql = "
@@ -201,18 +197,18 @@ class TrackSure_Daily_Aggregator
 		";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Variable $sql contains prepared SQL from above
-		$result = $wpdb->query($wpdb->prepare($sql, $date, $date));
+		$result = $wpdb->query( $wpdb->prepare( $sql, $date, $date ) );
 
-		if ($result === false) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( $result === false ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] Daily Aggregator: Failed to aggregate - ' . $wpdb->last_error);
+				error_log( '[TrackSure] Daily Aggregator: Failed to aggregate - ' . $wpdb->last_error );
 			}
 			return false;
 		}
 
 		// Calculate derived metrics.
-		$this->calculate_derived_metrics($date);
+		$this->calculate_derived_metrics( $date );
 
 		/**
 		 * Fires after daily aggregation completes.
@@ -221,13 +217,13 @@ class TrackSure_Daily_Aggregator
 		 * @param string $date Date.
 		 * @param int    $rows_aggregated Number of rows aggregated.
 		 */
-		do_action('tracksure_daily_aggregation_complete', $date, $result);
+		do_action( 'tracksure_daily_aggregation_complete', $date, $result );
 
 		// Invalidate transient caches for this date.
-		$this->invalidate_caches_for_date($date);
+		$this->invalidate_caches_for_date( $date );
 
 		// Record last successful daily aggregation time (UTC) for stale-aggregation safety net.
-		update_option('tracksure_last_daily_agg', gmdate('Y-m-d H:i:s'), false);
+		update_option( 'tracksure_last_daily_agg', gmdate( 'Y-m-d H:i:s' ), false );
 
 		return true;
 	}
@@ -241,8 +237,7 @@ class TrackSure_Daily_Aggregator
 	 *
 	 * @param string $date Date that was aggregated.
 	 */
-	private function invalidate_caches_for_date($date)
-	{
+	private function invalidate_caches_for_date( $date ) {
 		global $wpdb;
 
 		// These prefixes match the actual cache keys set by REST API controllers.
@@ -259,22 +254,22 @@ class TrackSure_Daily_Aggregator
 			'tracksure_agg_metrics_',
 		);
 
-		foreach ($transient_prefixes as $prefix) {
+		foreach ( $transient_prefixes as $prefix ) {
 			$wpdb->query(
 				$wpdb->prepare(
 					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-					$wpdb->esc_like('_transient_' . $prefix) . '%',
-					$wpdb->esc_like('_transient_timeout_' . $prefix) . '%'
+					$wpdb->esc_like( '_transient_' . $prefix ) . '%',
+					$wpdb->esc_like( '_transient_timeout_' . $prefix ) . '%'
 				)
 			);
 		}
 
 		// Also clear specific non-parameterized transients.
-		delete_transient('tracksure_active_goals');
-		delete_transient('tracksure_active_goals_server');
+		delete_transient( 'tracksure_active_goals' );
+		delete_transient( 'tracksure_active_goals_server' );
 
 		/** This action is documented in class-tracksure-hourly-aggregator.php */
-		do_action('tracksure_invalidate_caches');
+		do_action( 'tracksure_invalidate_caches' );
 	}
 
 	/**
@@ -282,8 +277,7 @@ class TrackSure_Daily_Aggregator
 	 *
 	 * @param string $date Date (Y-m-d format).
 	 */
-	private function calculate_derived_metrics($date)
-	{
+	private function calculate_derived_metrics( $date ) {
 		global $wpdb;
 		$wpdb->query(
 			$wpdb->prepare(
@@ -306,9 +300,8 @@ class TrackSure_Daily_Aggregator
 	 *
 	 * @param string $date Date (Y-m-d format).
 	 */
-	public function re_aggregate_date($date)
-	{
-		$this->aggregate_date($date);
+	public function re_aggregate_date( $date ) {
+		$this->aggregate_date( $date );
 	}
 
 	/**
@@ -317,27 +310,26 @@ class TrackSure_Daily_Aggregator
 	 * @param string $start_date Start date (Y-m-d).
 	 * @param string $end_date End date (Y-m-d).
 	 */
-	public function aggregate_date_range($start_date, $end_date)
-	{
-		if (! $this->start_time) {
-			$this->start_time = microtime(true);
+	public function aggregate_date_range( $start_date, $end_date ) {
+		if ( ! $this->start_time ) {
+			$this->start_time = microtime( true );
 		}
 
 		$current_date = $start_date;
 
-		while (strtotime($current_date) <= strtotime($end_date)) {
+		while ( strtotime( $current_date ) <= strtotime( $end_date ) ) {
 			// Time-box: stop if we're approaching the limit.
 			$max_time = self::TIME_BOX_SECONDS;
-			$ini_max  = (int) ini_get('max_execution_time');
-			if ($ini_max > 0) {
-				$max_time = min($max_time, max(5, $ini_max - 5));
+			$ini_max  = (int) ini_get( 'max_execution_time' );
+			if ( $ini_max > 0 ) {
+				$max_time = min( $max_time, max( 5, $ini_max - 5 ) );
 			}
-			if ((microtime(true) - $this->start_time) >= $max_time) {
+			if ( ( microtime( true ) - $this->start_time ) >= $max_time ) {
 				break;
 			}
 
-			$this->aggregate_date($current_date);
-			$current_date = gmdate('Y-m-d', strtotime($current_date . ' +1 day'));
+			$this->aggregate_date( $current_date );
+			$current_date = gmdate( 'Y-m-d', strtotime( $current_date . ' +1 day' ) );
 		}
 	}
 }

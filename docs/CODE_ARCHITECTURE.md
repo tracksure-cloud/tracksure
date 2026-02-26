@@ -723,6 +723,94 @@ export async function getOverview(dateStart: string, dateEnd: string) {
 }
 ```
 
+### **Extension Registry (Shared Component System)**
+
+The admin panel uses a **shared global component registry** (`window.trackSureExtensionComponents`) that allows Core, Free, Pro, and third-party plugins to contribute React components to the same admin interface without tight coupling.
+
+**How it works:**
+
+1. Each plugin (Free, Pro, 3rd-party) merges its React components into the global registry using the spread pattern:
+
+```javascript
+// tracksure-pro/admin/src/index.tsx (or any extension)
+window.trackSureExtensionComponents = {
+  ...(window.trackSureExtensionComponents || {}),
+  GoogleAdsPage,
+  TikTokPage,
+  ProDashboardWidget,
+};
+```
+
+2. The PHP extension registry (`class-tracksure-admin-extensions.php`) declares which component name strings map to which admin pages/widgets.
+
+3. Core's `App.tsx` resolves those string names to actual React components at render time:
+
+```typescript
+// admin/src/App.tsx
+const registry = (window as any).trackSureExtensionComponents || {};
+const Component = registry[extensionConfig.component];
+if (Component) {
+  return <Component {...props} />;
+}
+```
+
+**Why?**
+
+- ✅ Fully decoupled — plugins don't import each other's code
+- ✅ Load order independent — spread pattern safely merges
+- ✅ Third-party extensible — any plugin can register components
+- ✅ Single admin shell — one React app renders all extensions
+
+---
+
+## ⚡ **Performance Architecture**
+
+TrackSure implements **9 performance optimizations** to minimize impact on page load and server resources:
+
+### **1. Deferred Conversion Recording**
+
+Conversion recording is deferred to the PHP `shutdown` hook via `register_shutdown_function()`. This ensures the response is sent to the browser before any conversion processing begins, keeping checkout pages fast.
+
+### **2. Session-Free Fingerprinting**
+
+PHP `@session_start()` has been entirely eliminated. Visitor fingerprinting uses a **transient-based approach** instead — hashing IP + User-Agent + Accept-Language via `set_transient()` / `get_transient()`. This avoids session file locking that can serialize concurrent requests.
+
+### **3. Semantic Deduplication**
+
+Duplicate event detection uses a `HAVING COUNT(*) > 1` grouped query to identify duplicates in bulk, rather than querying each event individually.
+
+### **4. Batch Dedup Deletion**
+
+Once duplicates are identified, a **single batched `DELETE`** removes all duplicates in one query, replacing the previous N+1 loop pattern.
+
+### **5. Chunked Cleanup**
+
+Cleanup worker `DELETE` operations are **chunked at 500 rows per batch** to prevent long-running queries from locking tables or exceeding PHP execution limits.
+
+### **6. Aggregator Time-Boxing**
+
+Hourly and daily aggregators enforce a **20-second maximum execution time** with a **WP transient-based lock** for concurrency control. If aggregation exceeds the time budget, it checkpoints progress and resumes on the next cron run.
+
+### **7. Deferred Script Loading**
+
+The tracking JavaScript (`ts-web.js`) is loaded with the `defer` attribute, ensuring it never blocks page rendering.
+
+### **8. Reduced Geolocation Timeout**
+
+External geolocation HTTP requests use a **3-second timeout** (reduced from 10s) to prevent slow third-party APIs from blocking event recording.
+
+### **9. Bulk Cache Invalidation**
+
+Aggregator cache invalidation uses a single bulk SQL query:
+
+```sql
+DELETE FROM {$wpdb->options}
+WHERE option_name LIKE '_transient_ts_agg_%'
+   OR option_name LIKE '_transient_timeout_ts_agg_%'
+```
+
+This replaces calling `delete_transient()` in a loop, reducing N+1 queries to a single operation.
+
 ---
 
 ## 🔧 **Extending TrackSure**
@@ -887,6 +975,28 @@ npm run zip:plugin
 - `tests/`
 - Development files
 
+### **PHPCS / WordPress Coding Standards**
+
+The entire PHP codebase is auto-formatted with **phpcbf** and lint-checked with **phpcs** against **WordPress Coding Standards (WPCS 3.3)**.
+
+```bash
+# Auto-fix formatting
+vendor/bin/phpcbf --standard=phpcs.xml includes/
+
+# Lint check
+vendor/bin/phpcs --standard=phpcs.xml includes/
+```
+
+The project includes a `phpcs.xml` configuration that enforces:
+
+- WordPress spacing, alignment, and brace style
+- Proper escaping (`esc_html()`, `esc_attr()`, etc.)
+- Prepared SQL (`$wpdb->prepare()`)
+- Nonce verification in form handlers
+- Text domain consistency for translations
+
+All PHP contributions must pass `phpcs` with zero errors before merge.
+
 ---
 
 ## 🔑 **Key Design Decisions**
@@ -984,6 +1094,29 @@ $order = array(
 - ✅ Never lose data
 - ✅ Compliance maintained
 - ✅ Can analyze anonymized traffic
+
+---
+
+### **6. Why Ad-Blocker Resilient Naming?**
+
+**Problem**: Ad blockers use filter lists that match common analytics keywords ("track", "analytics", "pixel") in script filenames and API endpoints. Scripts named `tracksure-tracking.js` or endpoints like `/tracksure/collect` get blocked.
+
+**Solution**: All tracking-related filenames and endpoints use **neutral "ts" prefixed names**:
+
+| Original Name                      | Renamed To         |
+| ---------------------------------- | ------------------ |
+| `tracksure-tracking.js`            | `ts-web.js`        |
+| `tracksure-pixel.php`              | `ts-pixel.php`     |
+| `/wp-json/tracksure/v1/collect`    | `/wp-json/ts/v1/collect` |
+| `tracksure-currency.js`            | `ts-currency.js`   |
+| `tracksure-minicart.js`            | `ts-minicart.js`   |
+
+**Benefit**:
+
+- ✅ Tracking scripts bypass ad-blocker filter lists
+- ✅ First-party data collection remains intact
+- ✅ No functional changes — only filenames/routes renamed
+- ✅ REST namespace `ts/v1` is short and neutral
 
 ---
 

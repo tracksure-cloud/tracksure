@@ -13,31 +13,30 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Diagnostics controller class.
  */
-class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
-{
+class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller {
+
 
 
 
 	/**
 	 * Register routes.
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		// GET /diagnostics/cron - Check cron health.
 		register_rest_route(
 			$this->namespace,
 			'/diagnostics/cron',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_cron_status'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_cron_status' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -47,8 +46,8 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 			'/diagnostics/health',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_health_status'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_health_status' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -58,14 +57,14 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 			'/diagnostics/delivery',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_delivery_stats'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_delivery_stats' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'period' => array(
 						'description'       => 'Time period for stats',
 						'type'              => 'string',
 						'default'           => '7d',
-						'enum'              => array('1h', '24h', '7d', '30d'),
+						'enum'              => array( '1h', '24h', '7d', '30d' ),
 						'sanitize_callback' => 'sanitize_text_field',
 					),
 				),
@@ -81,25 +80,24 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_cron_status($request)
-	{
-		$cron_disabled = defined('DISABLE_WP_CRON') && constant('DISABLE_WP_CRON');
+	public function get_cron_status( $request ) {
+		$cron_disabled = defined( 'DISABLE_WP_CRON' ) && constant( 'DISABLE_WP_CRON' );
 
 		// Get all cron jobs.
 		$cron_jobs = _get_cron_array();
 
 		// Find TrackSure jobs.
 		$tracksure_jobs = array();
-		foreach ($cron_jobs as $timestamp => $hooks) {
-			foreach ($hooks as $hook => $events) {
-				if (strpos($hook, 'tracksure_') === 0) {
-					foreach ($events as $key => $event) {
+		foreach ( $cron_jobs as $timestamp => $hooks ) {
+			foreach ( $hooks as $hook => $events ) {
+				if ( strpos( $hook, 'tracksure_' ) === 0 ) {
+					foreach ( $events as $key => $event ) {
 						$tracksure_jobs[] = array(
 							'hook'      => $hook,
-							'next_run'  => gmdate('Y-m-d H:i:s', $timestamp),
+							'next_run'  => gmdate( 'Y-m-d H:i:s', $timestamp ),
 							'timestamp' => $timestamp,
-							'schedule'  => isset($event['schedule']) ? $event['schedule'] : 'once',
-							'args'      => isset($event['args']) ? $event['args'] : array(),
+							'schedule'  => isset( $event['schedule'] ) ? $event['schedule'] : 'once',
+							'args'      => isset( $event['args'] ) ? $event['args'] : array(),
 						);
 					}
 				}
@@ -109,7 +107,7 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 		// Sort by next run time.
 		usort(
 			$tracksure_jobs,
-			function ($a, $b) {
+			function ( $a, $b ) {
 				return $a['timestamp'] - $b['timestamp'];
 			}
 		);
@@ -117,9 +115,9 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 		// Get cron schedules.
 		$schedules           = wp_get_schedules();
 		$tracksure_schedules = array();
-		foreach ($schedules as $key => $schedule) {
-			if (strpos($key, 'tracksure_') === 0) {
-				$tracksure_schedules[$key] = $schedule;
+		foreach ( $schedules as $key => $schedule ) {
+			if ( strpos( $key, 'tracksure_' ) === 0 ) {
+				$tracksure_schedules[ $key ] = $schedule;
 			}
 		}
 
@@ -127,11 +125,11 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 			array(
 				'cron_enabled'        => ! $cron_disabled,
 				'cron_disabled'       => $cron_disabled,
-				'current_time'        => gmdate('Y-m-d H:i:s'),
+				'current_time'        => gmdate( 'Y-m-d H:i:s' ),
 				'tracksure_jobs'      => $tracksure_jobs,
 				'tracksure_schedules' => $tracksure_schedules,
-				'total_cron_jobs'     => count($cron_jobs),
-				'status'              => ! $cron_disabled && count($tracksure_jobs) > 0 ? 'healthy' : 'warning',
+				'total_cron_jobs'     => count( $cron_jobs ),
+				'status'              => ! $cron_disabled && count( $tracksure_jobs ) > 0 ? 'healthy' : 'warning',
 			)
 		);
 	}
@@ -144,12 +142,11 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_health_status($request)
-	{
+	public function get_health_status( $request ) {
 		global $wpdb;
 
 		$core = TrackSure_Core::get_instance();
-		$db   = $core->get_service('db');
+		$db   = $core->get_service( 'db' );
 
 		$health = array(
 			'database' => array(
@@ -167,8 +164,8 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 		);
 
 		// Check database connection.
-		$db_check = $wpdb->get_var('SELECT 1');
-		if ($db_check !== '1') {
+		$db_check = $wpdb->get_var( 'SELECT 1' );
+		if ( $db_check !== '1' ) {
 			$health['database'] = array(
 				'status'  => 'error',
 				'message' => 'Database connection failed',
@@ -177,9 +174,9 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 
 		// Check if tables exist.
 		$events_table = $wpdb->prefix . 'tracksure_events';
-		$table_exists = $wpdb->get_var($wpdb->prepare('SHOW TABLES LIKE %s', $events_table)) === $events_table;
+		$table_exists = $wpdb->get_var( $wpdb->prepare( 'SHOW TABLES LIKE %s', $events_table ) ) === $events_table;
 
-		if (! $table_exists) {
+		if ( ! $table_exists ) {
 			$health['tables'] = array(
 				'status'  => 'error',
 				'message' => 'Events table missing',
@@ -187,15 +184,15 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 		}
 
 		// Check if tracking is enabled.
-		$tracking_enabled = get_option('tracksure_tracking_enabled', true);
-		if (! $tracking_enabled) {
+		$tracking_enabled = get_option( 'tracksure_tracking_enabled', true );
+		if ( ! $tracking_enabled ) {
 			$health['tracking'] = array(
 				'status'  => 'warning',
 				'message' => 'Tracking is disabled in settings - no data is being collected',
 			);
 		} else {
 			// Check admin tracking.
-			$track_admins       = get_option('tracksure_track_admins', false);
+			$track_admins       = get_option( 'tracksure_track_admins', false );
 			$health['tracking'] = array(
 				'status'  => 'healthy',
 				'message' => sprintf(
@@ -206,7 +203,7 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 		}
 
 		// Get recent event count (last 5 minutes).
-		if ($table_exists) {
+		if ( $table_exists ) {
 			// Use UTC time since created_at is stored in UTC.
 			$recent_events           = $wpdb->get_var(
 				$wpdb->prepare(
@@ -228,18 +225,18 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 
 		// Overall status.
 		$overall_status = 'healthy';
-		foreach ($health as $check) {
-			if (isset($check['status']) && $check['status'] === 'error') {
+		foreach ( $health as $check ) {
+			if ( isset( $check['status'] ) && $check['status'] === 'error' ) {
 				$overall_status = 'error';
 				break;
-			} elseif (isset($check['status']) && $check['status'] === 'warning' && $overall_status !== 'error') {
+			} elseif ( isset( $check['status'] ) && $check['status'] === 'warning' && $overall_status !== 'error' ) {
 				$overall_status = 'warning';
 			}
 		}
 
 		// Get delivery stats (if table exists).
 		$delivery_stats = array();
-		if ($table_exists) {
+		if ( $table_exists ) {
 			$delivery_stats     = $this->get_quick_delivery_stats();
 			$health['delivery'] = array(
 				'status'  => 'healthy',
@@ -267,8 +264,7 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 	 *
 	 * @return array Delivery statistics.
 	 */
-	private function get_quick_delivery_stats()
-	{
+	private function get_quick_delivery_stats() {
 		global $wpdb;
 
 		// Get counts for last 24 hours.
@@ -286,7 +282,7 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 			ARRAY_A
 		);
 
-		if (! $stats || $stats['total'] == 0) {
+		if ( ! $stats || $stats['total'] == 0 ) {
 			return array(
 				'total'           => 0,
 				'browser_count'   => 0,
@@ -303,9 +299,9 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 			'browser_count'   => (int) $stats['browser_count'],
 			'server_count'    => (int) $stats['server_count'],
 			'both_count'      => (int) $stats['both_count'],
-			'browser_percent' => round(($stats['browser_count'] / $stats['total']) * 100, 1),
-			'server_percent'  => round(($stats['server_count'] / $stats['total']) * 100, 1),
-			'both_percent'    => round(($stats['both_count'] / $stats['total']) * 100, 1),
+			'browser_percent' => round( ( $stats['browser_count'] / $stats['total'] ) * 100, 1 ),
+			'server_percent'  => round( ( $stats['server_count'] / $stats['total'] ) * 100, 1 ),
+			'both_percent'    => round( ( $stats['both_count'] / $stats['total'] ) * 100, 1 ),
 		);
 	}
 
@@ -317,11 +313,10 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_delivery_stats($request)
-	{
+	public function get_delivery_stats( $request ) {
 		global $wpdb;
 
-		$period = $request->get_param('period') ?: '7d';
+		$period = $request->get_param( 'period' ) ?: '7d';
 
 		// Convert period to hours.
 		$hours_map = array(
@@ -331,7 +326,7 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 			'30d' => 720,
 		);
 
-		$hours = isset($hours_map[$period]) ? $hours_map[$period] : 168;
+		$hours = isset( $hours_map[ $period ] ) ? $hours_map[ $period ] : 168;
 
 		// Overall delivery stats.
 		$overall = $wpdb->get_row(
@@ -370,27 +365,27 @@ class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller
 		);
 
 		// Calculate percentages.
-		if ($overall && $overall['total'] > 0) {
-			$overall['browser_percent']      = round(($overall['browser_count'] / $overall['total']) * 100, 1);
-			$overall['server_percent']       = round(($overall['server_count'] / $overall['total']) * 100, 1);
-			$overall['both_percent']         = round(($overall['both_count'] / $overall['total']) * 100, 1);
-			$overall['server_only_percent']  = round(($overall['server_only'] / $overall['total']) * 100, 1);
-			$overall['browser_only_percent'] = round(($overall['browser_only'] / $overall['total']) * 100, 1);
+		if ( $overall && $overall['total'] > 0 ) {
+			$overall['browser_percent']      = round( ( $overall['browser_count'] / $overall['total'] ) * 100, 1 );
+			$overall['server_percent']       = round( ( $overall['server_count'] / $overall['total'] ) * 100, 1 );
+			$overall['both_percent']         = round( ( $overall['both_count'] / $overall['total'] ) * 100, 1 );
+			$overall['server_only_percent']  = round( ( $overall['server_only'] / $overall['total'] ) * 100, 1 );
+			$overall['browser_only_percent'] = round( ( $overall['browser_only'] / $overall['total'] ) * 100, 1 );
 		}
 
 		// Calculate percentages for each event.
-		if ($by_event) {
-			foreach ($by_event as &$event) {
-				if ($event['total'] > 0) {
-					$event['browser_percent'] = round(($event['browser_count'] / $event['total']) * 100, 1);
-					$event['server_percent']  = round(($event['server_count'] / $event['total']) * 100, 1);
-					$event['both_percent']    = round(($event['both_count'] / $event['total']) * 100, 1);
+		if ( $by_event ) {
+			foreach ( $by_event as &$event ) {
+				if ( $event['total'] > 0 ) {
+					$event['browser_percent'] = round( ( $event['browser_count'] / $event['total'] ) * 100, 1 );
+					$event['server_percent']  = round( ( $event['server_count'] / $event['total'] ) * 100, 1 );
+					$event['both_percent']    = round( ( $event['both_count'] / $event['total'] ) * 100, 1 );
 				}
 			}
 		}
 
 		// Timeline data (hourly for last 24h, daily for longer periods).
-		if ($hours <= 24) {
+		if ( $hours <= 24 ) {
 			$timeline = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT 

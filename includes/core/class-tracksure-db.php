@@ -21,15 +21,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * TrackSure Database class.
  */
-class TrackSure_DB
-{
+class TrackSure_DB {
+
 
 	/**
 	 * Instance.
@@ -50,9 +50,8 @@ class TrackSure_DB
 	 *
 	 * @return TrackSure_DB
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -61,8 +60,7 @@ class TrackSure_DB
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		global $wpdb;
 
 		$this->tables = (object) array(
@@ -87,15 +85,14 @@ class TrackSure_DB
 		// Without this, MySQL interprets DATETIME as system timezone (UTC+6 in this case)
 		// causing 6-hour offset in timestamp conversions
 		// See: mysql-timezone-check.php diagnostic for details
-		$wpdb->query("SET time_zone = '+00:00'");
+		$wpdb->query( "SET time_zone = '+00:00'" );
 	}
 	/**
 	 * Get table names.
 	 *
 	 * @return object
 	 */
-	public function get_tables()
-	{
+	public function get_tables() {
 		return $this->tables;
 	}
 
@@ -109,12 +106,11 @@ class TrackSure_DB
 	 * @param array  $initial_data Initial visitor data (for extensions).
 	 * @return int Visitor ID.
 	 */
-	public function get_or_create_visitor($client_id, $initial_data = array())
-	{
+	public function get_or_create_visitor( $client_id, $initial_data = array() ) {
 		global $wpdb;
 
 		// Validate UUID format.
-		if (! TrackSure_Utilities::is_valid_uuid_v4($client_id)) {
+		if ( ! TrackSure_Utilities::is_valid_uuid_v4( $client_id ) ) {
 			return 0;
 		}
 
@@ -125,14 +121,14 @@ class TrackSure_DB
 				$client_id
 			)
 		);
-		if ($visitor_id) {
+		if ( $visitor_id ) {
 			// Update last seen.
 			$wpdb->update(
 				$wpdb->prefix . 'tracksure_visitors',
-				array('updated_at' => current_time('mysql', 1)),
-				array('visitor_id' => $visitor_id),
-				array('%s'),
-				array('%d')
+				array( 'updated_at' => current_time( 'mysql', 1 ) ),
+				array( 'visitor_id' => $visitor_id ),
+				array( '%s' ),
+				array( '%d' )
 			);
 
 			/**
@@ -143,7 +139,7 @@ class TrackSure_DB
 			 * @param int    $visitor_id Visitor ID.
 			 * @param string $client_id Client UUID.
 			 */
-			do_action('tracksure_visitor_updated', $visitor_id, $client_id);
+			do_action( 'tracksure_visitor_updated', $visitor_id, $client_id );
 
 			return (int) $visitor_id;
 		}
@@ -153,12 +149,12 @@ class TrackSure_DB
 			$initial_data,
 			array(
 				'client_id'  => $client_id,
-				'created_at' => current_time('mysql', 1),
-				'updated_at' => current_time('mysql', 1),
+				'created_at' => current_time( 'mysql', 1 ),
+				'updated_at' => current_time( 'mysql', 1 ),
 			)
 		);
 
-		$wpdb->insert($wpdb->prefix . 'tracksure_visitors', $visitor_data);
+		$wpdb->insert( $wpdb->prefix . 'tracksure_visitors', $visitor_data );
 		$new_visitor_id = (int) $wpdb->insert_id;
 
 		/**
@@ -171,7 +167,7 @@ class TrackSure_DB
 		 * @param int    $visitor_id Visitor ID.
 		 * @param string $client_id Client UUID.
 		 */
-		do_action('tracksure_visitor_created', $new_visitor_id, $client_id);
+		do_action( 'tracksure_visitor_created', $new_visitor_id, $client_id );
 
 		return $new_visitor_id;
 	}
@@ -182,8 +178,7 @@ class TrackSure_DB
 	 * @param int $visitor_id Visitor ID.
 	 * @return object|null
 	 */
-	public function get_visitor($visitor_id)
-	{
+	public function get_visitor( $visitor_id ) {
 		global $wpdb;
 
 		return $wpdb->get_row(
@@ -201,18 +196,17 @@ class TrackSure_DB
 	 * @param array $data Data to update.
 	 * @return bool
 	 */
-	public function update_visitor($visitor_id, $data)
-	{
+	public function update_visitor( $visitor_id, $data ) {
 		global $wpdb;
 
-		$data['updated_at'] = current_time('mysql', 1);
+		$data['updated_at'] = current_time( 'mysql', 1 );
 
 		return $wpdb->update(
 			$wpdb->prefix . 'tracksure_visitors',
 			$data,
-			array('visitor_id' => $visitor_id),
+			array( 'visitor_id' => $visitor_id ),
 			null,
-			array('%d')
+			array( '%d' )
 		);
 	}
 
@@ -227,12 +221,11 @@ class TrackSure_DB
 	 * @param array  $session_data Session data.
 	 * @return int Session ID.
 	 */
-	public function upsert_session($session_id, $visitor_id, $session_data = array())
-	{
+	public function upsert_session( $session_id, $visitor_id, $session_data = array() ) {
 		global $wpdb;
 
 		// Validate UUID format.
-		if (! TrackSure_Utilities::is_valid_uuid_v4($session_id)) {
+		if ( ! TrackSure_Utilities::is_valid_uuid_v4( $session_id ) ) {
 			return false;
 		}
 
@@ -244,32 +237,32 @@ class TrackSure_DB
 			)
 		);
 
-		if ($existing) {
+		if ( $existing ) {
 			// Update existing session.
 			$update_data = array(
-				'last_activity_at' => current_time('mysql', 1),
-				'updated_at'       => current_time('mysql', 1),
+				'last_activity_at' => current_time( 'mysql', 1 ),
+				'updated_at'       => current_time( 'mysql', 1 ),
 			);
 
 			// Update event_count if provided.
-			if (isset($session_data['event_count'])) {
+			if ( isset( $session_data['event_count'] ) ) {
 				$update_data['event_count'] = (int) $session_data['event_count'];
 			}
 
 			// Update UTM/attribution fields if provided (e.g., user clicked new UTM link mid-session).
-			$utm_fields = array('utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid', 'msclkid', 'ttclid', 'twclid', 'li_fat_id', 'irclickid', 'ScCid');
-			foreach ($utm_fields as $field) {
-				if (isset($session_data[$field])) {
-					$update_data[$field] = sanitize_text_field($session_data[$field]);
+			$utm_fields = array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid', 'msclkid', 'ttclid', 'twclid', 'li_fat_id', 'irclickid', 'ScCid' );
+			foreach ( $utm_fields as $field ) {
+				if ( isset( $session_data[ $field ] ) ) {
+					$update_data[ $field ] = sanitize_text_field( $session_data[ $field ] );
 				}
 			}
 
 			// Update referrer/landing_page if provided.
-			if (isset($session_data['referrer'])) {
-				$update_data['referrer'] = esc_url_raw($session_data['referrer']);
+			if ( isset( $session_data['referrer'] ) ) {
+				$update_data['referrer'] = esc_url_raw( $session_data['referrer'] );
 			}
-			if (isset($session_data['landing_page'])) {
-				$update_data['landing_page'] = esc_url_raw($session_data['landing_page']);
+			if ( isset( $session_data['landing_page'] ) ) {
+				$update_data['landing_page'] = esc_url_raw( $session_data['landing_page'] );
 			}
 
 			// Update browser/OS/device if provided and not already set.
@@ -281,30 +274,30 @@ class TrackSure_DB
 				)
 			);
 
-			if ($session_record) {
-				if (! empty($session_data['browser']) && empty($session_record->browser)) {
-					$update_data['browser'] = sanitize_text_field($session_data['browser']);
+			if ( $session_record ) {
+				if ( ! empty( $session_data['browser'] ) && empty( $session_record->browser ) ) {
+					$update_data['browser'] = sanitize_text_field( $session_data['browser'] );
 				}
-				if (! empty($session_data['os']) && empty($session_record->os)) {
-					$update_data['os'] = sanitize_text_field($session_data['os']);
+				if ( ! empty( $session_data['os'] ) && empty( $session_record->os ) ) {
+					$update_data['os'] = sanitize_text_field( $session_data['os'] );
 				}
-				if (! empty($session_data['device_type']) && empty($session_record->device_type)) {
-					$update_data['device_type'] = sanitize_text_field($session_data['device_type']);
+				if ( ! empty( $session_data['device_type'] ) && empty( $session_record->device_type ) ) {
+					$update_data['device_type'] = sanitize_text_field( $session_data['device_type'] );
 				}
 			}
 
 			// Build format array dynamically to match $update_data columns.
 			$format = array();
-			foreach ($update_data as $key => $value) {
-				$format[] = ($key === 'event_count') ? '%d' : '%s';
+			foreach ( $update_data as $key => $value ) {
+				$format[] = ( $key === 'event_count' ) ? '%d' : '%s';
 			}
 
 			$wpdb->update(
 				$wpdb->prefix . 'tracksure_sessions',
 				$update_data,
-				array('session_id' => $session_id),
+				array( 'session_id' => $session_id ),
 				$format,
-				array('%s')
+				array( '%s' )
 			);
 
 			return $session_id;
@@ -318,8 +311,8 @@ class TrackSure_DB
 				'visitor_id'       => $visitor_id,
 				'session_number'   => 1,
 				'is_returning'     => 0,
-				'started_at'       => current_time('mysql', 1),
-				'last_activity_at' => current_time('mysql', 1),
+				'started_at'       => current_time( 'mysql', 1 ),
+				'last_activity_at' => current_time( 'mysql', 1 ),
 				'referrer'         => null,
 				'landing_page'     => null,
 				'utm_source'       => null,
@@ -336,12 +329,12 @@ class TrackSure_DB
 				'region'           => null,
 				'city'             => null,
 				'event_count'      => 0,
-				'created_at'       => current_time('mysql', 1),
-				'updated_at'       => current_time('mysql', 1),
+				'created_at'       => current_time( 'mysql', 1 ),
+				'updated_at'       => current_time( 'mysql', 1 ),
 			)
 		);
 
-		$wpdb->insert($wpdb->prefix . 'tracksure_sessions', $insert_data);
+		$wpdb->insert( $wpdb->prefix . 'tracksure_sessions', $insert_data );
 
 		return (int) $wpdb->insert_id;
 	}
@@ -352,12 +345,11 @@ class TrackSure_DB
 	 * @param string $session_id Session UUID.
 	 * @return object|null
 	 */
-	public function get_session($session_id)
-	{
+	public function get_session( $session_id ) {
 		global $wpdb;
 
 		// Validate UUID format.
-		if (! TrackSure_Utilities::is_valid_uuid_v4($session_id)) {
+		if ( ! TrackSure_Utilities::is_valid_uuid_v4( $session_id ) ) {
 			return null;
 		}
 
@@ -379,8 +371,7 @@ class TrackSure_DB
 	 * @param int $visitor_id Visitor ID.
 	 * @return int
 	 */
-	public function get_visitor_session_count($visitor_id)
-	{
+	public function get_visitor_session_count( $visitor_id ) {
 		global $wpdb;
 
 		return (int) $wpdb->get_var(
@@ -396,11 +387,10 @@ class TrackSure_DB
 	 *
 	 * @return array
 	 */
-	public function get_realtime_active_sessions()
-	{
+	public function get_realtime_active_sessions() {
 		global $wpdb;
 
-		$cutoff = gmdate('Y-m-d H:i:s', time() - 300); // 5 minutes ago.
+		$cutoff = gmdate( 'Y-m-d H:i:s', time() - 300 ); // 5 minutes ago.
 
 		// OPTIMIZED: Use indexed subquery to find latest event per session (100x faster).
 		// Instead of correlated subquery, we use MAX() aggregation which uses indexes.
@@ -444,23 +434,22 @@ class TrackSure_DB
 	 * @param array $event_data Event data.
 	 * @return string|false Event ID (UUID) or false on failure.
 	 */
-	public function insert_event($event_data)
-	{
+	public function insert_event( $event_data ) {
 		global $wpdb;
 
 		// Validate event_id is present and valid UUID.
-		if (empty($event_data['event_id'])) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( empty( $event_data['event_id'] ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] insert_event: Missing event_id');
+				error_log( '[TrackSure] insert_event: Missing event_id' );
 			}
 			return false;
 		}
 
-		if (! TrackSure_Utilities::is_valid_uuid_v4($event_data['event_id'])) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( ! TrackSure_Utilities::is_valid_uuid_v4( $event_data['event_id'] ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] insert_event: Invalid event_id format: ' . $event_data['event_id']);
+				error_log( '[TrackSure] insert_event: Invalid event_id format: ' . $event_data['event_id'] );
 			}
 			return false;
 		}
@@ -473,18 +462,18 @@ class TrackSure_DB
 			)
 		);
 
-		if ($exists) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( $exists ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] insert_event: Duplicate event_id detected, skipping: ' . $event_data['event_id']);
+				error_log( '[TrackSure] insert_event: Duplicate event_id detected, skipping: ' . $event_data['event_id'] );
 			}
 			return $event_data['event_id']; // Return event_id to indicate success (already stored)
 		}
 
 		// DEDUPLICATION CHECK #2: Semantic duplicate (same event within 2 seconds on same page).
 		// Uses BETWEEN instead of ABS(TIMESTAMPDIFF) so the occurred_at index can be used.
-		if (isset($event_data['session_id']) && isset($event_data['event_name']) && isset($event_data['page_url'])) {
-			$occurred_at = isset($event_data['occurred_at']) ? $event_data['occurred_at'] : gmdate('Y-m-d H:i:s');
+		if ( isset( $event_data['session_id'] ) && isset( $event_data['event_name'] ) && isset( $event_data['page_url'] ) ) {
+			$occurred_at = isset( $event_data['occurred_at'] ) ? $event_data['occurred_at'] : gmdate( 'Y-m-d H:i:s' );
 
 			$semantic_exists = $wpdb->get_var(
 				$wpdb->prepare(
@@ -502,10 +491,10 @@ class TrackSure_DB
 				)
 			);
 
-			if ($semantic_exists) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
+			if ( $semantic_exists ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-					error_log('[TrackSure] insert_event: Semantic duplicate detected - ' . $event_data['event_name'] . ' on ' . $event_data['page_url']);
+					error_log( '[TrackSure] insert_event: Semantic duplicate detected - ' . $event_data['event_name'] . ' on ' . $event_data['page_url'] );
 				}
 				return $semantic_exists; // Return existing event_id
 			}
@@ -519,8 +508,8 @@ class TrackSure_DB
 				'session_id'       => null,
 				'event_name'       => null,
 				'event_params'     => null,
-				'occurred_at'      => gmdate('Y-m-d H:i:s'), // UTC (browser time or server fallback)
-				'created_at'       => gmdate('Y-m-d H:i:s'), // Server processing time
+				'occurred_at'      => gmdate( 'Y-m-d H:i:s' ), // UTC (browser time or server fallback)
+				'created_at'       => gmdate( 'Y-m-d H:i:s' ), // Server processing time
 				'page_url'         => null,
 				'page_title'       => null,
 				'referrer'         => null,
@@ -540,33 +529,33 @@ class TrackSure_DB
 
 		// Convert JSON fields: Convert arrays to JSON, empty strings/values to NULL.
 		// MySQL JSON columns reject empty strings - must be NULL or valid JSON.
-		$json_fields = array('event_params', 'user_data', 'ecommerce_data', 'destinations_sent');
-		foreach ($json_fields as $field) {
-			if (isset($insert_data[$field])) {
-				if (is_array($insert_data[$field]) && ! empty($insert_data[$field])) {
+		$json_fields = array( 'event_params', 'user_data', 'ecommerce_data', 'destinations_sent' );
+		foreach ( $json_fields as $field ) {
+			if ( isset( $insert_data[ $field ] ) ) {
+				if ( is_array( $insert_data[ $field ] ) && ! empty( $insert_data[ $field ] ) ) {
 					// Valid array → JSON encode.
-					$insert_data[$field] = wp_json_encode($insert_data[$field]);
-				} elseif (empty($insert_data[$field]) || $insert_data[$field] === '' || $insert_data[$field] === '{}' || $insert_data[$field] === '[]') {
+					$insert_data[ $field ] = wp_json_encode( $insert_data[ $field ] );
+				} elseif ( empty( $insert_data[ $field ] ) || $insert_data[ $field ] === '' || $insert_data[ $field ] === '{}' || $insert_data[ $field ] === '[]' ) {
 					// Empty string, empty array, or empty object → NULL.
-					$insert_data[$field] = null;
+					$insert_data[ $field ] = null;
 				}
 				// else: already valid JSON string, keep as-is.
 			}
 		}
 
 		// Convert IP to binary if present.
-		if (! empty($insert_data['ip_address']) && filter_var($insert_data['ip_address'], FILTER_VALIDATE_IP)) {
-			$insert_data['ip_address'] = inet_pton($insert_data['ip_address']);
+		if ( ! empty( $insert_data['ip_address'] ) && filter_var( $insert_data['ip_address'], FILTER_VALIDATE_IP ) ) {
+			$insert_data['ip_address'] = inet_pton( $insert_data['ip_address'] );
 		} else {
 			$insert_data['ip_address'] = null;
 		}
 
-		$result = $wpdb->insert($wpdb->prefix . 'tracksure_events', $insert_data);
+		$result = $wpdb->insert( $wpdb->prefix . 'tracksure_events', $insert_data );
 
-		if ($result === false) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( $result === false ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] insert_event: Database insert failed - ' . $wpdb->last_error);
+				error_log( '[TrackSure] insert_event: Database insert failed - ' . $wpdb->last_error );
 			}
 			return false;
 		}
@@ -580,14 +569,13 @@ class TrackSure_DB
 	 * @param array $events_data Array of event data.
 	 * @return array Array of results ['success' => bool, 'event_ids' => array, 'errors' => array].
 	 */
-	public function insert_events_batch($events_data)
-	{
+	public function insert_events_batch( $events_data ) {
 		global $wpdb;
 
-		if (empty($events_data)) {
+		if ( empty( $events_data ) ) {
 			return array(
 				'success' => false,
-				'errors'  => array('No events provided'),
+				'errors'  => array( 'No events provided' ),
 			);
 		}
 
@@ -600,35 +588,36 @@ class TrackSure_DB
 		// Pre-filter duplicates with a SINGLE query instead of N queries (one per event).
 		// Collects all candidate event_ids and checks existence in bulk.
 		$candidate_ids = array();
-		foreach ($events_data as $event_data) {
-			if (! empty($event_data['event_id'])) {
+		foreach ( $events_data as $event_data ) {
+			if ( ! empty( $event_data['event_id'] ) ) {
 				$candidate_ids[] = $event_data['event_id'];
 			}
 		}
 
 		$existing_ids = array();
-		if (! empty($candidate_ids)) {
-			$id_placeholders = implode(', ', array_fill(0, count($candidate_ids), '%s'));
-			// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+		if ( ! empty( $candidate_ids ) ) {
+			$id_placeholders = implode( ', ', array_fill( 0, count( $candidate_ids ), '%s' ) );
+			// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Dynamic IN() placeholders built from array_fill, values via splat operator.
 			$existing_rows = $wpdb->get_col(
 				$wpdb->prepare(
 					"SELECT event_id FROM {$wpdb->prefix}tracksure_events WHERE event_id IN ({$id_placeholders})",
 					...$candidate_ids
 				)
 			);
-			$existing_ids = array_flip($existing_rows ? $existing_rows : array());
+			// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
+			$existing_ids = array_flip( $existing_rows ? $existing_rows : array() );
 		}
 
 		// Prepare all events for batch insert.
-		foreach ($events_data as $index => $event_data) {
+		foreach ( $events_data as $index => $event_data ) {
 			// Validate required fields.
-			if (empty($event_data['event_id']) || empty($event_data['event_name'])) {
+			if ( empty( $event_data['event_id'] ) || empty( $event_data['event_name'] ) ) {
 				$errors[] = "Event {$index}: Missing required fields";
 				continue;
 			}
 
 			// Check for duplicate event_id (already resolved in bulk above).
-			if (isset($existing_ids[$event_data['event_id']])) {
+			if ( isset( $existing_ids[ $event_data['event_id'] ] ) ) {
 				$inserted_event_ids[] = $event_data['event_id']; // Already exists
 				continue;
 			}
@@ -649,8 +638,8 @@ class TrackSure_DB
 					'event_params'      => null,
 					'user_data'         => null,
 					'ecommerce_data'    => null,
-					'occurred_at'       => current_time('mysql', 1),
-					'created_at'        => current_time('mysql', 1),
+					'occurred_at'       => current_time( 'mysql', 1 ),
+					'created_at'        => current_time( 'mysql', 1 ),
 					'page_url'          => null,
 					'page_path'         => null,
 					'page_title'        => null,
@@ -670,30 +659,30 @@ class TrackSure_DB
 			);
 
 			// Convert JSON fields - CRITICAL: Convert empty strings to NULL for MySQL 8.0+ compatibility.
-			if (is_array($insert_data['event_params'])) {
-				$insert_data['event_params'] = wp_json_encode($insert_data['event_params']);
-			} elseif (empty($insert_data['event_params']) || $insert_data['event_params'] === '') {
+			if ( is_array( $insert_data['event_params'] ) ) {
+				$insert_data['event_params'] = wp_json_encode( $insert_data['event_params'] );
+			} elseif ( empty( $insert_data['event_params'] ) || $insert_data['event_params'] === '' ) {
 				$insert_data['event_params'] = null;
 			}
-			if (is_array($insert_data['user_data'])) {
-				$insert_data['user_data'] = wp_json_encode($insert_data['user_data']);
-			} elseif (empty($insert_data['user_data']) || $insert_data['user_data'] === '') {
+			if ( is_array( $insert_data['user_data'] ) ) {
+				$insert_data['user_data'] = wp_json_encode( $insert_data['user_data'] );
+			} elseif ( empty( $insert_data['user_data'] ) || $insert_data['user_data'] === '' ) {
 				$insert_data['user_data'] = null;
 			}
-			if (is_array($insert_data['ecommerce_data'])) {
-				$insert_data['ecommerce_data'] = wp_json_encode($insert_data['ecommerce_data']);
-			} elseif (empty($insert_data['ecommerce_data']) || $insert_data['ecommerce_data'] === '') {
+			if ( is_array( $insert_data['ecommerce_data'] ) ) {
+				$insert_data['ecommerce_data'] = wp_json_encode( $insert_data['ecommerce_data'] );
+			} elseif ( empty( $insert_data['ecommerce_data'] ) || $insert_data['ecommerce_data'] === '' ) {
 				$insert_data['ecommerce_data'] = null;
 			}
-			if (is_array($insert_data['destinations_sent'])) {
-				$insert_data['destinations_sent'] = wp_json_encode($insert_data['destinations_sent']);
-			} elseif (empty($insert_data['destinations_sent']) || $insert_data['destinations_sent'] === '') {
+			if ( is_array( $insert_data['destinations_sent'] ) ) {
+				$insert_data['destinations_sent'] = wp_json_encode( $insert_data['destinations_sent'] );
+			} elseif ( empty( $insert_data['destinations_sent'] ) || $insert_data['destinations_sent'] === '' ) {
 				$insert_data['destinations_sent'] = null;
 			}
 
 			// Convert IP to binary.
-			if (! empty($insert_data['ip_address']) && filter_var($insert_data['ip_address'], FILTER_VALIDATE_IP)) {
-				$insert_data['ip_address'] = inet_pton($insert_data['ip_address']);
+			if ( ! empty( $insert_data['ip_address'] ) && filter_var( $insert_data['ip_address'], FILTER_VALIDATE_IP ) ) {
+				$insert_data['ip_address'] = inet_pton( $insert_data['ip_address'] );
 			} else {
 				$insert_data['ip_address'] = null;
 			}
@@ -738,29 +727,29 @@ class TrackSure_DB
 		}
 
 		// Execute batch insert if we have any valid events.
-		if (! empty($placeholders_array)) {
+		if ( ! empty( $placeholders_array ) ) {
 			// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared
 			$query = "INSERT INTO {$wpdb->prefix}tracksure_events 
                 (event_id, visitor_id, session_id, event_name, event_source, browser_fired, server_fired, 
                  browser_fired_at, destinations_sent, event_params, user_data, ecommerce_data, 
                  occurred_at, created_at, page_url, page_path, page_title, referrer, user_agent, ip_address, 
                  device_type, browser, os, country, region, city, is_conversion, conversion_value, consent_granted)
-                VALUES " . implode(', ', $placeholders_array);
+                VALUES " . implode( ', ', $placeholders_array );
 
-			$prepared_query = $wpdb->prepare($query, $all_values);
+			$prepared_query = $wpdb->prepare( $query, $all_values );
 			// CRITICAL: Replace NULL markers with actual NULL for JSON columns (MySQL 8.0+ rejects empty strings in JSON).
-			$prepared_query = str_replace("'___TRACKSURE_NULL___'", 'NULL', $prepared_query);
-			$result         = $wpdb->query($prepared_query);
+			$prepared_query = str_replace( "'___TRACKSURE_NULL___'", 'NULL', $prepared_query );
+			$result         = $wpdb->query( $prepared_query );
 			// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
-			if ($result === false) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
+			if ( $result === false ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-					error_log('[TrackSure] Batch insert failed: ' . $wpdb->last_error);
+					error_log( '[TrackSure] Batch insert failed: ' . $wpdb->last_error );
 				}
 				return array(
 					'success' => false,
-					'errors'  => array($wpdb->last_error),
+					'errors'  => array( $wpdb->last_error ),
 				);
 			}
 		}
@@ -768,8 +757,8 @@ class TrackSure_DB
 		return array(
 			'success'        => true,
 			'event_ids'      => $inserted_event_ids,
-			'inserted_count' => count($placeholders_array),
-			'skipped_count'  => count($events_data) - count($placeholders_array),
+			'inserted_count' => count( $placeholders_array ),
+			'skipped_count'  => count( $events_data ) - count( $placeholders_array ),
 			'errors'         => $errors,
 		);
 	}
@@ -781,11 +770,10 @@ class TrackSure_DB
 	 * @param string $order Order direction (ASC or DESC).
 	 * @return array
 	 */
-	public function get_session_events($session_id, $order = 'ASC')
-	{
+	public function get_session_events( $session_id, $order = 'ASC' ) {
 		global $wpdb;
 
-		$order = in_array(strtoupper($order), array('ASC', 'DESC'), true) ? strtoupper($order) : 'ASC';
+		$order = in_array( strtoupper( $order ), array( 'ASC', 'DESC' ), true ) ? strtoupper( $order ) : 'ASC';
 
 		return $wpdb->get_results(
 			$wpdb->prepare(
@@ -807,18 +795,17 @@ class TrackSure_DB
 	 * @param array  $filters Additional filters.
 	 * @return array
 	 */
-	public function get_events_by_date($start_date, $end_date, $filters = array())
-	{
+	public function get_events_by_date( $start_date, $end_date, $filters = array() ) {
 		global $wpdb;
 
-		$where = $wpdb->prepare('created_at >= %s AND created_at <= %s', $start_date, $end_date);
+		$where = $wpdb->prepare( 'created_at >= %s AND created_at <= %s', $start_date, $end_date );
 
-		if (! empty($filters['event_name'])) {
-			$where .= $wpdb->prepare(' AND event_name = %s', $filters['event_name']);
+		if ( ! empty( $filters['event_name'] ) ) {
+			$where .= $wpdb->prepare( ' AND event_name = %s', $filters['event_name'] );
 		}
 
-		if (! empty($filters['visitor_id'])) {
-			$where .= $wpdb->prepare(' AND visitor_id = %d', $filters['visitor_id']);
+		if ( ! empty( $filters['visitor_id'] ) ) {
+			$where .= $wpdb->prepare( ' AND visitor_id = %d', $filters['visitor_id'] );
 		}
 
 		return $wpdb->get_results(
@@ -836,12 +823,11 @@ class TrackSure_DB
 	 * @param string $event_id Event ID (UUID).
 	 * @return array|null Event data or null if not found.
 	 */
-	public function get_event_by_id($event_id)
-	{
+	public function get_event_by_id( $event_id ) {
 		global $wpdb;
 
 		// Validate UUID format.
-		if (! TrackSure_Utilities::is_valid_uuid_v4($event_id)) {
+		if ( ! TrackSure_Utilities::is_valid_uuid_v4( $event_id ) ) {
 			return null;
 		}
 
@@ -861,12 +847,11 @@ class TrackSure_DB
 	 * @param array  $data Data to update.
 	 * @return bool True on success, false on failure.
 	 */
-	public function update_event($event_id, $data)
-	{
+	public function update_event( $event_id, $data ) {
 		global $wpdb;
 
 		// Validate UUID format.
-		if (! TrackSure_Utilities::is_valid_uuid_v4($event_id)) {
+		if ( ! TrackSure_Utilities::is_valid_uuid_v4( $event_id ) ) {
 			return false;
 		}
 
@@ -877,9 +862,9 @@ class TrackSure_DB
 		$result = $wpdb->update(
 			$wpdb->prefix . 'tracksure_events',
 			$data,
-			array('event_id' => $event_id),
+			array( 'event_id' => $event_id ),
 			null, // Format determined automatically
-			array('%s') // event_id is string
+			array( '%s' ) // event_id is string
 		);
 
 		return $result !== false;
@@ -894,8 +879,7 @@ class TrackSure_DB
 	 * @param array $goal_data Goal data.
 	 * @return int|false Goal ID or false on failure.
 	 */
-	public function create_goal($goal_data)
-	{
+	public function create_goal( $goal_data ) {
 		global $wpdb;
 
 		$insert_data = wp_parse_args(
@@ -906,16 +890,16 @@ class TrackSure_DB
 				'event_name'  => '',
 				'conditions'  => null,
 				'is_active'   => 1,
-				'created_at'  => current_time('mysql', 1),
-				'updated_at'  => current_time('mysql', 1),
+				'created_at'  => current_time( 'mysql', 1 ),
+				'updated_at'  => current_time( 'mysql', 1 ),
 			)
 		);
 
-		if (is_array($insert_data['conditions'])) {
-			$insert_data['conditions'] = wp_json_encode($insert_data['conditions']);
+		if ( is_array( $insert_data['conditions'] ) ) {
+			$insert_data['conditions'] = wp_json_encode( $insert_data['conditions'] );
 		}
 
-		$result = $wpdb->insert($wpdb->prefix . 'tracksure_goals', $insert_data);
+		$result = $wpdb->insert( $wpdb->prefix . 'tracksure_goals', $insert_data );
 
 		return $result ? (int) $wpdb->insert_id : false;
 	}
@@ -925,8 +909,7 @@ class TrackSure_DB
 	 *
 	 * @return array
 	 */
-	public function get_active_goals()
-	{
+	public function get_active_goals() {
 		global $wpdb;
 
 		return $wpdb->get_results(
@@ -946,22 +929,21 @@ class TrackSure_DB
 	 * @param array $goal_data Goal data to update.
 	 * @return bool
 	 */
-	public function update_goal($goal_id, $goal_data)
-	{
+	public function update_goal( $goal_id, $goal_data ) {
 		global $wpdb;
 
-		$goal_data['updated_at'] = current_time('mysql', 1);
+		$goal_data['updated_at'] = current_time( 'mysql', 1 );
 
-		if (isset($goal_data['conditions']) && is_array($goal_data['conditions'])) {
-			$goal_data['conditions'] = wp_json_encode($goal_data['conditions']);
+		if ( isset( $goal_data['conditions'] ) && is_array( $goal_data['conditions'] ) ) {
+			$goal_data['conditions'] = wp_json_encode( $goal_data['conditions'] );
 		}
 
 		return $wpdb->update(
 			$wpdb->prefix . 'tracksure_goals',
 			$goal_data,
-			array('id' => $goal_id),
+			array( 'id' => $goal_id ),
 			null,
-			array('%d')
+			array( '%d' )
 		);
 	}
 
@@ -974,8 +956,7 @@ class TrackSure_DB
 	 * @param array $conversion_data Conversion data.
 	 * @return int|false Conversion ID or false on failure.
 	 */
-	public function insert_conversion($conversion_data)
-	{
+	public function insert_conversion( $conversion_data ) {
 		global $wpdb;
 
 		$insert_data = wp_parse_args(
@@ -988,23 +969,23 @@ class TrackSure_DB
 				'value'         => 0.00,
 				'currency'      => 'USD',
 				'snapshot_data' => null,
-				'converted_at'  => current_time('mysql', 1),
+				'converted_at'  => current_time( 'mysql', 1 ),
 			)
 		);
 
-		if (isset($insert_data['snapshot_data']) && is_array($insert_data['snapshot_data'])) {
-			$insert_data['snapshot_data'] = wp_json_encode($insert_data['snapshot_data']);
+		if ( isset( $insert_data['snapshot_data'] ) && is_array( $insert_data['snapshot_data'] ) ) {
+			$insert_data['snapshot_data'] = wp_json_encode( $insert_data['snapshot_data'] );
 		}
 
-		$result = $wpdb->insert($wpdb->prefix . 'tracksure_conversions', $insert_data);
+		$result = $wpdb->insert( $wpdb->prefix . 'tracksure_conversions', $insert_data );
 
 		// ========================================.
 		// PHASE 2: INVALIDATE ALL GOAL CACHES.
 		// ========================================.
 		// Delete all transient caches for this goal when new conversion is added.
-		if ($result && isset($insert_data['goal_id'])) {
+		if ( $result && isset( $insert_data['goal_id'] ) ) {
 			global $wpdb;
-			$goal_id = absint($insert_data['goal_id']);
+			$goal_id = absint( $insert_data['goal_id'] );
 
 			// Delete timeline cache keys: tracksure_goal_{$goal_id}_timeline_%.
 			$wpdb->query(
@@ -1054,12 +1035,11 @@ class TrackSure_DB
 	 * @param int    $goal_id Goal ID.
 	 * @return int|null Conversion ID if exists, null otherwise.
 	 */
-	public function get_conversion_by_event_and_goal($event_id, $goal_id)
-	{
+	public function get_conversion_by_event_and_goal( $event_id, $goal_id ) {
 		global $wpdb;
 
 		// Validate UUID format.
-		if (! TrackSure_Utilities::is_valid_uuid_v4($event_id)) {
+		if ( ! TrackSure_Utilities::is_valid_uuid_v4( $event_id ) ) {
 			return null;
 		}
 
@@ -1081,14 +1061,13 @@ class TrackSure_DB
 	 * @param array  $filters Additional filters.
 	 * @return array
 	 */
-	public function get_conversions_by_date($start_date, $end_date, $filters = array())
-	{
+	public function get_conversions_by_date( $start_date, $end_date, $filters = array() ) {
 		global $wpdb;
 
-		$where = $wpdb->prepare('converted_at >= %s AND converted_at <= %s', $start_date, $end_date);
+		$where = $wpdb->prepare( 'converted_at >= %s AND converted_at <= %s', $start_date, $end_date );
 
-		if (! empty($filters['goal_id'])) {
-			$where .= $wpdb->prepare(' AND goal_id = %d', $filters['goal_id']);
+		if ( ! empty( $filters['goal_id'] ) ) {
+			$where .= $wpdb->prepare( ' AND goal_id = %d', $filters['goal_id'] );
 		}
 
 		return $wpdb->get_results(
@@ -1109,8 +1088,7 @@ class TrackSure_DB
 	 * @param array $touchpoint_data Touchpoint data.
 	 * @return int|false Touchpoint ID or false on failure.
 	 */
-	public function insert_touchpoint($touchpoint_data)
-	{
+	public function insert_touchpoint( $touchpoint_data ) {
 		global $wpdb;
 
 		$insert_data = wp_parse_args(
@@ -1124,11 +1102,11 @@ class TrackSure_DB
 				'medium'         => null,
 				'campaign'       => null,
 				'landing_page'   => null,
-				'touched_at'     => current_time('mysql', 1),
+				'touched_at'     => current_time( 'mysql', 1 ),
 			)
 		);
 
-		$result = $wpdb->insert($wpdb->prefix . 'tracksure_touchpoints', $insert_data);
+		$result = $wpdb->insert( $wpdb->prefix . 'tracksure_touchpoints', $insert_data );
 
 		return $result ? (int) $wpdb->insert_id : false;
 	}
@@ -1139,8 +1117,7 @@ class TrackSure_DB
 	 * @param int $visitor_id Visitor ID.
 	 * @return array
 	 */
-	public function get_visitor_touchpoints($visitor_id)
-	{
+	public function get_visitor_touchpoints( $visitor_id ) {
 		global $wpdb;
 
 		return $wpdb->get_results(
@@ -1164,8 +1141,7 @@ class TrackSure_DB
 	 * @param array $outbox_data Outbox data.
 	 * @return int|false Outbox ID or false on failure.
 	 */
-	public function insert_outbox($outbox_data)
-	{
+	public function insert_outbox( $outbox_data ) {
 		global $wpdb;
 
 		// NEW SCHEMA: destinations array + destinations_status.
@@ -1178,16 +1154,16 @@ class TrackSure_DB
 				'payload'             => null,
 				'status'              => 'pending',
 				'retry_count'         => 0,
-				'created_at'          => current_time('mysql', 1),
-				'updated_at'          => current_time('mysql', 1),
+				'created_at'          => current_time( 'mysql', 1 ),
+				'updated_at'          => current_time( 'mysql', 1 ),
 			)
 		);
 
-		if (isset($insert_data['payload']) && is_array($insert_data['payload'])) {
-			$insert_data['payload'] = wp_json_encode($insert_data['payload']);
+		if ( isset( $insert_data['payload'] ) && is_array( $insert_data['payload'] ) ) {
+			$insert_data['payload'] = wp_json_encode( $insert_data['payload'] );
 		}
 
-		$result = $wpdb->insert($wpdb->prefix . 'tracksure_outbox', $insert_data);
+		$result = $wpdb->insert( $wpdb->prefix . 'tracksure_outbox', $insert_data );
 
 		return $result ? (int) $wpdb->insert_id : false;
 	}
@@ -1198,8 +1174,7 @@ class TrackSure_DB
 	 * @param int $limit Limit.
 	 * @return array
 	 */
-	public function get_pending_outbox($limit = 100)
-	{
+	public function get_pending_outbox( $limit = 100 ) {
 		global $wpdb;
 
 		// NEW SCHEMA: Select destinations array + destinations_status.
@@ -1225,19 +1200,18 @@ class TrackSure_DB
 	 * @param string $status Status (pending, processing, completed, failed).
 	 * @return bool
 	 */
-	public function update_outbox_status($outbox_id, $status)
-	{
+	public function update_outbox_status( $outbox_id, $status ) {
 		global $wpdb;
 
 		return $wpdb->update(
 			$wpdb->prefix . 'tracksure_outbox',
 			array(
 				'status'     => $status,
-				'updated_at' => current_time('mysql', 1),
+				'updated_at' => current_time( 'mysql', 1 ),
 			),
-			array('outbox_id' => $outbox_id),
-			array('%s', '%s'),
-			array('%d')
+			array( 'outbox_id' => $outbox_id ),
+			array( '%s', '%s' ),
+			array( '%d' )
 		);
 	}
 
@@ -1258,22 +1232,21 @@ class TrackSure_DB
 	 * @param string $segment Optional segment filter (new/returning/converted).
 	 * @return array Metrics array with total_visitors, total_sessions, total_events, total_conversions, total_revenue.
 	 */
-	public function get_aggregated_metrics($date_start, $date_end, $segment = null)
-	{
+	public function get_aggregated_metrics( $date_start, $date_end, $segment = null ) {
 		// Generate cache key.
-		$cache_key = 'tracksure_agg_metrics_' . md5($date_start . $date_end . $segment);
+		$cache_key = 'tracksure_agg_metrics_' . md5( $date_start . $date_end . $segment );
 
 		// Try to get from cache (5-minute TTL).
-		$cached_metrics = get_transient($cache_key);
-		if ($cached_metrics !== false) {
+		$cached_metrics = get_transient( $cache_key );
+		if ( $cached_metrics !== false ) {
 			return $cached_metrics;
 		}
 
 		// ALWAYS use raw metrics for accuracy (no dimensional overcounting).
-		$metrics = $this->get_raw_metrics($date_start, $date_end, $segment);
+		$metrics = $this->get_raw_metrics( $date_start, $date_end, $segment );
 
 		// Cache the result for 5 minutes.
-		set_transient($cache_key, $metrics, 5 * MINUTE_IN_SECONDS);
+		set_transient( $cache_key, $metrics, 5 * MINUTE_IN_SECONDS );
 
 		return $metrics;
 	}
@@ -1286,8 +1259,7 @@ class TrackSure_DB
 	 * @param string $segment Optional segment filter (new/returning/converted).
 	 * @return array
 	 */
-	private function get_raw_metrics($date_start, $date_end, $segment = null)
-	{
+	private function get_raw_metrics( $date_start, $date_end, $segment = null ) {
 		global $wpdb;
 
 		// Convert dates to datetime for timestamp comparison.
@@ -1296,8 +1268,8 @@ class TrackSure_DB
 
 		// Build WHERE clause for segment filtering.
 		$segment_where = '';
-		if (! empty($segment)) {
-			switch ($segment) {
+		if ( ! empty( $segment ) ) {
+			switch ( $segment ) {
 				case 'new':
 					$segment_where = ' AND s.session_number = 1';
 					break;
@@ -1353,8 +1325,7 @@ class TrackSure_DB
 	 * @param string $date_end End date (YYYY-MM-DD).
 	 * @return array Enhanced metrics array.
 	 */
-	public function get_enhanced_metrics($date_start, $date_end)
-	{
+	public function get_enhanced_metrics( $date_start, $date_end ) {
 		global $wpdb;
 
 		$start_datetime = $date_start . ' 00:00:00';
@@ -1426,7 +1397,7 @@ class TrackSure_DB
 			$conversion_metrics ?: array()
 		);
 
-		if (! $metrics || empty($metrics['unique_visitors'])) {
+		if ( ! $metrics || empty( $metrics['unique_visitors'] ) ) {
 			return array(
 				'unique_visitors'              => 0,
 				'new_visitors'                 => 0,
@@ -1447,29 +1418,29 @@ class TrackSure_DB
 		}
 
 		// Calculate derived metrics.
-		$unique_visitors     = (int) ($metrics['unique_visitors'] ?? 0);
-		$total_sessions      = (int) ($metrics['total_sessions'] ?? 0);
-		$converting_sessions = (int) ($metrics['converting_sessions'] ?? 0);
-		$bounce_count        = (int) ($metrics['bounce_count'] ?? 0);
-		$total_revenue       = (float) ($metrics['total_revenue'] ?? 0);
-		$total_events        = (int) ($metrics['total_events'] ?? 0);
+		$unique_visitors     = (int) ( $metrics['unique_visitors'] ?? 0 );
+		$total_sessions      = (int) ( $metrics['total_sessions'] ?? 0 );
+		$converting_sessions = (int) ( $metrics['converting_sessions'] ?? 0 );
+		$bounce_count        = (int) ( $metrics['bounce_count'] ?? 0 );
+		$total_revenue       = (float) ( $metrics['total_revenue'] ?? 0 );
+		$total_events        = (int) ( $metrics['total_events'] ?? 0 );
 
-		$metrics['sessions_per_visitor'] = $unique_visitors > 0 ? round($total_sessions / $unique_visitors, 2) : 0;
-		$metrics['bounce_rate']          = $total_sessions > 0 ? round(($bounce_count / $total_sessions) * 100, 1) : 0;
-		$metrics['conversion_rate']      = $total_sessions > 0 ? round(($converting_sessions / $total_sessions) * 100, 1) : 0;
-		$metrics['revenue_per_visitor']  = $unique_visitors > 0 ? round($total_revenue / $unique_visitors, 2) : 0;
-		$metrics['events_per_session']   = $total_sessions > 0 ? round($total_events / $total_sessions, 1) : 0;
+		$metrics['sessions_per_visitor'] = $unique_visitors > 0 ? round( $total_sessions / $unique_visitors, 2 ) : 0;
+		$metrics['bounce_rate']          = $total_sessions > 0 ? round( ( $bounce_count / $total_sessions ) * 100, 1 ) : 0;
+		$metrics['conversion_rate']      = $total_sessions > 0 ? round( ( $converting_sessions / $total_sessions ) * 100, 1 ) : 0;
+		$metrics['revenue_per_visitor']  = $unique_visitors > 0 ? round( $total_revenue / $unique_visitors, 2 ) : 0;
+		$metrics['events_per_session']   = $total_sessions > 0 ? round( $total_events / $total_sessions, 1 ) : 0;
 
 		// Ensure all numeric values are properly typed.
 		$metrics['unique_visitors']              = $unique_visitors;
-		$metrics['new_visitors']                 = (int) ($metrics['new_visitors'] ?? 0);
-		$metrics['returning_visitors']           = (int) ($metrics['returning_visitors'] ?? 0);
+		$metrics['new_visitors']                 = (int) ( $metrics['new_visitors'] ?? 0 );
+		$metrics['returning_visitors']           = (int) ( $metrics['returning_visitors'] ?? 0 );
 		$metrics['total_sessions']               = $total_sessions;
-		$metrics['total_pageviews']              = (int) ($metrics['total_pageviews'] ?? 0);
+		$metrics['total_pageviews']              = (int) ( $metrics['total_pageviews'] ?? 0 );
 		$metrics['total_events']                 = $total_events;
-		$metrics['avg_session_duration_seconds'] = (float) ($metrics['avg_session_duration_seconds'] ?? 0);
+		$metrics['avg_session_duration_seconds'] = (float) ( $metrics['avg_session_duration_seconds'] ?? 0 );
 		$metrics['converting_sessions']          = $converting_sessions;
-		$metrics['total_conversions']            = (int) ($metrics['total_conversions'] ?? 0);
+		$metrics['total_conversions']            = (int) ( $metrics['total_conversions'] ?? 0 );
 		$metrics['total_revenue']                = $total_revenue;
 
 		return $metrics;
@@ -1482,8 +1453,7 @@ class TrackSure_DB
 	 * @param string $date_end End date (YYYY-MM-DD).
 	 * @return array Device breakdown.
 	 */
-	public function get_device_breakdown($date_start, $date_end)
-	{
+	public function get_device_breakdown( $date_start, $date_end ) {
 		global $wpdb;
 
 		$start_datetime = $date_start . ' 00:00:00';
@@ -1508,15 +1478,15 @@ class TrackSure_DB
 		);
 
 		// If no device data, return empty array.
-		if (empty($results)) {
+		if ( empty( $results ) ) {
 			return array();
 		}
 
 		// Calculate percentages.
-		$total_visitors = array_sum(array_column($results, 'visitors'));
+		$total_visitors = array_sum( array_column( $results, 'visitors' ) );
 
-		foreach ($results as &$row) {
-			$row['percentage'] = $total_visitors > 0 ? round(($row['visitors'] / $total_visitors) * 100, 1) : 0;
+		foreach ( $results as &$row ) {
+			$row['percentage'] = $total_visitors > 0 ? round( ( $row['visitors'] / $total_visitors ) * 100, 1 ) : 0;
 		}
 
 		return $results;
@@ -1530,8 +1500,7 @@ class TrackSure_DB
 	 * @param int    $limit Result limit.
 	 * @return array Source breakdown.
 	 */
-	public function get_source_breakdown($date_start, $date_end, $limit = 10)
-	{
+	public function get_source_breakdown( $date_start, $date_end, $limit = 10 ) {
 		global $wpdb;
 
 		$start_datetime = $date_start . ' 00:00:00';
@@ -1582,8 +1551,8 @@ class TrackSure_DB
 			)
 		);
 
-		foreach ($results as &$row) {
-			$row['percentage'] = $total_visitors > 0 ? round(($row['visitors'] / $total_visitors) * 100, 1) : 0;
+		foreach ( $results as &$row ) {
+			$row['percentage'] = $total_visitors > 0 ? round( ( $row['visitors'] / $total_visitors ) * 100, 1 ) : 0;
 		}
 
 		return $results;
@@ -1597,8 +1566,7 @@ class TrackSure_DB
 	 * @param int    $limit Result limit.
 	 * @return array Country breakdown.
 	 */
-	public function get_country_breakdown($date_start, $date_end, $limit = 10)
-	{
+	public function get_country_breakdown( $date_start, $date_end, $limit = 10 ) {
 		global $wpdb;
 
 		$start_datetime = $date_start . ' 00:00:00';
@@ -1625,7 +1593,7 @@ class TrackSure_DB
 		);
 
 		// If no country data, return empty array.
-		if (empty($results)) {
+		if ( empty( $results ) ) {
 			return array();
 		}
 
@@ -1638,8 +1606,8 @@ class TrackSure_DB
 			)
 		);
 
-		foreach ($results as &$row) {
-			$row['percentage'] = $total_visitors > 0 ? round(($row['visitors'] / $total_visitors) * 100, 1) : 0;
+		foreach ( $results as &$row ) {
+			$row['percentage'] = $total_visitors > 0 ? round( ( $row['visitors'] / $total_visitors ) * 100, 1 ) : 0;
 		}
 
 		return $results;
@@ -1653,8 +1621,7 @@ class TrackSure_DB
 	 * @param int    $limit Result limit.
 	 * @return array Top pages.
 	 */
-	public function get_top_pages_visitor_based($date_start, $date_end, $limit = 10)
-	{
+	public function get_top_pages_visitor_based( $date_start, $date_end, $limit = 10 ) {
 		global $wpdb;
 
 		$start_datetime = $date_start . ' 00:00:00';
@@ -1732,11 +1699,10 @@ class TrackSure_DB
 	 * @param int $limit Result limit.
 	 * @return array
 	 */
-	public function get_recent_events($minutes = 30, $limit = 50)
-	{
+	public function get_recent_events( $minutes = 30, $limit = 50 ) {
 		global $wpdb;
 
-		$since = gmdate('Y-m-d H:i:s', time() - ($minutes * 60));
+		$since = gmdate( 'Y-m-d H:i:s', time() - ( $minutes * 60 ) );
 
 		// OPTIMIZED: Use DISTINCT event_id to prevent duplicates from browser + server.
 		// Return Unix timestamp for React to format in user's timezone.
@@ -1774,8 +1740,7 @@ class TrackSure_DB
 	 * @param array $args Query arguments.
 	 * @return array
 	 */
-	public function get_sessions_list($args = array())
-	{
+	public function get_sessions_list( $args = array() ) {
 		global $wpdb;
 
 		$defaults = array(
@@ -1786,22 +1751,22 @@ class TrackSure_DB
 			'per_page'   => 20,
 		);
 
-		$args = wp_parse_args($args, $defaults);
+		$args = wp_parse_args( $args, $defaults );
 
 		$where  = '1=1';
-		$offset = ($args['page'] - 1) * $args['per_page'];
+		$offset = ( $args['page'] - 1 ) * $args['per_page'];
 
-		if ($args['date_start']) {
-			$where .= $wpdb->prepare(' AND s.started_at >= %s', $args['date_start'] . ' 00:00:00');
+		if ( $args['date_start'] ) {
+			$where .= $wpdb->prepare( ' AND s.started_at >= %s', $args['date_start'] . ' 00:00:00' );
 		}
 
-		if ($args['date_end']) {
-			$where .= $wpdb->prepare(' AND s.started_at <= %s', $args['date_end'] . ' 23:59:59');
+		if ( $args['date_end'] ) {
+			$where .= $wpdb->prepare( ' AND s.started_at <= %s', $args['date_end'] . ' 23:59:59' );
 		}
 
 		// Apply segment filter.
-		if (! empty($args['segment'])) {
-			switch ($args['segment']) {
+		if ( ! empty( $args['segment'] ) ) {
+			switch ( $args['segment'] ) {
 				case 'new':
 					$where .= ' AND s.session_number = 1';
 					break;
@@ -1841,7 +1806,7 @@ class TrackSure_DB
                 GROUP BY s.session_id";
 
 		// Add HAVING clause for converted segment.
-		if (! empty($args['segment']) && 'converted' === $args['segment']) {
+		if ( ! empty( $args['segment'] ) && 'converted' === $args['segment'] ) {
 			$sql .= ' HAVING has_conversion = 1';
 		}
 
@@ -1858,7 +1823,7 @@ class TrackSure_DB
 		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
 
 		// Ensure numeric types for JavaScript.
-		foreach ($results as $session) {
+		foreach ( $results as $session ) {
 			$session->visitor_id       = (int) $session->visitor_id;
 			$session->session_number   = (int) $session->session_number;
 			$session->is_returning     = (bool) $session->is_returning;
@@ -1876,8 +1841,7 @@ class TrackSure_DB
 	 * @param array $args Query arguments.
 	 * @return array Array with 'sessions' and 'total' keys.
 	 */
-	public function get_sessions_with_count($args = array())
-	{
+	public function get_sessions_with_count( $args = array() ) {
 		global $wpdb;
 
 		$defaults = array(
@@ -1888,23 +1852,23 @@ class TrackSure_DB
 			'per_page'   => 25,
 		);
 
-		$args = wp_parse_args($args, $defaults);
+		$args = wp_parse_args( $args, $defaults );
 
 		$where  = '1=1';
-		$offset = ($args['page'] - 1) * $args['per_page'];
+		$offset = ( $args['page'] - 1 ) * $args['per_page'];
 
-		if ($args['date_start']) {
-			$where .= $wpdb->prepare(' AND s.started_at >= %s', $args['date_start'] . ' 00:00:00');
+		if ( $args['date_start'] ) {
+			$where .= $wpdb->prepare( ' AND s.started_at >= %s', $args['date_start'] . ' 00:00:00' );
 		}
 
-		if ($args['date_end']) {
-			$where .= $wpdb->prepare(' AND s.started_at <= %s', $args['date_end'] . ' 23:59:59');
+		if ( $args['date_end'] ) {
+			$where .= $wpdb->prepare( ' AND s.started_at <= %s', $args['date_end'] . ' 23:59:59' );
 		}
 
 		// Apply segment filter.
 		$having = '';
-		if (! empty($args['segment'])) {
-			switch ($args['segment']) {
+		if ( ! empty( $args['segment'] ) ) {
+			switch ( $args['segment'] ) {
 				case 'new':
 					$where .= ' AND s.session_number = 1';
 					break;
@@ -1963,10 +1927,10 @@ class TrackSure_DB
 		);
 
 		// Get total count using FOUND_ROWS() - no second query needed!
-		$total = (int) $wpdb->get_var('SELECT FOUND_ROWS()');
+		$total = (int) $wpdb->get_var( 'SELECT FOUND_ROWS()' );
 
 		// Ensure numeric types for JavaScript.
-		foreach ($sessions as $session) {
+		foreach ( $sessions as $session ) {
 			$session->visitor_id       = (int) $session->visitor_id;
 			$session->session_number   = (int) $session->session_number;
 			$session->is_returning     = (bool) $session->is_returning;
@@ -1987,8 +1951,7 @@ class TrackSure_DB
 	 * @param array $args Query arguments.
 	 * @return int
 	 */
-	public function count_sessions($args = array())
-	{
+	public function count_sessions( $args = array() ) {
 		global $wpdb;
 
 		$defaults = array(
@@ -1997,21 +1960,21 @@ class TrackSure_DB
 			'segment'    => null,
 		);
 
-		$args = wp_parse_args($args, $defaults);
+		$args = wp_parse_args( $args, $defaults );
 
 		$where = '1=1';
 
-		if ($args['date_start']) {
-			$where .= $wpdb->prepare(' AND s.started_at >= %s', $args['date_start'] . ' 00:00:00');
+		if ( $args['date_start'] ) {
+			$where .= $wpdb->prepare( ' AND s.started_at >= %s', $args['date_start'] . ' 00:00:00' );
 		}
 
-		if ($args['date_end']) {
-			$where .= $wpdb->prepare(' AND s.started_at <= %s', $args['date_end'] . ' 23:59:59');
+		if ( $args['date_end'] ) {
+			$where .= $wpdb->prepare( ' AND s.started_at <= %s', $args['date_end'] . ' 23:59:59' );
 		}
 
 		// Apply segment filter.
-		if (! empty($args['segment'])) {
-			switch ($args['segment']) {
+		if ( ! empty( $args['segment'] ) ) {
+			switch ( $args['segment'] ) {
 				case 'new':
 					$where .= ' AND s.session_number = 1';
 					break;
@@ -2040,8 +2003,7 @@ class TrackSure_DB
 	 * @param string $session_id Session ID.
 	 * @return array Touchpoints for the session.
 	 */
-	public function get_session_touchpoints($session_id)
-	{
+	public function get_session_touchpoints( $session_id ) {
 		global $wpdb;
 
 		$touchpoints = $wpdb->get_results(

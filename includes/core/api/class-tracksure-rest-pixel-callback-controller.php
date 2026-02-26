@@ -15,15 +15,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Pixel Callback REST Controller
  */
-class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
-{
+class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller {
+
 
 
 
@@ -51,23 +51,21 @@ class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$this->db = TrackSure_DB::get_instance();
 	}
 
 	/**
 	 * Register routes.
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		register_rest_route(
 			$this->namespace,
 			'/' . $this->rest_base,
 			array(
 				array(
 					'methods'             => WP_REST_Server::CREATABLE,
-					'callback'            => array($this, 'confirm_pixel_fired'),
+					'callback'            => array( $this, 'confirm_pixel_fired' ),
 					// Public: browser SDK confirms pixel fired from anonymous visitor's browser.
 					'permission_callback' => '__return_true',
 					'args'                => array(
@@ -75,7 +73,7 @@ class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
 							'required'          => true,
 							'type'              => 'string',
 							'description'       => 'Event UUID',
-							'validate_callback' => array($this, 'validate_uuid'),
+							'validate_callback' => array( $this, 'validate_uuid' ),
 						),
 						'destination' => array(
 							'required'    => true,
@@ -85,7 +83,7 @@ class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
 						'status'      => array(
 							'required'    => false,
 							'type'        => 'string',
-							'enum'        => array('success', 'error'),
+							'enum'        => array( 'success', 'error' ),
 							'default'     => 'success',
 							'description' => 'Pixel firing status',
 						),
@@ -103,11 +101,10 @@ class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
 	 * @param WP_REST_Request $request Full data about the request.
 	 * @return WP_REST_Response
 	 */
-	public function confirm_pixel_fired($request)
-	{
-		$event_id    = sanitize_text_field($request->get_param('event_id'));
-		$destination = sanitize_text_field($request->get_param('destination'));
-		$status      = sanitize_text_field($request->get_param('status'));
+	public function confirm_pixel_fired( $request ) {
+		$event_id    = sanitize_text_field( $request->get_param( 'event_id' ) );
+		$destination = sanitize_text_field( $request->get_param( 'destination' ) );
+		$status      = sanitize_text_field( $request->get_param( 'status' ) );
 
 		// Get event from database.
 		global $wpdb;
@@ -120,7 +117,7 @@ class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
 			ARRAY_A
 		);
 
-		if (! $event) {
+		if ( ! $event ) {
 			return new WP_REST_Response(
 				array(
 					'success' => false,
@@ -133,33 +130,33 @@ class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
 		// Update browser_fired flag and timestamp.
 		$update_data = array(
 			'browser_fired'    => 1,
-			'browser_fired_at' => gmdate('Y-m-d H:i:s'),
+			'browser_fired_at' => gmdate( 'Y-m-d H:i:s' ),
 		);
 
 		// Update destinations_sent JSON array - CRITICAL: Handle empty strings.
-		$destinations_sent = ! empty($event['destinations_sent']) && $event['destinations_sent'] !== '' ? json_decode($event['destinations_sent'], true) : null;
-		if (! is_array($destinations_sent)) {
+		$destinations_sent = ! empty( $event['destinations_sent'] ) && $event['destinations_sent'] !== '' ? json_decode( $event['destinations_sent'], true ) : null;
+		if ( ! is_array( $destinations_sent ) ) {
 			$destinations_sent = array();
 		}
 
 		// Add this destination to the array if not already present.
-		if (! in_array($destination, $destinations_sent)) {
+		if ( ! in_array( $destination, $destinations_sent ) ) {
 			$destinations_sent[] = $destination;
 		}
 
 		// Ensure we don't save empty array as empty string - use NULL if empty.
-		$update_data['destinations_sent'] = ! empty($destinations_sent) ? wp_json_encode($destinations_sent) : null;
+		$update_data['destinations_sent'] = ! empty( $destinations_sent ) ? wp_json_encode( $destinations_sent ) : null;
 
 		// Perform update.
 		$updated = $wpdb->update(
 			$wpdb->prefix . 'tracksure_events',
 			$update_data,
-			array('event_id' => $event_id),
-			array('%d', '%s', '%s'),
-			array('%s')
+			array( 'event_id' => $event_id ),
+			array( '%d', '%s', '%s' ),
+			array( '%s' )
 		);
 
-		if (false === $updated) {
+		if ( false === $updated ) {
 			return new WP_REST_Response(
 				array(
 					'success' => false,
@@ -188,8 +185,7 @@ class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller
 	 * @param string          $param   Parameter name.
 	 * @return bool
 	 */
-	public function validate_uuid($value, $request, $param)
-	{
-		return (bool) preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value);
+	public function validate_uuid( $value, $request, $param ) {
+		return (bool) preg_match( '/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i', $value );
 	}
 }

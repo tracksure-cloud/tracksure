@@ -426,6 +426,12 @@ class TrackSure_Event_Recorder {
         // Get insert ID
         $event_id = $event_data['event_id'];
 
+        // NOTE: In the current implementation, events are routed through
+        // the Event Queue and inserted via insert_events_batch() for
+        // performance. The queue collects events during the request and
+        // flushes them as a single batched INSERT instead of individual
+        // $wpdb->insert() calls. The code above is shown for clarity.
+
         // 🔹 STEP 7: Trigger hook for destination delivery
         do_action('tracksure_event_recorded', $event_id, $event_data, $session);
 
@@ -866,7 +872,7 @@ WHERE id = 1;
                             ↓
 ┌─────────────────────────────────────────────────────────────────┐
 │ 6. TrackSure_Event_Recorder saves to database                   │
-│    → INSERT INTO wp_tracksure_events                            │
+│    → Events queued and batch-inserted via insert_events_batch() │
 │    → Fires: do_action('tracksure_event_recorded')              │
 └─────────────────────────────────────────────────────────────────┘
                             ↓
@@ -906,6 +912,8 @@ WHERE id = 1;
 
 - Steps 1-9: ~100ms (immediate, during page load)
 - Steps 10-12: ~5 minutes later (background worker)
+
+> **Note — Conversion Recording Deferral**: For conversion events (e.g., `purchase`), the actual database write is deferred to PHP's `shutdown` hook via `register_shutdown_function()`. This ensures the customer-facing response is not delayed by event recording. The event is queued in memory during the request and flushed to the database after the response is sent to the browser.
 
 **Key Principles**:
 

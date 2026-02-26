@@ -11,31 +11,30 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Consent REST API Controller.
  */
-class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
-{
+class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller {
+
 
 
 
 	/**
 	 * Register routes.
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		// GET /tracksure/v1/consent/status - Get consent configuration and status.
 		register_rest_route(
 			$this->namespace,
 			'/consent/status',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_consent_status'),
-				'permission_callback' => array($this, 'check_read_permission'),
+				'callback'            => array( $this, 'get_consent_status' ),
+				'permission_callback' => array( $this, 'check_read_permission' ),
 			)
 		);
 
@@ -45,8 +44,8 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 			'/consent/warning',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_consent_warning'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_consent_warning' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -56,8 +55,8 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 			'/consent/warning/dismiss',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array($this, 'dismiss_consent_warning'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'dismiss_consent_warning' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -67,8 +66,8 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 			'/consent/metadata',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_consent_metadata'),
-				'permission_callback' => array($this, 'check_read_permission'),
+				'callback'            => array( $this, 'get_consent_metadata' ),
+				'permission_callback' => array( $this, 'check_read_permission' ),
 			)
 		);
 
@@ -78,8 +77,8 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 			'/consent/state',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_consent_state'),
-				'permission_callback' => array($this, 'check_read_permission'),
+				'callback'            => array( $this, 'get_consent_state' ),
+				'permission_callback' => array( $this, 'check_read_permission' ),
 			)
 		);
 
@@ -89,13 +88,13 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 			'/consent/update',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array($this, 'update_consent_state'),
+				'callback'            => array( $this, 'update_consent_state' ),
 				'permission_callback' => '__return_true', // Public endpoint for browser consent updates.
 				'args'                => array(
 					'consent_state' => array(
 						'required'          => true,
 						'type'              => 'object',
-						'validate_callback' => array($this, 'validate_consent_state'),
+						'validate_callback' => array( $this, 'validate_consent_state' ),
 					),
 				),
 			)
@@ -110,18 +109,17 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function get_consent_status($request)
-	{
+	public function get_consent_status( $request ) {
 		$consent_manager = TrackSure_Consent_Manager::get_instance();
 
 		$status = array(
-			'consent_mode'        => get_option('tracksure_consent_mode', 'disabled'),
+			'consent_mode'        => get_option( 'tracksure_consent_mode', 'disabled' ),
 			'is_tracking_allowed' => $consent_manager->is_tracking_allowed(),
 			'has_consent_plugin'  => $consent_manager->has_consent_plugin(),
 			'consent_metadata'    => $consent_manager->get_consent_metadata(),
 		);
 
-		return rest_ensure_response($status);
+		return rest_ensure_response( $status );
 	}
 
 	/**
@@ -132,11 +130,10 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function get_consent_warning($request)
-	{
+	public function get_consent_warning( $request ) {
 		$warning = tracksure_get_consent_warning_status();
 
-		if (null === $warning) {
+		if ( null === $warning ) {
 			return rest_ensure_response(
 				array(
 					'show_warning' => false,
@@ -144,7 +141,7 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 			);
 		}
 
-		return rest_ensure_response($warning);
+		return rest_ensure_response( $warning );
 	}
 
 	/**
@@ -155,15 +152,14 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function dismiss_consent_warning($request)
-	{
+	public function dismiss_consent_warning( $request ) {
 		$user_id = get_current_user_id();
-		update_user_meta($user_id, 'tracksure_consent_warning_dismissed', true);
+		update_user_meta( $user_id, 'tracksure_consent_warning_dismissed', true );
 
 		return rest_ensure_response(
 			array(
 				'success' => true,
-				'message' => __('Consent warning dismissed successfully.', 'tracksure'),
+				'message' => __( 'Consent warning dismissed successfully.', 'tracksure' ),
 			)
 		);
 	}
@@ -176,11 +172,10 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function get_consent_metadata($request)
-	{
+	public function get_consent_metadata( $request ) {
 		$consent_manager = TrackSure_Consent_Manager::get_instance();
 
-		return rest_ensure_response($consent_manager->get_consent_metadata());
+		return rest_ensure_response( $consent_manager->get_consent_metadata() );
 	}
 
 	/**
@@ -194,20 +189,19 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function get_consent_state($request)
-	{
+	public function get_consent_state( $request ) {
 		$consent_manager = TrackSure_Consent_Manager::get_instance();
 		$consent_state   = $consent_manager->get_consent_state();
 
 		$response = array(
-			'consent_mode'      => get_option('tracksure_consent_mode', 'disabled'),
+			'consent_mode'      => get_option( 'tracksure_consent_mode', 'disabled' ),
 			'tracking_allowed'  => $consent_manager->is_tracking_allowed(),
 			'detected_plugin'   => $consent_manager->get_detected_plugin(),
 			'consent_state'     => $consent_state,
 			'supported_plugins' => $this->get_supported_plugins(),
 		);
 
-		return rest_ensure_response($response);
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -218,9 +212,8 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Response object.
 	 */
-	public function update_consent_state($request)
-	{
-		$consent_state = $request->get_param('consent_state');
+	public function update_consent_state( $request ) {
+		$consent_state = $request->get_param( 'consent_state' );
 
 		// Store consent override in a short-lived transient keyed by client IP.
 		// This makes consent changes from browser available to server-side checks
@@ -228,9 +221,9 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 		// Transient expires in 5 minutes — by then the consent plugin's own cookie
 		// will be set and the Consent Manager's cookie-based checks take over.
 		$client_ip     = TrackSure_Utilities::get_client_ip();
-		$transient_key = 'tracksure_consent_' . md5($client_ip);
+		$transient_key = 'tracksure_consent_' . md5( $client_ip );
 
-		set_transient($transient_key, $consent_state, 5 * MINUTE_IN_SECONDS);
+		set_transient( $transient_key, $consent_state, 5 * MINUTE_IN_SECONDS );
 
 		// Invalidate Consent Manager cache so next check sees updated state.
 		$consent_manager = TrackSure_Consent_Manager::get_instance();
@@ -239,7 +232,7 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 		return rest_ensure_response(
 			array(
 				'success' => true,
-				'message' => __('Consent state updated successfully.', 'tracksure'),
+				'message' => __( 'Consent state updated successfully.', 'tracksure' ),
 				'state'   => $consent_state,
 			)
 		);
@@ -251,16 +244,15 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 * @param array $value Consent state value.
 	 * @return bool True if valid.
 	 */
-	public function validate_consent_state($value)
-	{
-		if (! is_array($value)) {
+	public function validate_consent_state( $value ) {
+		if ( ! is_array( $value ) ) {
 			return false;
 		}
 
-		$required_keys = array('ad_storage', 'analytics_storage', 'ad_user_data', 'ad_personalization');
+		$required_keys = array( 'ad_storage', 'analytics_storage', 'ad_user_data', 'ad_personalization' );
 
-		foreach ($required_keys as $key) {
-			if (! isset($value[$key]) || ! in_array($value[$key], array('granted', 'denied'), true)) {
+		foreach ( $required_keys as $key ) {
+			if ( ! isset( $value[ $key ] ) || ! in_array( $value[ $key ], array( 'granted', 'denied' ), true ) ) {
 				return false;
 			}
 		}
@@ -273,8 +265,7 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 *
 	 * @return array List of supported plugins with metadata.
 	 */
-	private function get_supported_plugins()
-	{
+	private function get_supported_plugins() {
 		return array(
 			// Top 6 - Most popular plugins (all recommended)
 			array(
@@ -371,9 +362,8 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 *
 	 * @return bool True if user can read.
 	 */
-	public function check_read_permission()
-	{
-		return current_user_can('read');
+	public function check_read_permission() {
+		return current_user_can( 'read' );
 	}
 
 	/**
@@ -384,8 +374,7 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return bool|WP_Error True if authorized, WP_Error otherwise.
 	 */
-	public function check_admin_permission($request)
-	{
-		return parent::check_admin_permission($request);
+	public function check_admin_permission( $request ) {
+		return parent::check_admin_permission( $request );
 	}
 }

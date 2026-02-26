@@ -13,15 +13,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Events controller class.
  */
-class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
-{
+class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller {
+
 
 
 
@@ -35,31 +35,29 @@ class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$core                 = TrackSure_Core::get_instance();
-		$this->event_recorder = $core->get_service('event_recorder');
+		$this->event_recorder = $core->get_service( 'event_recorder' );
 	}
 
 	/**
 	 * Register routes.
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		// POST /events - Create test event(s) from admin.
 		register_rest_route(
 			$this->namespace,
 			'/events',
 			array(
 				'methods'             => WP_REST_Server::CREATABLE,
-				'callback'            => array($this, 'create_events'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'create_events' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'events' => array(
 						'required'          => true,
 						'type'              => 'array',
 						'description'       => 'Array of event objects to create',
-						'validate_callback' => array($this, 'validate_events'),
+						'validate_callback' => array( $this, 'validate_events' ),
 					),
 				),
 			)
@@ -74,17 +72,16 @@ class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
 	 * @param string          $key     Parameter key.
 	 * @return bool|WP_Error
 	 */
-	public function validate_events($param, $request, $key)
-	{
-		if (! is_array($param) || empty($param)) {
+	public function validate_events( $param, $request, $key ) {
+		if ( ! is_array( $param ) || empty( $param ) ) {
 			return new WP_Error(
 				'invalid_events',
 				'Events must be a non-empty array'
 			);
 		}
 
-		foreach ($param as $event) {
-			if (! is_array($event) || ! isset($event['event_name'])) {
+		foreach ( $param as $event ) {
+			if ( ! is_array( $event ) || ! isset( $event['event_name'] ) ) {
 				return new WP_Error(
 					'invalid_event',
 					'Each event must have an event_name'
@@ -103,11 +100,10 @@ class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function create_events($request)
-	{
-		$events = $request->get_param('events');
+	public function create_events( $request ) {
+		$events = $request->get_param( 'events' );
 
-		if (! $this->event_recorder) {
+		if ( ! $this->event_recorder ) {
 			return $this->prepare_error(
 				'service_unavailable',
 				'Event recorder service not available',
@@ -120,15 +116,15 @@ class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
 			'failed'  => array(),
 		);
 
-		foreach ($events as $event_data) {
+		foreach ( $events as $event_data ) {
 			try {
 				// Enrich event with admin context.
-				$event_data = $this->enrich_test_event($event_data);
+				$event_data = $this->enrich_test_event( $event_data );
 
 				// Record event.
-				$result = $this->event_recorder->record($event_data);
+				$result = $this->event_recorder->record( $event_data );
 
-				if ($result['success']) {
+				if ( $result['success'] ) {
 					$results['success'][] = array(
 						'event_name' => $event_data['event_name'],
 						'event_id'   => $result['event_id'],
@@ -136,10 +132,10 @@ class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
 				} else {
 					$results['failed'][] = array(
 						'event_name' => $event_data['event_name'],
-						'error'      => implode(', ', $result['errors'] ?? array('Unknown error')),
+						'error'      => implode( ', ', $result['errors'] ?? array( 'Unknown error' ) ),
 					);
 				}
-			} catch (Exception $e) {
+			} catch ( Exception $e ) {
 				$results['failed'][] = array(
 					'event_name' => $event_data['event_name'] ?? 'unknown',
 					'error'      => $e->getMessage(),
@@ -149,8 +145,8 @@ class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
 
 		return $this->prepare_success(
 			array(
-				'success_count' => count($results['success']),
-				'failed_count'  => count($results['failed']),
+				'success_count' => count( $results['success'] ),
+				'failed_count'  => count( $results['failed'] ),
 				'results'       => $results,
 			)
 		);
@@ -164,29 +160,28 @@ class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
 	 * @param array $event_data Event data.
 	 * @return array Enriched event data.
 	 */
-	private function enrich_test_event($event_data)
-	{
+	private function enrich_test_event( $event_data ) {
 		$current_user = wp_get_current_user();
 
 		// Add required fields if missing.
-		if (! isset($event_data['occurred_at'])) {
-			$event_data['occurred_at'] = gmdate('Y-m-d H:i:s'); // UTC
+		if ( ! isset( $event_data['occurred_at'] ) ) {
+			$event_data['occurred_at'] = gmdate( 'Y-m-d H:i:s' ); // UTC
 		}
 
-		if (! isset($event_data['dedupe_key'])) {
+		if ( ! isset( $event_data['dedupe_key'] ) ) {
 			$event_data['dedupe_key'] = 'test_' . wp_generate_uuid4();
 		}
 
-		if (! isset($event_data['client_id'])) {
+		if ( ! isset( $event_data['client_id'] ) ) {
 			$event_data['client_id'] = wp_generate_uuid4();
 		}
 
-		if (! isset($event_data['session_id'])) {
+		if ( ! isset( $event_data['session_id'] ) ) {
 			$event_data['session_id'] = wp_generate_uuid4();
 		}
 
 		// Initialize event_params if not set.
-		if (! isset($event_data['event_params'])) {
+		if ( ! isset( $event_data['event_params'] ) ) {
 			$event_data['event_params'] = array();
 		}
 
@@ -197,15 +192,15 @@ class TrackSure_REST_Events_Controller extends TrackSure_REST_Controller
 		$event_data['event_params']['test_user_login'] = $current_user->user_login;
 
 		// Add page context if missing (in event_params as expected by event recorder).
-		if (! isset($event_data['event_params']['page_url'])) {
-			$event_data['event_params']['page_url'] = home_url('/diagnostics-test');
+		if ( ! isset( $event_data['event_params']['page_url'] ) ) {
+			$event_data['event_params']['page_url'] = home_url( '/diagnostics-test' );
 		}
 
-		if (! isset($event_data['event_params']['page_path'])) {
+		if ( ! isset( $event_data['event_params']['page_path'] ) ) {
 			$event_data['event_params']['page_path'] = '/diagnostics-test';
 		}
 
-		if (! isset($event_data['event_params']['page_title'])) {
+		if ( ! isset( $event_data['event_params']['page_title'] ) ) {
 			$event_data['event_params']['page_title'] = 'Diagnostics Test';
 		}
 

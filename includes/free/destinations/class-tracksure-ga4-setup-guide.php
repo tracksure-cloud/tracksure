@@ -12,15 +12,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * GA4 Setup Guide Class
  */
-class TrackSure_GA4_Setup_Guide
-{
+class TrackSure_GA4_Setup_Guide {
+
 
 
 
@@ -32,45 +32,43 @@ class TrackSure_GA4_Setup_Guide
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		// Show admin notice for GA4 setup guide (WordPress admin).
-		add_action('admin_notices', array($this, 'show_setup_guide'));
+		add_action( 'admin_notices', array( $this, 'show_setup_guide' ) );
 
 		// Handle dismiss action (WordPress admin).
-		add_action('admin_init', array($this, 'handle_dismiss'));
+		add_action( 'admin_init', array( $this, 'handle_dismiss' ) );
 
 		// Register REST API endpoint for React admin.
-		add_action('rest_api_init', array($this, 'register_rest_routes'));
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 	}
 
 	/**
 	 * Show GA4 setup guide admin notice.
 	 */
-	public function show_setup_guide()
-	{
+	public function show_setup_guide() {
 		// Only show on TrackSure settings page.
 		$screen = get_current_screen();
-		if (! $screen || $screen->id !== 'toplevel_page_tracksure') {
+		if ( ! $screen || $screen->id !== 'toplevel_page_tracksure' ) {
 			return;
 		}
 
 		// Check if user dismissed the notice.
 		$user_id = get_current_user_id();
-		if (get_user_meta($user_id, self::DISMISS_META_KEY, true)) {
+		if ( get_user_meta( $user_id, self::DISMISS_META_KEY, true ) ) {
 			return;
 		}
 
 		// Check if GA4 is configured.
-		$ga4_settings = get_option('tracksure_destinations', array());
-		if (empty($ga4_settings['ga4']['enabled']) || empty($ga4_settings['ga4']['measurement_id'])) {
+		$ga4_settings = get_option( 'tracksure_destinations', array() );
+		if ( empty( $ga4_settings['ga4']['enabled'] ) || empty( $ga4_settings['ga4']['measurement_id'] ) ) {
 			return; // GA4 not configured yet.
 		}
 
 		// Get measurement ID for guide.
-		$measurement_id = sanitize_text_field($ga4_settings['ga4']['measurement_id']);
+		$measurement_id = sanitize_text_field( $ga4_settings['ga4']['measurement_id'] );
 
-?>
+		?>
 		<div class="notice notice-info is-dismissible tracksure-ga4-setup-guide">
 			<h2 style="margin-top: 10px;">🚀 TrackSure + GA4: 5 Required Setup Steps</h2>
 			<p><strong>Good news:</strong> TrackSure is already tracking <strong>all events automatically</strong> (purchase, begin_checkout, view_item, add_to_cart, page_view, etc.). No code needed! ✅</p>
@@ -148,10 +146,10 @@ class TrackSure_GA4_Setup_Guide
 			<p><strong>Summary:</strong> TrackSure handles <strong>100% of tracking code</strong> automatically. You just need to configure <strong>GA4 Admin UI</strong> (conversions, data retention, custom dimensions) to see data in reports. The 5 steps above take ~15 minutes total.</p>
 
 			<p style="margin-top: 15px;">
-				<a href="<?php echo esc_url('https://analytics.google.com/analytics/web/#/p' . str_replace('G-', '', $measurement_id) . '/admin'); ?>" target="_blank" class="button button-primary">
+				<a href="<?php echo esc_url( 'https://analytics.google.com/analytics/web/#/p' . str_replace( 'G-', '', $measurement_id ) . '/admin' ); ?>" target="_blank" class="button button-primary">
 					Open GA4 Admin → Complete Setup (15 min)
 				</a>
-				<a href="<?php echo esc_url(wp_nonce_url(admin_url('admin.php?action=tracksure_dismiss_ga4_guide'), 'dismiss_ga4_guide')); ?>" class="button">
+				<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?action=tracksure_dismiss_ga4_guide' ), 'dismiss_ga4_guide' ) ); ?>" class="button">
 					I've Completed Setup → Dismiss
 				</a>
 			</p>
@@ -161,7 +159,7 @@ class TrackSure_GA4_Setup_Guide
 			</p>
 		</div>
 
-<?php
+		<?php
 		// Enqueue inline CSS using WordPress enqueue system.
 		$guide_css  = '.tracksure-ga4-setup-guide code {';
 		$guide_css .= '  background: #f0f0f0;';
@@ -177,51 +175,49 @@ class TrackSure_GA4_Setup_Guide
 		$guide_css .= '  color: #666;';
 		$guide_css .= '  font-size: 13px;';
 		$guide_css .= '}';
-		wp_add_inline_style('wp-admin', $guide_css);
+		wp_add_inline_style( 'wp-admin', $guide_css );
 	}
 
 	/**
 	 * Handle dismiss action.
 	 */
-	public function handle_dismiss()
-	{
-		if (! isset($_GET['action']) || 'tracksure_dismiss_ga4_guide' !== sanitize_text_field(wp_unslash($_GET['action']))) {
+	public function handle_dismiss() {
+		if ( ! isset( $_GET['action'] ) || 'tracksure_dismiss_ga4_guide' !== sanitize_text_field( wp_unslash( $_GET['action'] ) ) ) {
 			return;
 		}
 
 		// Verify nonce.
-		if (! isset($_GET['_wpnonce']) || ! wp_verify_nonce(sanitize_text_field(wp_unslash($_GET['_wpnonce'])), 'dismiss_ga4_guide')) {
-			wp_die('Security check failed');
+		if ( ! isset( $_GET['_wpnonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'dismiss_ga4_guide' ) ) {
+			wp_die( 'Security check failed' );
 		}
 
 		// Verify user capability.
-		if (! current_user_can('manage_options')) {
-			wp_die('You do not have permission to perform this action.');
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_die( 'You do not have permission to perform this action.' );
 		}
 
 		// Mark as dismissed.
 		$user_id = get_current_user_id();
-		update_user_meta($user_id, self::DISMISS_META_KEY, true);
+		update_user_meta( $user_id, self::DISMISS_META_KEY, true );
 
 		// Redirect back.
-		wp_safe_redirect(admin_url('admin.php?page=tracksure'));
+		wp_safe_redirect( admin_url( 'admin.php?page=tracksure' ) );
 		exit;
 	}
 
 	/**
 	 * Register REST API routes for React admin.
 	 */
-	public function register_rest_routes()
-	{
+	public function register_rest_routes() {
 		// GET /wp-json/ts/v1/ga4-setup-guide
 		register_rest_route(
 			'ts/v1',
 			'/ga4-setup-guide',
 			array(
 				'methods'             => 'GET',
-				'callback'            => array($this, 'get_setup_guide_status'),
+				'callback'            => array( $this, 'get_setup_guide_status' ),
 				'permission_callback' => function () {
-					return current_user_can('manage_options');
+					return current_user_can( 'manage_options' );
 				},
 			)
 		);
@@ -232,9 +228,9 @@ class TrackSure_GA4_Setup_Guide
 			'/ga4-setup-guide/dismiss',
 			array(
 				'methods'             => 'POST',
-				'callback'            => array($this, 'dismiss_setup_guide'),
+				'callback'            => array( $this, 'dismiss_setup_guide' ),
 				'permission_callback' => function () {
-					return current_user_can('manage_options');
+					return current_user_can( 'manage_options' );
 				},
 			)
 		);
@@ -246,13 +242,12 @@ class TrackSure_GA4_Setup_Guide
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error Response.
 	 */
-	public function get_setup_guide_status($request)
-	{
+	public function get_setup_guide_status( $request ) {
 		// Check if user dismissed the notice.
 		$user_id   = get_current_user_id();
-		$dismissed = get_user_meta($user_id, self::DISMISS_META_KEY, true);
+		$dismissed = get_user_meta( $user_id, self::DISMISS_META_KEY, true );
 
-		if ($dismissed) {
+		if ( $dismissed ) {
 			return new WP_REST_Response(
 				array(
 					'show_guide' => false,
@@ -264,10 +259,10 @@ class TrackSure_GA4_Setup_Guide
 		}
 
 		// Check if GA4 is configured.
-		$ga4_measurement_id = get_option('tracksure_free_ga4_measurement_id', '');
-		$ga4_enabled        = get_option('tracksure_free_ga4_enabled', false);
+		$ga4_measurement_id = get_option( 'tracksure_free_ga4_measurement_id', '' );
+		$ga4_enabled        = get_option( 'tracksure_free_ga4_enabled', false );
 
-		if (empty($ga4_measurement_id) || ! $ga4_enabled) {
+		if ( empty( $ga4_measurement_id ) || ! $ga4_enabled ) {
 			return new WP_REST_Response(
 				array(
 					'show_guide' => false,
@@ -284,8 +279,8 @@ class TrackSure_GA4_Setup_Guide
 				'show_guide'        => true,
 				'dismissed'         => false,
 				'configured'        => true,
-				'measurement_id'    => sanitize_text_field($ga4_measurement_id),
-				'ga4_admin_url'     => 'https://analytics.google.com/analytics/web/#/p' . str_replace('G-', '', $ga4_measurement_id) . '/admin',
+				'measurement_id'    => sanitize_text_field( $ga4_measurement_id ),
+				'ga4_admin_url'     => 'https://analytics.google.com/analytics/web/#/p' . str_replace( 'G-', '', $ga4_measurement_id ) . '/admin',
 				'title'             => '🚀 TrackSure + GA4: 5 Required Setup Steps',
 				'intro'             => array(
 					'good_news' => 'TrackSure is already tracking all events automatically (purchase, begin_checkout, view_item, add_to_cart, page_view, etc.). No code needed!',
@@ -298,7 +293,7 @@ class TrackSure_GA4_Setup_Guide
 						'time'        => '2 minutes',
 						'critical'    => true,
 						'description' => 'GA4 Admin → Events → Toggle "Mark as conversion"',
-						'events'      => array('purchase', 'begin_checkout', 'add_to_cart', 'generate_lead'),
+						'events'      => array( 'purchase', 'begin_checkout', 'add_to_cart', 'generate_lead' ),
 						'why'         => 'Without marking as conversion, GA4 won\'t show revenue in reports.',
 					),
 					array(
@@ -428,10 +423,9 @@ class TrackSure_GA4_Setup_Guide
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error Response.
 	 */
-	public function dismiss_setup_guide($request)
-	{
+	public function dismiss_setup_guide( $request ) {
 		$user_id = get_current_user_id();
-		update_user_meta($user_id, self::DISMISS_META_KEY, true);
+		update_user_meta( $user_id, self::DISMISS_META_KEY, true );
 
 		return new WP_REST_Response(
 			array(

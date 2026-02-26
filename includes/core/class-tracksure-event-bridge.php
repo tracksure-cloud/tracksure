@@ -19,15 +19,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Event Bridge Class
  */
-class TrackSure_Event_Bridge
-{
+class TrackSure_Event_Bridge {
+
 
 
 
@@ -51,8 +51,7 @@ class TrackSure_Event_Bridge
 	 *
 	 * @param TrackSure_Core $core Core instance.
 	 */
-	public function __construct($core)
-	{
+	public function __construct( $core ) {
 		$this->core = $core;
 
 		// Initialize hooks.
@@ -62,14 +61,13 @@ class TrackSure_Event_Bridge
 	/**
 	 * Initialize WordPress hooks.
 	 */
-	private function init_hooks()
-	{
+	private function init_hooks() {
 		// Inject Meta/GA4 pixels in <head> (wp_head hook)
-		add_action('wp_head', array($this, 'inject_pixels'), 1);
+		add_action( 'wp_head', array( $this, 'inject_pixels' ), 1 );
 
 		// Enqueue Event Bridge script using WordPress enqueue API
 		// Priority 20 = after tracksure-web.js is registered (priority 10)
-		add_action('wp_enqueue_scripts', array($this, 'enqueue_bridge_script'), 20);
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_bridge_script' ), 20 );
 	}
 
 	/**
@@ -83,22 +81,21 @@ class TrackSure_Event_Bridge
 	 *   - init_script: callable (returns JS initialization code as string)
 	 *   - event_mapper: callable (returns JS mapper function as string).
 	 */
-	public function register_browser_destination($config)
-	{
+	public function register_browser_destination( $config ) {
 		// Validate required fields.
 		if (
-			empty($config['id']) || empty($config['enabled_key']) ||
-			empty($config['init_script']) || empty($config['event_mapper'])
+			empty( $config['id'] ) || empty( $config['enabled_key'] ) ||
+			empty( $config['init_script'] ) || empty( $config['event_mapper'] )
 		) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] Event Bridge: Invalid destination config - missing required fields');
+				error_log( '[TrackSure] Event Bridge: Invalid destination config - missing required fields' );
 			}
 			return;
 		}
 
 		// Store in registry.
-		$this->browser_destinations[$config['id']] = $config;
+		$this->browser_destinations[ $config['id'] ] = $config;
 	}
 
 	/**
@@ -107,10 +104,9 @@ class TrackSure_Event_Bridge
 	 * @param string $enabled_key Settings option key.
 	 * @return bool True if enabled.
 	 */
-	private function is_enabled($enabled_key)
-	{
-		$value      = get_option($enabled_key, false);
-		$is_enabled = ! empty($value) && $value !== '0' && $value !== 'false';
+	private function is_enabled( $enabled_key ) {
+		$value      = get_option( $enabled_key, false );
+		$is_enabled = ! empty( $value ) && $value !== '0' && $value !== 'false';
 
 		return $is_enabled;
 	}
@@ -120,11 +116,10 @@ class TrackSure_Event_Bridge
 	 *
 	 * Called via wp_head hook (priority 1).
 	 */
-	public function inject_pixels()
-	{
-		foreach ($this->browser_destinations as $dest_id => $dest) {
+	public function inject_pixels() {
+		foreach ( $this->browser_destinations as $dest_id => $dest ) {
 			// Check if destination is enabled.
-			if (! $this->is_enabled($dest['enabled_key'])) {
+			if ( ! $this->is_enabled( $dest['enabled_key'] ) ) {
 				continue;
 			}
 
@@ -132,11 +127,11 @@ class TrackSure_Event_Bridge
 				// Get pixel initialization script from destination.
 				// Note: Destinations now handle their own enqueueing using wp_add_inline_script.
 				// The init_script callback might return an empty string or null.
-				$init_script = call_user_func($dest['init_script']);
+				$init_script = call_user_func( $dest['init_script'] );
 
 				// If the destination returned a script string (legacy support), we should try to enqueue it.
 				// But optimally, destinations should enqueue themselves.
-				if (! empty($init_script) && is_string($init_script)) {
+				if ( ! empty( $init_script ) && is_string( $init_script ) ) {
 					// Add legacy script as inline script to jquery or a core handle if possible.
 					// Since we can't easily guess a handle, we'll log a warning and fallback to echo with a comment,
 					// BUT we strongly prefer wp_add_inline_script.
@@ -148,10 +143,10 @@ class TrackSure_Event_Bridge
 					// Since we fixed GA4 and Meta, this should be empty.
 					// We will NOT echo it to ensure compliance.
 				}
-			} catch (Exception $e) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
+			} catch ( Exception $e ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-					error_log('[TrackSure] Event Bridge: Failed to inject pixel for ' . $dest_id . ' - ' . $e->getMessage());
+					error_log( '[TrackSure] Event Bridge: Failed to inject pixel for ' . $dest_id . ' - ' . $e->getMessage() );
 				}
 			}
 		}
@@ -163,15 +158,14 @@ class TrackSure_Event_Bridge
 	 * Attaches bridge script to 'tracksure-web' base script using wp_add_inline_script().
 	 * This follows WordPress best practices and DRY principle.
 	 */
-	public function enqueue_bridge_script()
-	{
+	public function enqueue_bridge_script() {
 		// Verify base script is enqueued
-		if (! wp_script_is('ts-web', 'enqueued')) {
+		if ( ! wp_script_is( 'ts-web', 'enqueued' ) ) {
 			return;
 		}
 
 		// If no destinations registered, nothing to do
-		if (empty($this->browser_destinations)) {
+		if ( empty( $this->browser_destinations ) ) {
 			return;
 		}
 
@@ -179,7 +173,7 @@ class TrackSure_Event_Bridge
 		$bridge_script = $this->build_bridge_script();
 
 		// Attach to base script using WordPress API
-		wp_add_inline_script('ts-web', $bridge_script, 'after');
+		wp_add_inline_script( 'ts-web', $bridge_script, 'after' );
 	}
 
 	/**
@@ -190,8 +184,7 @@ class TrackSure_Event_Bridge
 	 *
 	 * @return string JavaScript code (without script tags).
 	 */
-	private function build_bridge_script()
-	{
+	private function build_bridge_script() {
 		// Get mapper functions for all enabled destinations
 		$mappers_js = $this->build_mappers_javascript();
 
@@ -285,32 +278,31 @@ class TrackSure_Event_Bridge
 	 *
 	 * @return string JavaScript code (comma-separated mapper definitions).
 	 */
-	private function build_mappers_javascript()
-	{
+	private function build_mappers_javascript() {
 		$mappers = array();
 
-		foreach ($this->browser_destinations as $dest_id => $dest) {
+		foreach ( $this->browser_destinations as $dest_id => $dest ) {
 			// Only include enabled destinations.
-			if (! $this->is_enabled($dest['enabled_key'])) {
+			if ( ! $this->is_enabled( $dest['enabled_key'] ) ) {
 				continue;
 			}
 
 			try {
 				// Get JavaScript mapper function from destination.
-				$mapper_js = call_user_func($dest['event_mapper']);
+				$mapper_js = call_user_func( $dest['event_mapper'] );
 
 				// Add to mappers object.
 				// Format: "meta: function(trackSureEvent) { ... }".
 				$mappers[] = "'{$dest_id}': {$mapper_js}";
-			} catch (Exception $e) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
+			} catch ( Exception $e ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-					error_log('[TrackSure] Event Bridge: Failed to build mapper for ' . $dest_id . ' - ' . $e->getMessage());
+					error_log( '[TrackSure] Event Bridge: Failed to build mapper for ' . $dest_id . ' - ' . $e->getMessage() );
 				}
 			}
 		}
 
-		return implode(",\n", $mappers);
+		return implode( ",\n", $mappers );
 	}
 
 	/**
@@ -321,23 +313,22 @@ class TrackSure_Event_Bridge
 	 *
 	 * @return string JavaScript code (comma-separated SDK check definitions).
 	 */
-	private function build_sdk_checks_javascript()
-	{
+	private function build_sdk_checks_javascript() {
 		$checks = array();
 
-		foreach ($this->browser_destinations as $dest_id => $dest) {
+		foreach ( $this->browser_destinations as $dest_id => $dest ) {
 			// Only include enabled destinations.
-			if (! $this->is_enabled($dest['enabled_key'])) {
+			if ( ! $this->is_enabled( $dest['enabled_key'] ) ) {
 				continue;
 			}
 
 			// Use destination-provided sdk_check, or skip if not provided
-			if (! empty($dest['sdk_check'])) {
+			if ( ! empty( $dest['sdk_check'] ) ) {
 				$checks[] = "'{$dest_id}': {$dest['sdk_check']}";
 			}
 		}
 
-		return implode(",\n", $checks);
+		return implode( ",\n", $checks );
 	}
 
 	/**
@@ -348,23 +339,22 @@ class TrackSure_Event_Bridge
 	 *
 	 * @return string JavaScript code (comma-separated sender definitions).
 	 */
-	private function build_pixel_senders_javascript()
-	{
+	private function build_pixel_senders_javascript() {
 		$senders = array();
 
-		foreach ($this->browser_destinations as $dest_id => $dest) {
+		foreach ( $this->browser_destinations as $dest_id => $dest ) {
 			// Only include enabled destinations.
-			if (! $this->is_enabled($dest['enabled_key'])) {
+			if ( ! $this->is_enabled( $dest['enabled_key'] ) ) {
 				continue;
 			}
 
 			// Use destination-provided pixel_sender, or skip if not provided
-			if (! empty($dest['pixel_sender'])) {
+			if ( ! empty( $dest['pixel_sender'] ) ) {
 				$senders[] = "'{$dest_id}': {$dest['pixel_sender']}";
 			}
 		}
 
-		return implode(",\n", $senders);
+		return implode( ",\n", $senders );
 	}
 
 	/**
@@ -372,8 +362,7 @@ class TrackSure_Event_Bridge
 	 *
 	 * @return array Registered destinations.
 	 */
-	public function get_registered_destinations()
-	{
+	public function get_registered_destinations() {
 		return $this->browser_destinations;
 	}
 }

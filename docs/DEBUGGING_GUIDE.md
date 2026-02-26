@@ -280,7 +280,7 @@ console.log(window.trackSure);
 View page source and search for:
 
 ```html
-<script src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
+<script defer src="/wp-content/plugins/tracksure/assets/js/ts-web.js"></script>
 <script>
   trackSure.init({
     apiUrl: "https://yoursite.com/wp-json/ts/v1",
@@ -325,6 +325,13 @@ trackSure.track("test_event", {
 | CORS error          | Add CORS headers to REST API                       |
 | Nonce invalid       | Regenerate nonce, check cookie domain              |
 | Ad blocker          | SDK blocked by browser extension                   |
+
+> **Ad-Blocker Resilience Strategy**: TrackSure uses neutral "ts" prefixed filenames and endpoints to avoid common ad-blocker filter lists. All public-facing assets use this convention:
+> - Script: `ts-web.js` (not `tracker.js` or `analytics.js`)
+> - Pixel: `ts-pixel.php` (not `pixel.php` or `tracking-pixel.php`)
+> - Endpoint: `/ts/collect` (not `/track` or `/analytics/collect`)
+>
+> If users report tracking failures, check if a custom ad-blocker rule is targeting these "ts" prefixed names specifically. Standard filter lists (EasyList, EasyPrivacy) should not match them.
 
 ---
 
@@ -914,6 +921,18 @@ $end_memory = memory_get_usage();
 $memory_used = ($end_memory - $start_memory) / 1024 / 1024; // MB
 error_log("TrackSure memory used: {$memory_used} MB");
 ```
+
+### Key Behaviors to Know When Debugging
+
+These internal behaviors can affect what you see (or don't see) when debugging:
+
+| Behavior | Detail | Impact on Debugging |
+| --- | --- | --- |
+| **Deferred conversion recording** | Conversion events are recorded via `register_shutdown_function()` on the `shutdown` hook | Conversion INSERTs won't appear in inline request debugging tools (e.g., Query Monitor panels rendered mid-request). Check `debug.log` or the database directly after the request completes. |
+| **Transient-based session fingerprinting** | Sessions use WordPress transients, not PHP `$_SESSION` | Don't look for `$_SESSION` data — inspect transients via `get_transient()` or the `wp_options` table (`_transient_ts_session_*`). |
+| **Batched cleanup DELETEs** | Old data cleanup runs in batches of 500 rows per query | A single cleanup run may not remove all expired rows. Multiple cron cycles may be needed to fully purge old data. |
+| **Aggregator time-boxing** | The aggregator is time-boxed to 20 seconds and uses a transient lock for concurrency | If aggregation seems incomplete, check if it hit the 20s limit. Only one aggregator instance runs at a time — the transient lock prevents overlap. |
+| **Tracking JS `defer` attribute** | `ts-web.js` is loaded with the `defer` attribute | The script executes after DOM parsing completes. Events fired by inline scripts that run before DOM ready won't be captured by the SDK. |
 
 ---
 

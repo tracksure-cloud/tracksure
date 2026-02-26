@@ -20,15 +20,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * TrackSure Hourly Aggregator class.
  */
-class TrackSure_Hourly_Aggregator
-{
+class TrackSure_Hourly_Aggregator {
+
 
 	/**
 	 * Maximum seconds a single aggregation run may take.
@@ -63,9 +63,8 @@ class TrackSure_Hourly_Aggregator
 	 *
 	 * @return TrackSure_Hourly_Aggregator
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -74,8 +73,7 @@ class TrackSure_Hourly_Aggregator
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		$this->db = TrackSure_DB::get_instance();
 	}
 
@@ -83,22 +81,21 @@ class TrackSure_Hourly_Aggregator
 	 * Aggregate last hour.
 	 * Called by cron job every hour.
 	 */
-	public function aggregate_last_hour()
-	{
+	public function aggregate_last_hour() {
 		// Concurrency lock — prevent overlapping cron runs.
-		if (get_transient('tracksure_hourly_agg_lock')) {
+		if ( get_transient( 'tracksure_hourly_agg_lock' ) ) {
 			return;
 		}
-		set_transient('tracksure_hourly_agg_lock', 1, 5 * MINUTE_IN_SECONDS);
+		set_transient( 'tracksure_hourly_agg_lock', 1, 5 * MINUTE_IN_SECONDS );
 
-		$this->start_time = microtime(true);
+		$this->start_time = microtime( true );
 
-		$hour_start = gmdate('Y-m-d H:00:00', strtotime('-1 hour'));
-		$hour_end   = gmdate('Y-m-d H:59:59', strtotime('-1 hour'));
+		$hour_start = gmdate( 'Y-m-d H:00:00', strtotime( '-1 hour' ) );
+		$hour_end   = gmdate( 'Y-m-d H:59:59', strtotime( '-1 hour' ) );
 
-		$this->aggregate_hour($hour_start, $hour_end);
+		$this->aggregate_hour( $hour_start, $hour_end );
 
-		delete_transient('tracksure_hourly_agg_lock');
+		delete_transient( 'tracksure_hourly_agg_lock' );
 	}
 
 	/**
@@ -107,8 +104,7 @@ class TrackSure_Hourly_Aggregator
 	 * @param string $hour_start Hour start datetime.
 	 * @param string $hour_end Hour end datetime.
 	 */
-	public function aggregate_hour($hour_start, $hour_end)
-	{
+	public function aggregate_hour( $hour_start, $hour_end ) {
 		global $wpdb;
 		// Multi-dimensional aggregation query.
 		$sql = "
@@ -213,21 +209,21 @@ class TrackSure_Hourly_Aggregator
 		";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Variable $sql contains prepared SQL from above
-		$result = $wpdb->query($wpdb->prepare($sql, $hour_start, $hour_start, $hour_end));
+		$result = $wpdb->query( $wpdb->prepare( $sql, $hour_start, $hour_start, $hour_end ) );
 
-		if ($result === false) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( $result === false ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] Hourly Aggregator: Failed to aggregate - ' . $wpdb->last_error);
+				error_log( '[TrackSure] Hourly Aggregator: Failed to aggregate - ' . $wpdb->last_error );
 			}
 			return false;
 		}
 
 		// Aggregate product performance.
-		$this->aggregate_products($hour_start, $hour_end);
+		$this->aggregate_products( $hour_start, $hour_end );
 
 		// Calculate derived metrics.
-		$this->calculate_derived_metrics($hour_start);
+		$this->calculate_derived_metrics( $hour_start );
 
 		/**
 		 * Fires after hourly aggregation completes.
@@ -236,13 +232,13 @@ class TrackSure_Hourly_Aggregator
 		 * @param string $hour_start Hour start datetime.
 		 * @param int    $rows_aggregated Number of rows aggregated.
 		 */
-		do_action('tracksure_hourly_aggregation_complete', $hour_start, $result);
+		do_action( 'tracksure_hourly_aggregation_complete', $hour_start, $result );
 
 		// Invalidate transient caches.
 		$this->invalidate_caches();
 
 		// Record last successful hourly aggregation time (UTC) for stale-aggregation safety net.
-		update_option('tracksure_last_hourly_agg', gmdate('Y-m-d H:i:s'), false);
+		update_option( 'tracksure_last_hourly_agg', gmdate( 'Y-m-d H:i:s' ), false );
 
 		return true;
 	}
@@ -254,8 +250,7 @@ class TrackSure_Hourly_Aggregator
 	 * This is more targeted than the old blanket '%tracksure_%' pattern but still
 	 * covers all parameterized cache keys (e.g. tracksure_overview_v2_{hash}).
 	 */
-	private function invalidate_caches()
-	{
+	private function invalidate_caches() {
 		global $wpdb;
 
 		// These prefixes match the actual cache keys set by REST API controllers.
@@ -273,19 +268,19 @@ class TrackSure_Hourly_Aggregator
 			'tracksure_agg_metrics_',
 		);
 
-		foreach ($transient_prefixes as $prefix) {
+		foreach ( $transient_prefixes as $prefix ) {
 			$wpdb->query(
 				$wpdb->prepare(
 					"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-					$wpdb->esc_like('_transient_' . $prefix) . '%',
-					$wpdb->esc_like('_transient_timeout_' . $prefix) . '%'
+					$wpdb->esc_like( '_transient_' . $prefix ) . '%',
+					$wpdb->esc_like( '_transient_timeout_' . $prefix ) . '%'
 				)
 			);
 		}
 
 		// Also clear specific non-parameterized transients.
-		delete_transient('tracksure_active_goals');
-		delete_transient('tracksure_active_goals_server');
+		delete_transient( 'tracksure_active_goals' );
+		delete_transient( 'tracksure_active_goals_server' );
 
 		/**
 		 * Fires when tracksure transient caches are invalidated.
@@ -293,7 +288,7 @@ class TrackSure_Hourly_Aggregator
 		 *
 		 * @since 1.0.0
 		 */
-		do_action('tracksure_invalidate_caches');
+		do_action( 'tracksure_invalidate_caches' );
 	}
 
 	/**
@@ -301,8 +296,7 @@ class TrackSure_Hourly_Aggregator
 	 *
 	 * @param string $hour_start Hour start datetime.
 	 */
-	private function calculate_derived_metrics($hour_start)
-	{
+	private function calculate_derived_metrics( $hour_start ) {
 		global $wpdb;
 		$wpdb->query(
 			$wpdb->prepare(
@@ -333,11 +327,10 @@ class TrackSure_Hourly_Aggregator
 	 * @param string $hour_start Hour start datetime.
 	 * @param string $hour_end Hour end datetime.
 	 */
-	public function aggregate_products($hour_start, $hour_end)
-	{
+	public function aggregate_products( $hour_start, $hour_end ) {
 		global $wpdb;
 		// Convert hour to date for daily product aggregation.
-		$date = gmdate('Y-m-d', strtotime($hour_start));
+		$date = gmdate( 'Y-m-d', strtotime( $hour_start ) );
 
 		// STEP 1: Aggregate views and add_to_carts (flat event_params structure).
 		$sql_views_carts = "
@@ -401,11 +394,11 @@ class TrackSure_Hourly_Aggregator
 		";
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Variable $sql_views_carts contains prepared SQL from above
-		$result1 = $wpdb->query($wpdb->prepare($sql_views_carts, $date, $hour_start, $hour_end));
+		$result1 = $wpdb->query( $wpdb->prepare( $sql_views_carts, $date, $hour_start, $hour_end ) );
 
-		if ($result1 === false) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('[TrackSure] Product Aggregator (views/carts): Failed - ' . $wpdb->last_error);
+		if ( $result1 === false ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[TrackSure] Product Aggregator (views/carts): Failed - ' . $wpdb->last_error );
 			}
 		}
 
@@ -434,10 +427,10 @@ class TrackSure_Hourly_Aggregator
 		);
 
 		$purchase_count = 0;
-		if ($purchase_events) {
-			foreach ($purchase_events as $event) {
-				$ecommerce_data = json_decode($event['ecommerce_data'], true);
-				if (! $ecommerce_data || empty($ecommerce_data['items'])) {
+		if ( $purchase_events ) {
+			foreach ( $purchase_events as $event ) {
+				$ecommerce_data = json_decode( $event['ecommerce_data'], true );
+				if ( ! $ecommerce_data || empty( $ecommerce_data['items'] ) ) {
 					continue;
 				}
 
@@ -445,15 +438,15 @@ class TrackSure_Hourly_Aggregator
 				$utm_medium = $event['utm_medium'] ?: '';
 
 				// Process each item in the purchase.
-				foreach ($ecommerce_data['items'] as $item) {
+				foreach ( $ecommerce_data['items'] as $item ) {
 					$product_id       = $item['item_id'] ?? '';
 					$product_name     = $item['item_name'] ?? '';
 					$product_category = $item['item_category'] ?? '';
-					$price            = floatval($item['price'] ?? 0);
-					$quantity         = intval($item['quantity'] ?? 1);
+					$price            = floatval( $item['price'] ?? 0 );
+					$quantity         = intval( $item['quantity'] ?? 1 );
 					$revenue          = $price * $quantity;
 
-					if (! $product_id) {
+					if ( ! $product_id ) {
 						continue;
 					}
 
@@ -514,9 +507,8 @@ class TrackSure_Hourly_Aggregator
 	 *
 	 * @param string $hour_start Hour start datetime.
 	 */
-	public function re_aggregate_hour($hour_start)
-	{
-		$hour_end = gmdate('Y-m-d H:59:59', strtotime($hour_start));
-		$this->aggregate_hour($hour_start, $hour_end);
+	public function re_aggregate_hour( $hour_start ) {
+		$hour_end = gmdate( 'Y-m-d H:59:59', strtotime( $hour_start ) );
+		$this->aggregate_hour( $hour_start, $hour_end );
 	}
 }

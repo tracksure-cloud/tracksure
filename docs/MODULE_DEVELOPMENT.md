@@ -642,7 +642,11 @@ public function register_capabilities() {
 
 ### **5. Admin Dashboards**
 
-Register React admin pages:
+Admin dashboards require **two steps**: a PHP-side registration (so Core knows the route/menu entry exists) and a JS-side registration (so the React app can resolve the component).
+
+#### **Step 1 — PHP: Register the Admin Extension**
+
+Use the `tracksure_register_admin_extensions` hook to declare the page, its route, and the **component name string** that the React app will look up:
 
 ```php
 public function register_capabilities() {
@@ -657,6 +661,40 @@ public function register_capabilities() {
         ];
     });
 }
+```
+
+#### **Step 2 — JS: Register React Components via the Extension Component Registry**
+
+Core's `App.tsx` resolves the `component` name strings from the PHP registry to actual React components by looking them up on a **single shared global**: `window.trackSureExtensionComponents`.
+
+Every extension (Pro, Free, or third-party) must merge its components into this global using the spread pattern. This is typically done at the top level of your admin entry JS/TS file:
+
+```javascript
+// In your extension's admin entry JS (e.g., index.tsx):
+import { ABTestingPage } from './pages/ABTestingPage';
+import { MyCustomWidget } from './components/MyCustomWidget';
+
+if (typeof window !== 'undefined') {
+  window.trackSureExtensionComponents = {
+    ...(window.trackSureExtensionComponents || {}),
+    ABTestingPage,
+    MyCustomWidget,
+  };
+}
+```
+
+The spread pattern (`...(window.trackSureExtensionComponents || {})`) ensures that components from other extensions that loaded before yours are preserved.
+
+> **⚠️ Important:** Never create separate globals like `window.myPluginComponents`. Always merge into the shared `window.trackSureExtensionComponents` registry. Core only looks in this one location.
+
+#### **How it works end-to-end**
+
+```
+PHP: tracksure_register_admin_extensions  →  { component: 'ABTestingPage', route: '/ab-testing', … }
+                          ↓
+JS:  window.trackSureExtensionComponents  →  { ABTestingPage: <ReactComponent>, … }
+                          ↓
+Core App.tsx resolves "ABTestingPage" string → actual React component → renders at /ab-testing
 ```
 
 ### **6. Settings Schema**

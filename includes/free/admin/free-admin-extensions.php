@@ -14,7 +14,7 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -23,8 +23,7 @@ if (! defined('ABSPATH')) {
  *
  * @param TrackSure_Admin_Extensions $registry Extensions registry.
  */
-function tracksure_free_register_admin_extensions($registry)
-{
+function tracksure_free_register_admin_extensions( $registry ) {
 	$registry->register_extension(
 		array(
 			'id'       => 'tracksure-free',
@@ -37,8 +36,8 @@ function tracksure_free_register_admin_extensions($registry)
 				array(
 					'id'          => 'core-tracking',
 					'category'    => 'tracking',
-					'title'       => __('Core Tracking', 'tracksure'),
-					'description' => __('Master tracking controls', 'tracksure'),
+					'title'       => __( 'Core Tracking', 'tracksure' ),
+					'description' => __( 'Master tracking controls', 'tracksure' ),
 					'order'       => 10,
 					'fields'      => array(
 						'tracksure_tracking_enabled',
@@ -51,8 +50,8 @@ function tracksure_free_register_admin_extensions($registry)
 				array(
 					'id'          => 'privacy-compliance',
 					'category'    => 'privacy',
-					'title'       => __('Privacy & Compliance', 'tracksure'),
-					'description' => __('GDPR, CCPA, and consent management', 'tracksure'),
+					'title'       => __( 'Privacy & Compliance', 'tracksure' ),
+					'description' => __( 'GDPR, CCPA, and consent management', 'tracksure' ),
 					'order'       => 10,
 					'fields'      => array(
 						'tracksure_consent_mode',        // Consent requirement (disabled/opt-in/opt-out/auto)
@@ -67,8 +66,8 @@ function tracksure_free_register_admin_extensions($registry)
 				array(
 					'id'          => 'performance-batching',
 					'category'    => 'performance',
-					'title'       => __('Performance', 'tracksure'),
-					'description' => __('Event batching and optimization', 'tracksure'),
+					'title'       => __( 'Performance', 'tracksure' ),
+					'description' => __( 'Event batching and optimization', 'tracksure' ),
 					'order'       => 10,
 					'fields'      => array(
 						'tracksure_batch_size',
@@ -80,8 +79,8 @@ function tracksure_free_register_admin_extensions($registry)
 				array(
 					'id'          => 'attribution-config',
 					'category'    => 'attribution',
-					'title'       => __('Attribution', 'tracksure'),
-					'description' => __('First-touch and last-touch attribution', 'tracksure'),
+					'title'       => __( 'Attribution', 'tracksure' ),
+					'description' => __( 'First-touch and last-touch attribution', 'tracksure' ),
 					'order'       => 10,
 					'fields'      => array(
 						'tracksure_attribution_window',
@@ -93,8 +92,8 @@ function tracksure_free_register_admin_extensions($registry)
 				array(
 					'id'          => 'advanced-system',
 					'category'    => 'advanced',
-					'title'       => __('System', 'tracksure'),
-					'description' => __('System configuration', 'tracksure'),
+					'title'       => __( 'System', 'tracksure' ),
+					'description' => __( 'System configuration', 'tracksure' ),
 					'order'       => 10,
 					'fields'      => array(
 						'keep_data_on_uninstall', // Toggle to preserve data when uninstalling
@@ -112,4 +111,4 @@ function tracksure_free_register_admin_extensions($registry)
 		)
 	);
 }
-add_action('tracksure_register_admin_extensions', 'tracksure_free_register_admin_extensions');
+add_action( 'tracksure_register_admin_extensions', 'tracksure_free_register_admin_extensions' );

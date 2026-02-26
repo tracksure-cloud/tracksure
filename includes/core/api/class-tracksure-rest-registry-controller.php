@@ -26,15 +26,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Registry REST controller class.
  */
-class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
-{
+class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller {
+
 
 
 
@@ -49,15 +49,14 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 	 *
 	 * @since 1.0.0
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		// GET /registry/events - Get events registry.
 		register_rest_route(
 			$this->namespace,
 			'/registry/events',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_events'),
+				'callback'            => array( $this, 'get_events' ),
 				// Public: read-only data used by browser SDK, no sensitive content.
 				'permission_callback' => '__return_true',
 			)
@@ -69,7 +68,7 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 			'/registry/params',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_params'),
+				'callback'            => array( $this, 'get_params' ),
 				// Public: read-only data used by browser SDK, no sensitive content.
 				'permission_callback' => '__return_true',
 			)
@@ -81,7 +80,7 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 			'/registry',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_full_registry'),
+				'callback'            => array( $this, 'get_full_registry' ),
 				// Public: read-only data used by browser SDK, no sensitive content.
 				'permission_callback' => '__return_true',
 			)
@@ -93,7 +92,7 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 			'/registry/validate/(?P<event>[a-zA-Z0-9_-]+)',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'validate_event'),
+				'callback'            => array( $this, 'validate_event' ),
 				// Public: read-only validation used by browser SDK, no sensitive content.
 				'permission_callback' => '__return_true',
 				'args'                => array(
@@ -129,21 +128,20 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_events($request)
-	{
+	public function get_events( $request ) {
 		$registry = TrackSure_Registry::get_instance();
 		$events   = $registry->get_events();
 
 		// Transform for easy lookup.
 		$events_map = array();
-		foreach ($events as $event) {
-			$events_map[$event['name']] = $event;
+		foreach ( $events as $event ) {
+			$events_map[ $event['name'] ] = $event;
 		}
 
 		return $this->prepare_success(
 			array(
 				'events' => $events_map,
-				'count'  => count($events),
+				'count'  => count( $events ),
 			)
 		);
 	}
@@ -171,21 +169,20 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response
 	 */
-	public function get_params($request)
-	{
+	public function get_params( $request ) {
 		$registry = TrackSure_Registry::get_instance();
 		$params   = $registry->get_parameters();
 
 		// Transform for easy lookup.
 		$params_map = array();
-		foreach ($params as $param) {
-			$params_map[$param['name']] = $param;
+		foreach ( $params as $param ) {
+			$params_map[ $param['name'] ] = $param;
 		}
 
 		return $this->prepare_success(
 			array(
 				'parameters' => $params_map,
-				'count'      => count($params),
+				'count'      => count( $params ),
 			)
 		);
 	}
@@ -204,21 +201,20 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response Registry data with events, parameters, and version.
 	 */
-	public function get_full_registry($request)
-	{
+	public function get_full_registry( $request ) {
 		$registry = TrackSure_Registry::get_instance();
 		$events   = $registry->get_events();
 		$params   = $registry->get_parameters();
 
 		// Transform for easy lookup.
 		$events_map = array();
-		foreach ($events as $event) {
-			$events_map[$event['name']] = $event;
+		foreach ( $events as $event ) {
+			$events_map[ $event['name'] ] = $event;
 		}
 
 		$params_map = array();
-		foreach ($params as $param) {
-			$params_map[$param['name']] = $param;
+		foreach ( $params as $param ) {
+			$params_map[ $param['name'] ] = $param;
 		}
 
 		return $this->prepare_success(
@@ -247,15 +243,14 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object with 'event' parameter.
 	 * @return WP_REST_Response
 	 */
-	public function validate_event($request)
-	{
-		$event_name = $request->get_param('event');
+	public function validate_event( $request ) {
+		$event_name = $request->get_param( 'event' );
 		$registry   = TrackSure_Registry::get_instance();
 
-		$is_valid = $registry->event_exists($event_name);
+		$is_valid = $registry->event_exists( $event_name );
 
-		if ($is_valid) {
-			$event = $registry->get_event($event_name);
+		if ( $is_valid ) {
+			$event = $registry->get_event( $event_name );
 
 			return $this->prepare_success(
 				array(
@@ -268,7 +263,7 @@ class TrackSure_REST_Registry_Controller extends TrackSure_REST_Controller
 		return $this->prepare_success(
 			array(
 				'valid'   => false,
-				'message' => sprintf('Event "%s" is not registered', $event_name),
+				'message' => sprintf( 'Event "%s" is not registered', $event_name ),
 			)
 		);
 	}

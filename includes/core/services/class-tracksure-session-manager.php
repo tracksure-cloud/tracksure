@@ -13,15 +13,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * TrackSure Session Manager class.
  */
-class TrackSure_Session_Manager
-{
+class TrackSure_Session_Manager {
+
 
 
 
@@ -59,9 +59,8 @@ class TrackSure_Session_Manager
 	 *
 	 * @return TrackSure_Session_Manager
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -70,10 +69,9 @@ class TrackSure_Session_Manager
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		$this->db              = TrackSure_DB::get_instance();
-		$this->session_timeout = absint(get_option('tracksure_session_timeout', 30)) * 60;
+		$this->session_timeout = absint( get_option( 'tracksure_session_timeout', 30 ) ) * 60;
 	}
 
 	/**
@@ -85,12 +83,11 @@ class TrackSure_Session_Manager
 	 *
 	 * @return string Client UUID.
 	 */
-	public function get_client_id_from_browser()
-	{
+	public function get_client_id_from_browser() {
 		// Try to get from cookie that JavaScript should set.
-		if (isset($_COOKIE['_ts_cid'])) {
-			$client_id = sanitize_text_field(wp_unslash($_COOKIE['_ts_cid']));
-			if (TrackSure_Utilities::is_valid_uuid_v4($client_id)) {
+		if ( isset( $_COOKIE['_ts_cid'] ) ) {
+			$client_id = sanitize_text_field( wp_unslash( $_COOKIE['_ts_cid'] ) );
+			if ( TrackSure_Utilities::is_valid_uuid_v4( $client_id ) ) {
 				return $client_id;
 			}
 		}
@@ -104,16 +101,16 @@ class TrackSure_Session_Manager
 		// 3. Works with cookieless browsers (Brave shield, Tor, Safari ITP, ad blockers)
 		// 4. No file locking — fully concurrent on shared hosting
 		// 5. With object cache (Redis/Memcached): 0 DB queries (in-memory)
-		$fingerprint_key = $this->get_server_fingerprint_key('cid');
-		$cached_cid      = get_transient($fingerprint_key);
+		$fingerprint_key = $this->get_server_fingerprint_key( 'cid' );
+		$cached_cid      = get_transient( $fingerprint_key );
 
-		if ($cached_cid && TrackSure_Utilities::is_valid_uuid_v4($cached_cid)) {
+		if ( $cached_cid && TrackSure_Utilities::is_valid_uuid_v4( $cached_cid ) ) {
 			return $cached_cid;
 		}
 
 		// Generate new UUID v4 and store in transient (1 hour — covers a typical session).
 		$client_id = $this->generate_uuid();
-		set_transient($fingerprint_key, $client_id, HOUR_IN_SECONDS);
+		set_transient( $fingerprint_key, $client_id, HOUR_IN_SECONDS );
 
 		return $client_id;
 	}
@@ -127,28 +124,27 @@ class TrackSure_Session_Manager
 	 *
 	 * @return string Session UUID.
 	 */
-	public function get_session_id_from_browser()
-	{
+	public function get_session_id_from_browser() {
 		// Try to get from cookie that JavaScript should set.
-		if (isset($_COOKIE['_ts_sid'])) {
-			$session_id = sanitize_text_field(wp_unslash($_COOKIE['_ts_sid']));
-			if (TrackSure_Utilities::is_valid_uuid_v4($session_id)) {
+		if ( isset( $_COOKIE['_ts_sid'] ) ) {
+			$session_id = sanitize_text_field( wp_unslash( $_COOKIE['_ts_sid'] ) );
+			if ( TrackSure_Utilities::is_valid_uuid_v4( $session_id ) ) {
 				return $session_id;
 			}
 		}
 
 		// Fallback: Server-side fingerprint via short-lived transient.
 		// Same approach as get_client_id_from_browser() — see comments there.
-		$fingerprint_key = $this->get_server_fingerprint_key('sid');
-		$cached_sid      = get_transient($fingerprint_key);
+		$fingerprint_key = $this->get_server_fingerprint_key( 'sid' );
+		$cached_sid      = get_transient( $fingerprint_key );
 
-		if ($cached_sid && TrackSure_Utilities::is_valid_uuid_v4($cached_sid)) {
+		if ( $cached_sid && TrackSure_Utilities::is_valid_uuid_v4( $cached_sid ) ) {
 			return $cached_sid;
 		}
 
 		// Generate new UUID v4 and store in transient (30 min — session scope).
 		$session_id = $this->generate_uuid();
-		set_transient($fingerprint_key, $session_id, 30 * MINUTE_IN_SECONDS);
+		set_transient( $fingerprint_key, $session_id, 30 * MINUTE_IN_SECONDS );
 
 		return $session_id;
 	}
@@ -158,8 +154,7 @@ class TrackSure_Session_Manager
 	 *
 	 * @return string UUID v4 string.
 	 */
-	private function generate_uuid()
-	{
+	private function generate_uuid() {
 		return TrackSure_Utilities::generate_uuid_v4();
 	}
 
@@ -176,27 +171,26 @@ class TrackSure_Session_Manager
 	 * @param string $type Fingerprint type ('cid' for client, 'sid' for session).
 	 * @return string Transient key for this visitor+type combination.
 	 */
-	private function get_server_fingerprint_key($type)
-	{
+	private function get_server_fingerprint_key( $type ) {
 		$ip = '';
-		if (class_exists('TrackSure_Utilities') && method_exists('TrackSure_Utilities', 'get_client_ip')) {
+		if ( class_exists( 'TrackSure_Utilities' ) && method_exists( 'TrackSure_Utilities', 'get_client_ip' ) ) {
 			$ip = TrackSure_Utilities::get_client_ip();
-		} elseif (isset($_SERVER['REMOTE_ADDR'])) {
-			$ip = sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR']));
+		} elseif ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			$ip = sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) );
 		}
 
-		$ua = isset($_SERVER['HTTP_USER_AGENT'])
-			? sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT']))
+		$ua = isset( $_SERVER['HTTP_USER_AGENT'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) )
 			: '';
 
 		// Include Accept-Language for better differentiation on corporate networks
 		// where multiple users share the same IP + User-Agent (e.g., managed browsers).
-		$accept_lang = isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])
-			? sanitize_text_field(wp_unslash($_SERVER['HTTP_ACCEPT_LANGUAGE']))
+		$accept_lang = isset( $_SERVER['HTTP_ACCEPT_LANGUAGE'] )
+			? sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) )
 			: '';
 
 		// wp_hash() uses AUTH_SALT so the fingerprint is site-specific and irreversible.
-		$hash = wp_hash($ip . '|' . $ua . '|' . $accept_lang);
+		$hash = wp_hash( $ip . '|' . $ua . '|' . $accept_lang );
 
 		// Transient key max 172 chars. 'ts_fp_' + type(3) + '_' + hash(64) = ~74 chars.
 		return 'ts_fp_' . $type . '_' . $hash;
@@ -210,36 +204,35 @@ class TrackSure_Session_Manager
 	 * @param array  $session_data Session context data.
 	 * @return array Session data with id, session_number, is_returning.
 	 */
-	public function get_or_create_session($session_id, $client_id, $session_data = array())
-	{
+	public function get_or_create_session( $session_id, $client_id, $session_data = array() ) {
 		// Get or create visitor (core only tracks identity, not attribution).
-		$visitor_id = $this->db->get_or_create_visitor($client_id, array());
+		$visitor_id = $this->db->get_or_create_visitor( $client_id, array() );
 
 		// Check if session exists and is still valid.
-		$existing_session = $this->db->get_session($session_id);
+		$existing_session = $this->db->get_session( $session_id );
 
-		if ($existing_session) {
+		if ( $existing_session ) {
 			// Check if session has timed out.
-			$last_activity = strtotime($existing_session->last_activity_at);
+			$last_activity = strtotime( $existing_session->last_activity_at );
 			$now           = time();
 
-			if (($now - $last_activity) < $this->session_timeout) {
+			if ( ( $now - $last_activity ) < $this->session_timeout ) {
 				// Session is still valid - update last activity and UTM params if changed.
 				$update_data = array(
-					'event_count' => isset($existing_session->event_count) ? (int) $existing_session->event_count + 1 : 1,
+					'event_count' => isset( $existing_session->event_count ) ? (int) $existing_session->event_count + 1 : 1,
 				);
 
 				// Update UTM parameters if new ones are provided (user clicked UTM link mid-session).
-				if (! empty($session_data['utm_source']) && $existing_session->utm_source !== $session_data['utm_source']) {
-					$utm_fields = array('utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid');
-					foreach ($utm_fields as $field) {
-						if (isset($session_data[$field])) {
-							$update_data[$field] = $session_data[$field];
+				if ( ! empty( $session_data['utm_source'] ) && $existing_session->utm_source !== $session_data['utm_source'] ) {
+					$utm_fields = array( 'utm_source', 'utm_medium', 'utm_campaign', 'utm_term', 'utm_content', 'gclid', 'fbclid' );
+					foreach ( $utm_fields as $field ) {
+						if ( isset( $session_data[ $field ] ) ) {
+							$update_data[ $field ] = $session_data[ $field ];
 						}
 					}
 				}
 
-				$this->db->upsert_session($session_id, $visitor_id, $update_data);
+				$this->db->upsert_session( $session_id, $visitor_id, $update_data );
 
 				$this->current_session = (array) $existing_session;
 				return $this->current_session;
@@ -250,7 +243,7 @@ class TrackSure_Session_Manager
 			$is_returning   = true;
 		} else {
 			// New session - check if returning visitor.
-			$session_count  = $this->db->get_visitor_session_count($visitor_id);
+			$session_count  = $this->db->get_visitor_session_count( $visitor_id );
 			$session_number = $session_count + 1;
 			$is_returning   = $session_count > 0;
 		}
@@ -281,44 +274,44 @@ class TrackSure_Session_Manager
 		);
 
 		// Extract UTM/attribution fields from session_data.
-		foreach ($utm_fields as $field) {
-			if (isset($session_data[$field])) {
-				$new_session_data[$field] = $session_data[$field];
+		foreach ( $utm_fields as $field ) {
+			if ( isset( $session_data[ $field ] ) ) {
+				$new_session_data[ $field ] = $session_data[ $field ];
 			}
 		}
 
 		// ✅ ADVANCED ATTRIBUTION: If no UTM parameters, use Attribution Resolver.
 		// This handles organic search, social referrals, and direct traffic.
 		// Always resolve — even without referrer (true direct traffic gets (direct)/(none)).
-		if (empty($new_session_data['utm_source'])) {
+		if ( empty( $new_session_data['utm_source'] ) ) {
 			$attribution_resolver = TrackSure_Attribution_Resolver::get_instance();
-			$resolved             = $attribution_resolver->resolve($new_session_data);
+			$resolved             = $attribution_resolver->resolve( $new_session_data );
 
 			// Populate source/medium/campaign from resolved attribution.
 			$new_session_data['utm_source'] = $resolved['source'];
 			$new_session_data['utm_medium'] = $resolved['medium'];
-			if (! empty($resolved['campaign'])) {
+			if ( ! empty( $resolved['campaign'] ) ) {
 				$new_session_data['utm_campaign'] = $resolved['campaign'];
 			}
 		}
 
-		$db_session_id = $this->db->upsert_session($session_id, $visitor_id, $new_session_data);
+		$db_session_id = $this->db->upsert_session( $session_id, $visitor_id, $new_session_data );
 
 		// Retrieve full session data.
-		$session_record        = $this->db->get_session($session_id);
+		$session_record        = $this->db->get_session( $session_id );
 		$this->current_session = (array) $session_record;
 
 		// Fire session_start event.
-		if ($db_session_id) {
+		if ( $db_session_id ) {
 			// Ensure session_id UUID is available in hook data for touchpoint recording.
 			$session_data['session_id'] = $session_id;
 
-			//  FIX: Merge resolved attribution into session_data for hooks.
+			// FIX: Merge resolved attribution into session_data for hooks.
 			// Without this, touchpoints receive NULL utm_source for non-UTM traffic
 			// (organic search, social, AI referral, direct) because the hook was
 			// passing the original unresolved session_data instead of the resolved one.
-			$session_data['utm_source']  = $new_session_data['utm_source'] ?? $session_data['utm_source'] ?? null;
-			$session_data['utm_medium']  = $new_session_data['utm_medium'] ?? $session_data['utm_medium'] ?? null;
+			$session_data['utm_source']   = $new_session_data['utm_source'] ?? $session_data['utm_source'] ?? null;
+			$session_data['utm_medium']   = $new_session_data['utm_medium'] ?? $session_data['utm_medium'] ?? null;
 			$session_data['utm_campaign'] = $new_session_data['utm_campaign'] ?? $session_data['utm_campaign'] ?? null;
 
 			/**
@@ -334,7 +327,7 @@ class TrackSure_Session_Manager
 			 * @param bool   $is_returning Is returning visitor.
 			 * @param int    $session_number Session sequence number.
 			 */
-			do_action('tracksure_session_started', $db_session_id, $visitor_id, $session_data, $is_returning, $session_number);
+			do_action( 'tracksure_session_started', $db_session_id, $visitor_id, $session_data, $is_returning, $session_number );
 		}
 
 		return $this->current_session;
@@ -346,9 +339,8 @@ class TrackSure_Session_Manager
 	 * @param string $session_id Session UUID.
 	 * @return int|null Visitor ID or null.
 	 */
-	public function get_session_visitor_id($session_id)
-	{
-		$session = $this->db->get_session($session_id);
+	public function get_session_visitor_id( $session_id ) {
+		$session = $this->db->get_session( $session_id );
 		return $session ? (int) $session->visitor_id : null;
 	}
 
@@ -357,8 +349,7 @@ class TrackSure_Session_Manager
 	 *
 	 * @return array|null
 	 */
-	public function get_current_session()
-	{
+	public function get_current_session() {
 		return $this->current_session;
 	}
 
@@ -368,17 +359,16 @@ class TrackSure_Session_Manager
 	 * @param string $session_id Session UUID.
 	 * @return bool
 	 */
-	public function is_session_active($session_id)
-	{
-		$session = $this->db->get_session($session_id);
-		if (! $session) {
+	public function is_session_active( $session_id ) {
+		$session = $this->db->get_session( $session_id );
+		if ( ! $session ) {
 			return false;
 		}
 
-		$last_activity = strtotime($session->last_activity_at);
+		$last_activity = strtotime( $session->last_activity_at );
 		$now           = time();
 
-		return ($now - $last_activity) < $this->session_timeout;
+		return ( $now - $last_activity ) < $this->session_timeout;
 	}
 
 	/**
@@ -386,8 +376,7 @@ class TrackSure_Session_Manager
 	 *
 	 * @return int
 	 */
-	public function get_session_timeout()
-	{
+	public function get_session_timeout() {
 		return $this->session_timeout;
 	}
 
@@ -396,8 +385,7 @@ class TrackSure_Session_Manager
 	 *
 	 * @return array
 	 */
-	public function get_realtime_sessions()
-	{
+	public function get_realtime_sessions() {
 		return $this->db->get_realtime_active_sessions();
 	}
 
@@ -407,8 +395,7 @@ class TrackSure_Session_Manager
 	 * @param int $visitor_id Visitor ID.
 	 * @return int Session count.
 	 */
-	public function get_visitor_session_count($visitor_id)
-	{
-		return $this->db->get_visitor_session_count($visitor_id);
+	public function get_visitor_session_count( $visitor_id ) {
+		return $this->db->get_visitor_session_count( $visitor_id );
 	}
 }

@@ -29,15 +29,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * GA4 Destination Class
  */
-class TrackSure_GA4_Destination
-{
+class TrackSure_GA4_Destination {
+
 
 
 
@@ -61,13 +61,12 @@ class TrackSure_GA4_Destination
 	 *
 	 * @param TrackSure_Core $core Core instance.
 	 */
-	public function __construct($core)
-	{
+	public function __construct( $core ) {
 		$this->core     = $core;
 		$this->settings = $this->get_settings();
 
 		// Only initialize if enabled and configured.
-		if ($this->is_enabled()) {
+		if ( $this->is_enabled() ) {
 			$this->init_hooks();
 		}
 	}
@@ -77,14 +76,13 @@ class TrackSure_GA4_Destination
 	 *
 	 * @return array Settings.
 	 */
-	private function get_settings()
-	{
+	private function get_settings() {
 		return array(
-			'enabled'        => get_option('tracksure_free_ga4_enabled', false),
-			'measurement_id' => get_option('tracksure_free_ga4_measurement_id', ''),
-			'api_secret'     => get_option('tracksure_free_ga4_api_secret', ''),
-			'debug_mode'     => get_option('tracksure_free_ga4_debug_mode', false),
-			'consent_mode'   => get_option('tracksure_free_ga4_consent_mode', false),
+			'enabled'        => get_option( 'tracksure_free_ga4_enabled', false ),
+			'measurement_id' => get_option( 'tracksure_free_ga4_measurement_id', '' ),
+			'api_secret'     => get_option( 'tracksure_free_ga4_api_secret', '' ),
+			'debug_mode'     => get_option( 'tracksure_free_ga4_debug_mode', false ),
+			'consent_mode'   => get_option( 'tracksure_free_ga4_consent_mode', false ),
 		);
 	}
 
@@ -93,35 +91,32 @@ class TrackSure_GA4_Destination
 	 *
 	 * @return bool True if enabled and configured.
 	 */
-	private function is_enabled()
-	{
-		return ! empty($this->settings['enabled']) &&
-			! empty($this->settings['measurement_id']);
+	private function is_enabled() {
+		return ! empty( $this->settings['enabled'] ) &&
+			! empty( $this->settings['measurement_id'] );
 	}
 
 	/**
 	 * Initialize hooks.
 	 */
-	private function init_hooks()
-	{
+	private function init_hooks() {
 		// Register with Event Bridge (browser gtag).
 		$this->register_browser_destination();
 
 		// Register with Delivery Worker (server-side Measurement Protocol).
-		add_filter('tracksure_deliver_mapped_event', array($this, 'send'), 10, 3);
+		add_filter( 'tracksure_deliver_mapped_event', array( $this, 'send' ), 10, 3 );
 
 		// CRITICAL FIX: Remove conflicting empty gtag configs from other plugins.
-		add_action('wp_head', array($this, 'fix_conflicting_gtag_configs'), 999);
+		add_action( 'wp_head', array( $this, 'fix_conflicting_gtag_configs' ), 999 );
 	}
 
 	/**
 	 * Register browser-side gtag with Event Bridge.
 	 */
-	private function register_browser_destination()
-	{
-		$bridge = $this->core->get_service('event_bridge');
+	private function register_browser_destination() {
+		$bridge = $this->core->get_service( 'event_bridge' );
 
-		if (! $bridge) {
+		if ( ! $bridge ) {
 			return;
 		}
 
@@ -129,8 +124,8 @@ class TrackSure_GA4_Destination
 			array(
 				'id'           => 'ga4',
 				'enabled_key'  => 'tracksure_free_ga4_enabled',
-				'init_script'  => array($this, 'get_gtag_init_script'),
-				'event_mapper' => array($this, 'get_browser_event_mapper'),
+				'init_script'  => array( $this, 'get_gtag_init_script' ),
+				'event_mapper' => array( $this, 'get_browser_event_mapper' ),
 				'sdk_check'    => "function() { return typeof window.gtag === 'function'; }",
 				'pixel_sender' => "function(mapped, trackSureEvent) {
 					if (!mapped || !mapped.name) return;
@@ -155,28 +150,27 @@ class TrackSure_GA4_Destination
 	 *
 	 * @return string JavaScript code.
 	 */
-	public function get_gtag_init_script()
-	{
-		$measurement_id = sanitize_text_field($this->settings['measurement_id']);
-		$consent_mode   = ! empty($this->settings['consent_mode']);
-		$debug_mode     = ! empty($this->settings['debug_mode']);
+	public function get_gtag_init_script() {
+		$measurement_id = sanitize_text_field( $this->settings['measurement_id'] );
+		$consent_mode   = ! empty( $this->settings['consent_mode'] );
+		$debug_mode     = ! empty( $this->settings['debug_mode'] );
 
 		// Enqueue external gtag.js library using WordPress enqueue system.
 		wp_enqueue_script(
 			'tracksure-gtag',
-			esc_url("https://www.googletagmanager.com/gtag/js?id={$measurement_id}"),
+			esc_url( "https://www.googletagmanager.com/gtag/js?id={$measurement_id}" ),
 			array(),
 			null,
 			false
 		);
-		wp_script_add_data('tracksure-gtag', 'async', true);
+		wp_script_add_data( 'tracksure-gtag', 'async', true );
 
 		// Build inline script for GA4 initialization.
 		$inline_script  = "window.dataLayer = window.dataLayer || [];\n";
 		$inline_script .= "function gtag(){dataLayer.push(arguments);}\n";
 
 		// Add Consent Mode V2 (if enabled).
-		if ($consent_mode) {
+		if ( $consent_mode ) {
 			$inline_script .= "\n// Google Consent Mode V2 - GDPR/CCPA Compliance\n";
 			$inline_script .= "// GRANTED by default - anonymize when denied (don't block tracking)\n";
 			$inline_script .= "gtag('consent', 'default', {\n";
@@ -189,15 +183,15 @@ class TrackSure_GA4_Destination
 
 		$inline_script .= "gtag('js', new Date());\n\n";
 		$inline_script .= "// Initialize GA4 with TrackSure configuration\n";
-		$inline_script .= "gtag('config', '" . esc_js($measurement_id) . "', {\n";
+		$inline_script .= "gtag('config', '" . esc_js( $measurement_id ) . "', {\n";
 		$inline_script .= "  // CRITICAL: Disable automatic page_view (TrackSure handles this)\n";
 		$inline_script .= "  'send_page_view': false,\n";
 
 		// Add debug_mode for DebugView visibility.
-		if ($debug_mode) {
+		if ( $debug_mode ) {
 			$inline_script .= "  // Debug mode: Events visible in DebugView (not in reports)\n";
 			$inline_script .= "  'debug_mode': true,\n";
-		} elseif (defined('WP_DEBUG') && WP_DEBUG) {
+		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$inline_script .= "  // Debug mode: Auto-enabled (WP_DEBUG=true)\n";
 			$inline_script .= "  'debug_mode': true,\n";
 		}
@@ -211,14 +205,14 @@ class TrackSure_GA4_Destination
 		$inline_script .= "});\n\n";
 
 		$inline_script .= "// Sync GA4 client_id with TrackSure (for server-side deduplication)\n";
-		$inline_script .= "gtag('get', '" . esc_js($measurement_id) . "', 'client_id', function(clientId) {\n";
+		$inline_script .= "gtag('get', '" . esc_js( $measurement_id ) . "', 'client_id', function(clientId) {\n";
 		$inline_script .= "  if (clientId && window.TrackSure && window.TrackSure.setClientId) {\n";
 		$inline_script .= "    window.TrackSure.setClientId(clientId);\n";
 		$inline_script .= "  }\n";
 		$inline_script .= '});';
 
 		// Add inline script using WordPress enqueue system.
-		wp_add_inline_script('tracksure-gtag', $inline_script, 'before');
+		wp_add_inline_script( 'tracksure-gtag', $inline_script, 'before' );
 
 		// Return empty string since we're now using enqueue instead of echo.
 		return '';
@@ -230,8 +224,7 @@ class TrackSure_GA4_Destination
 	 * Some consent/analytics plugins inject empty gtag('config', '') which breaks GA4.
 	 * This script removes empty configs from dataLayer.
 	 */
-	public function fix_conflicting_gtag_configs()
-	{
+	public function fix_conflicting_gtag_configs() {
 		$fix_script  = "(function() {\n";
 		$fix_script .= "  'use strict';\n";
 		$fix_script .= "  // CRITICAL FIX: Remove empty gtag configs that break GA4.\n";
@@ -253,7 +246,7 @@ class TrackSure_GA4_Destination
 		$fix_script .= '})();';
 
 		// Add inline script using WordPress enqueue system.
-		wp_add_inline_script('tracksure-gtag', $fix_script, 'after');
+		wp_add_inline_script( 'tracksure-gtag', $fix_script, 'after' );
 	}
 
 	/**
@@ -265,8 +258,7 @@ class TrackSure_GA4_Destination
 	 *
 	 * @return string JavaScript function definition.
 	 */
-	public function get_browser_event_mapper()
-	{
+	public function get_browser_event_mapper() {
 		return "function(trackSureEvent) {
             // GA4 events use snake_case, mostly same as TrackSure.
             var eventName = trackSureEvent.event_name;
@@ -371,16 +363,15 @@ class TrackSure_GA4_Destination
 	 * @param array  $mapped_event Event already mapped by Event Mapper.
 	 * @return array Result with success (bool) and error (string).
 	 */
-	public function send($result, $destination, $mapped_event)
-	{
-		if ($destination !== 'ga4') {
+	public function send( $result, $destination, $mapped_event ) {
+		if ( $destination !== 'ga4' ) {
 			return $result;
 		}
 
-		$event_name = isset($mapped_event['event_name']) ? $mapped_event['event_name'] : '';
+		$event_name = isset( $mapped_event['event_name'] ) ? $mapped_event['event_name'] : '';
 
 		// GA4 MP rejects server-sent session_start (reserved); let browser handle it.
-		if ($event_name === 'session_start') {
+		if ( $event_name === 'session_start' ) {
 			return array(
 				'success' => true,
 				'error'   => 'Skipped session_start (handled client-side)',
@@ -388,7 +379,7 @@ class TrackSure_GA4_Destination
 		}
 
 		// Skip if Measurement Protocol not configured.
-		if (empty($this->settings['api_secret'])) {
+		if ( empty( $this->settings['api_secret'] ) ) {
 			return array(
 				'success' => true, // Not an error - just not configured.
 				'error'   => 'GA4 API secret not configured',
@@ -396,20 +387,20 @@ class TrackSure_GA4_Destination
 		}
 
 		// CRITICAL FIX 1: Complete client_id extraction chain.
-		$client_id = $this->get_client_id($mapped_event, $this->settings['measurement_id']);
+		$client_id = $this->get_client_id( $mapped_event, $this->settings['measurement_id'] );
 
 		// CRITICAL FIX 2: Extract timestamp from event (for deduplication with browser).
 		// GA4 deduplicates using event_name + event_id + timestamp_micros (within 72h).
-		$timestamp_micros = ! empty($mapped_event['timestamp_micros'])
+		$timestamp_micros = ! empty( $mapped_event['timestamp_micros'] )
 			? (int) $mapped_event['timestamp_micros']
-			: (time() * 1000000);
+			: ( time() * 1000000 );
 
 		// CRITICAL FIX 3: Session ID in Unix timestamp format (not UUID).
 		// GA4 requires session_id as Unix timestamp of session start for session grouping.
-		$session_id = $this->get_session_id($mapped_event);
+		$session_id = $this->get_session_id( $mapped_event );
 
 		// CRITICAL FIX 4: Calculate actual engagement time (not hardcoded 100ms).
-		$engagement_time_msec = $this->calculate_engagement_time($mapped_event);
+		$engagement_time_msec = $this->calculate_engagement_time( $mapped_event );
 
 		// Build event params with all GA4-required parameters.
 		$event_params = $this->build_event_params(
@@ -419,7 +410,7 @@ class TrackSure_GA4_Destination
 		);
 
 		// Build user properties (for GA4 audiences and custom dimensions).
-		$user_properties = $this->build_user_properties($mapped_event);
+		$user_properties = $this->build_user_properties( $mapped_event );
 
 		// Build Measurement Protocol v2 payload.
 		$payload = array(
@@ -435,19 +426,19 @@ class TrackSure_GA4_Destination
 
 		// GDPR/CCPA Compliance: Anonymize user data when consent denied.
 		// PHILOSOPHY: Never block events - always track, but anonymize PII when consent denied.
-		$consent_manager = $this->core->get_service('consent_manager');
+		$consent_manager = $this->core->get_service( 'consent_manager' );
 		$consent_granted = $consent_manager ? $consent_manager->is_tracking_allowed() : true;
 
-		if ($consent_granted) {
+		if ( $consent_granted ) {
 			// Consent granted - include user_id for cross-device tracking.
 			// CRITICAL FIX: GA4 requires user_id as STRING, not integer!
 			// Bug: Event Builder returns (string) but JSON encoding can revert to int.
-			if (! empty($mapped_event['user_data']['user_id'])) {
+			if ( ! empty( $mapped_event['user_data']['user_id'] ) ) {
 				$payload['user_id'] = (string) $mapped_event['user_data']['user_id'];
 			}
 
 			// Include user_properties for audiences and custom dimensions.
-			if (! empty($user_properties)) {
+			if ( ! empty( $user_properties ) ) {
 				$payload['user_properties'] = $user_properties;
 			}
 		} else {
@@ -458,10 +449,10 @@ class TrackSure_GA4_Destination
 		}
 
 		// Send to GA4 Measurement Protocol.
-		$response = $this->send_mp_request($payload);
+		$response = $this->send_mp_request( $payload );
 
 		// Handle response.
-		return $this->handle_mp_response($response, $mapped_event);
+		return $this->handle_mp_response( $response, $mapped_event );
 	}
 
 	/**
@@ -472,11 +463,10 @@ class TrackSure_GA4_Destination
 	 * @param array $payload Payload.
 	 * @return array|WP_Error Response.
 	 */
-	private function send_mp_request($payload)
-	{
-		$measurement_id = sanitize_text_field($this->settings['measurement_id']);
-		$api_secret     = sanitize_text_field($this->settings['api_secret']);
-		$debug_mode     = ! empty($this->settings['debug_mode']);
+	private function send_mp_request( $payload ) {
+		$measurement_id = sanitize_text_field( $this->settings['measurement_id'] );
+		$api_secret     = sanitize_text_field( $this->settings['api_secret'] );
+		$debug_mode     = ! empty( $this->settings['debug_mode'] );
 
 		// Use debug endpoint if debug mode enabled.
 		$base_url = $debug_mode
@@ -495,8 +485,8 @@ class TrackSure_GA4_Destination
 			$url,
 			array(
 				'method'  => 'POST',
-				'headers' => array('Content-Type' => 'application/json'),
-				'body'    => wp_json_encode($payload),
+				'headers' => array( 'Content-Type' => 'application/json' ),
+				'body'    => wp_json_encode( $payload ),
 				'timeout' => 10,
 			)
 		);
@@ -515,26 +505,25 @@ class TrackSure_GA4_Destination
 	 * @param string $measurement_id GA4 Measurement ID.
 	 * @return string Client ID.
 	 */
-	private function get_client_id($event, $measurement_id)
-	{
+	private function get_client_id( $event, $measurement_id ) {
 		// Priority 1: TrackSure client_id (synced from browser).
-		if (! empty($event['client_id'])) {
+		if ( ! empty( $event['client_id'] ) ) {
 			return $event['client_id'];
 		}
 
 		// Priority 2: GA4-specific cookie (_ga_{MEASUREMENT_ID}).
-		$ga4_cookie_name = '_ga_' . str_replace('G-', '', $measurement_id);
-		if (! empty($_COOKIE[$ga4_cookie_name])) {
-			$parts = explode('.', sanitize_text_field(wp_unslash($_COOKIE[$ga4_cookie_name])));
-			if (count($parts) >= 3) {
+		$ga4_cookie_name = '_ga_' . str_replace( 'G-', '', $measurement_id );
+		if ( ! empty( $_COOKIE[ $ga4_cookie_name ] ) ) {
+			$parts = explode( '.', sanitize_text_field( wp_unslash( $_COOKIE[ $ga4_cookie_name ] ) ) );
+			if ( count( $parts ) >= 3 ) {
 				return $parts[2] . '.' . time();
 			}
 		}
 
 		// Priority 3: Universal Analytics cookie (_ga).
-		if (! empty($_COOKIE['_ga'])) {
-			$parts = explode('.', sanitize_text_field(wp_unslash($_COOKIE['_ga'])));
-			if (count($parts) >= 4) {
+		if ( ! empty( $_COOKIE['_ga'] ) ) {
+			$parts = explode( '.', sanitize_text_field( wp_unslash( $_COOKIE['_ga'] ) ) );
+			if ( count( $parts ) >= 4 ) {
 				return $parts[2] . '.' . $parts[3];
 			}
 		}
@@ -550,9 +539,8 @@ class TrackSure_GA4_Destination
 	 *
 	 * @return string Client ID.
 	 */
-	private function generate_client_id()
-	{
-		return wp_rand(1000000000, 9999999999) . '.' . time();
+	private function generate_client_id() {
+		return wp_rand( 1000000000, 9999999999 ) . '.' . time();
 	}
 
 	/**
@@ -563,10 +551,9 @@ class TrackSure_GA4_Destination
 	 * @param array $event Event data.
 	 * @return int Unix timestamp.
 	 */
-	private function get_session_id($event)
-	{
+	private function get_session_id( $event ) {
 		// Check if session_start_time available (Unix timestamp).
-		if (! empty($event['session_start_time']) && is_numeric($event['session_start_time'])) {
+		if ( ! empty( $event['session_start_time'] ) && is_numeric( $event['session_start_time'] ) ) {
 			return (int) $event['session_start_time'];
 		}
 
@@ -582,20 +569,19 @@ class TrackSure_GA4_Destination
 	 * @param array $event Event data.
 	 * @return int Engagement time in milliseconds.
 	 */
-	private function calculate_engagement_time($event)
-	{
+	private function calculate_engagement_time( $event ) {
 		// Priority 1: Explicit engagement_time from event.
-		if (! empty($event['engagement_time_msec'])) {
+		if ( ! empty( $event['engagement_time_msec'] ) ) {
 			return (int) $event['engagement_time_msec'];
 		}
 
 		// Priority 2: Calculate from session context.
-		if (! empty($event['session_context']['engagement_time'])) {
+		if ( ! empty( $event['session_context']['engagement_time'] ) ) {
 			return (int) $event['session_context']['engagement_time'] * 1000;
 		}
 
 		// Priority 3: Use time_on_page.
-		if (! empty($event['session_context']['time_on_page'])) {
+		if ( ! empty( $event['session_context']['time_on_page'] ) ) {
 			return (int) $event['session_context']['time_on_page'] * 1000;
 		}
 
@@ -615,7 +601,7 @@ class TrackSure_GA4_Destination
 			'file_download'  => 5000,  // 5 seconds.
 		);
 
-		return $estimates[$event_name] ?? 100; // Default: 100ms.
+		return $estimates[ $event_name ] ?? 100; // Default: 100ms.
 	}
 
 	/**
@@ -634,8 +620,7 @@ class TrackSure_GA4_Destination
 	 * @param int   $engagement_time_msec Engagement time (milliseconds).
 	 * @return array Event parameters.
 	 */
-	private function build_event_params($event, $session_id, $engagement_time_msec)
-	{
+	private function build_event_params( $event, $session_id, $engagement_time_msec ) {
 		$params = array();
 
 		// Required GA4 parameters.
@@ -644,104 +629,104 @@ class TrackSure_GA4_Destination
 		$params['engagement_time_msec'] = $engagement_time_msec;
 
 		// Page context (required for proper GA4 reporting).
-		if (! empty($event['page_context'])) {
+		if ( ! empty( $event['page_context'] ) ) {
 			$page = $event['page_context'];
-			if (! empty($page['page_url'])) {
+			if ( ! empty( $page['page_url'] ) ) {
 				$params['page_location'] = $page['page_url'];
 				// CRITICAL: Add page_url as separate parameter for custom dimension.
 				// Enables "Views by Page URL" reports without manual GA4 setup.
 				$params['page_url'] = $page['page_url'];
 			}
-			if (! empty($page['page_title'])) {
+			if ( ! empty( $page['page_title'] ) ) {
 				$params['page_title'] = $page['page_title'];
 			}
-			if (! empty($page['page_path'])) {
+			if ( ! empty( $page['page_path'] ) ) {
 				$params['page_path'] = $page['page_path'];
 			}
-			if (! empty($page['page_referrer'])) {
+			if ( ! empty( $page['page_referrer'] ) ) {
 				$params['page_referrer'] = $page['page_referrer'];
 			}
 		}
 
 		// Device/browser context.
-		if (! empty($event['session_context'])) {
+		if ( ! empty( $event['session_context'] ) ) {
 			$session = $event['session_context'];
-			if (! empty($session['device_type'])) {
+			if ( ! empty( $session['device_type'] ) ) {
 				$params['device_category'] = $session['device_type'];
 			}
-			if (! empty($session['browser'])) {
+			if ( ! empty( $session['browser'] ) ) {
 				$params['browser'] = $session['browser'];
 			}
-			if (! empty($session['os'])) {
+			if ( ! empty( $session['os'] ) ) {
 				$params['os'] = $session['os'];
 			}
 		}
 
 		// Attribution parameters (UTMs, campaign data).
-		if (! empty($event['attribution_data'])) {
+		if ( ! empty( $event['attribution_data'] ) ) {
 			$attribution = $event['attribution_data'];
 			// Map TrackSure attribution to GA4 parameters.
-			if (! empty($attribution['campaign'])) {
+			if ( ! empty( $attribution['campaign'] ) ) {
 				$params['campaign'] = $attribution['campaign'];
 			}
-			if (! empty($attribution['source'])) {
+			if ( ! empty( $attribution['source'] ) ) {
 				$params['source'] = $attribution['source'];
 			}
-			if (! empty($attribution['medium'])) {
+			if ( ! empty( $attribution['medium'] ) ) {
 				$params['medium'] = $attribution['medium'];
 			}
-			if (! empty($attribution['term'])) {
+			if ( ! empty( $attribution['term'] ) ) {
 				$params['term'] = $attribution['term'];
 			}
-			if (! empty($attribution['content'])) {
+			if ( ! empty( $attribution['content'] ) ) {
 				$params['content'] = $attribution['content'];
 			}
 			// Ad platform click IDs (gclid, fbclid, etc.).
-			if (! empty($attribution['gclid'])) {
+			if ( ! empty( $attribution['gclid'] ) ) {
 				$params['gclid'] = $attribution['gclid'];
 			}
-			if (! empty($attribution['fbclid'])) {
+			if ( ! empty( $attribution['fbclid'] ) ) {
 				$params['fbclid'] = $attribution['fbclid'];
 			}
 		}
 
 		// Custom event data (items, value, currency, transaction_id, etc.).
-		if (! empty($event['custom_data'])) {
+		if ( ! empty( $event['custom_data'] ) ) {
 			$custom_data = $event['custom_data'];
 
 			// Normalize currency using centralized handler (GA4 accepts all ISO 4217 codes).
-			if (! empty($custom_data['currency'])) {
+			if ( ! empty( $custom_data['currency'] ) ) {
 				$currency_handler        = TrackSure_Currency_Handler::get_instance();
-				$custom_data['currency'] = $currency_handler->normalize($custom_data['currency'], 'ga4');
+				$custom_data['currency'] = $currency_handler->normalize( $custom_data['currency'], 'ga4' );
 			}
 
-			$params = array_merge($params, $custom_data);
+			$params = array_merge( $params, $custom_data );
 		}
 
 		// AUTO-ADD GA4 RECOMMENDED PARAMETERS (enables custom dimensions automatically).
 		// These parameters allow users to create custom dimensions in GA4 UI without code changes.
 
 		// E-commerce recommended parameters.
-		if (in_array($event['event_name'], array('view_item', 'add_to_cart', 'begin_checkout', 'purchase'), true)) {
+		if ( in_array( $event['event_name'], array( 'view_item', 'add_to_cart', 'begin_checkout', 'purchase' ), true ) ) {
 			// Item list name (for "Shop the Look", "Related Products", etc.).
-			if (empty($params['item_list_name']) && ! empty($event['custom_data']['item_list_name'])) {
+			if ( empty( $params['item_list_name'] ) && ! empty( $event['custom_data']['item_list_name'] ) ) {
 				$params['item_list_name'] = $event['custom_data']['item_list_name'];
-			} elseif (empty($params['item_list_name'])) {
+			} elseif ( empty( $params['item_list_name'] ) ) {
 				// Auto-detect from page context.
-				if (! empty($page['page_title'])) {
+				if ( ! empty( $page['page_title'] ) ) {
 					$params['item_list_name'] = $page['page_title'];
 				}
 			}
 
 			// Shipping tier (for shipping revenue analysis).
-			if (! empty($event['custom_data']['shipping_tier'])) {
+			if ( ! empty( $event['custom_data']['shipping_tier'] ) ) {
 				$params['shipping_tier'] = $event['custom_data']['shipping_tier'];
-			} elseif (! empty($event['custom_data']['shipping'])) {
+			} elseif ( ! empty( $event['custom_data']['shipping'] ) ) {
 				// Auto-classify based on shipping cost.
 				$shipping_cost = (float) $event['custom_data']['shipping'];
-				if ($shipping_cost === 0.0) {
+				if ( $shipping_cost === 0.0 ) {
 					$params['shipping_tier'] = 'Free Shipping';
-				} elseif ($shipping_cost < 5.0) {
+				} elseif ( $shipping_cost < 5.0 ) {
 					$params['shipping_tier'] = 'Standard';
 				} else {
 					$params['shipping_tier'] = 'Express';
@@ -749,23 +734,23 @@ class TrackSure_GA4_Destination
 			}
 
 			// Payment type (credit card, PayPal, cash on delivery, etc.).
-			if (! empty($event['custom_data']['payment_type'])) {
+			if ( ! empty( $event['custom_data']['payment_type'] ) ) {
 				$params['payment_type'] = $event['custom_data']['payment_type'];
 			}
 		}
 
 		// Content/blog recommended parameters (for news/blog sites).
-		if ($event['event_name'] === 'page_view' || $event['event_name'] === 'view_item') {
+		if ( $event['event_name'] === 'page_view' || $event['event_name'] === 'view_item' ) {
 			// Content type (article, video, product, page, etc.).
-			if (! empty($event['custom_data']['content_type'])) {
+			if ( ! empty( $event['custom_data']['content_type'] ) ) {
 				$params['content_type'] = $event['custom_data']['content_type'];
-			} elseif (! empty($page['page_url'])) {
+			} elseif ( ! empty( $page['page_url'] ) ) {
 				// Auto-detect from URL.
-				if (strpos($page['page_url'], '/product') !== false) {
+				if ( strpos( $page['page_url'], '/product' ) !== false ) {
 					$params['content_type'] = 'product';
-				} elseif (strpos($page['page_url'], '/blog') !== false || strpos($page['page_url'], '/news') !== false) {
+				} elseif ( strpos( $page['page_url'], '/blog' ) !== false || strpos( $page['page_url'], '/news' ) !== false ) {
 					$params['content_type'] = 'article';
-				} elseif (strpos($page['page_url'], '/video') !== false) {
+				} elseif ( strpos( $page['page_url'], '/video' ) !== false ) {
 					$params['content_type'] = 'video';
 				} else {
 					$params['content_type'] = 'page';
@@ -773,42 +758,42 @@ class TrackSure_GA4_Destination
 			}
 
 			// Content ID (post ID, product ID, etc.).
-			if (! empty($event['custom_data']['content_id'])) {
+			if ( ! empty( $event['custom_data']['content_id'] ) ) {
 				$params['content_id'] = $event['custom_data']['content_id'];
-			} elseif (! empty($event['custom_data']['product_id'])) {
+			} elseif ( ! empty( $event['custom_data']['product_id'] ) ) {
 				$params['content_id'] = 'product_' . $event['custom_data']['product_id'];
-			} elseif (! empty($event['custom_data']['post_id'])) {
+			} elseif ( ! empty( $event['custom_data']['post_id'] ) ) {
 				$params['content_id'] = 'post_' . $event['custom_data']['post_id'];
 			}
 		}
 
 		// Search term (for site search tracking).
-		if ($event['event_name'] === 'search' || $event['event_name'] === 'view_search_results') {
-			if (! empty($event['custom_data']['search_term'])) {
+		if ( $event['event_name'] === 'search' || $event['event_name'] === 'view_search_results' ) {
+			if ( ! empty( $event['custom_data']['search_term'] ) ) {
 				$params['search_term'] = $event['custom_data']['search_term'];
 				// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading WordPress core search query parameter, not a form submission.
-			} elseif (! empty($_GET['s'])) {
+			} elseif ( ! empty( $_GET['s'] ) ) {
 				// WordPress search query parameter.
-				$params['search_term'] = sanitize_text_field(wp_unslash($_GET['s']));
+				$params['search_term'] = sanitize_text_field( wp_unslash( $_GET['s'] ) );
 			}
 		}
 
 		// GA4 Debug Mode: Add debug_mode parameter for DebugView visibility.
 		// CRITICAL: This parameter makes events visible in DebugView.
-		if (! empty($this->settings['debug_mode'])) {
+		if ( ! empty( $this->settings['debug_mode'] ) ) {
 			$params['debug_mode'] = true;
 		}
 
 		// GDPR/CCPA Compliance: Add consent metadata and anonymize IP when consent denied.
-		$consent_manager = $this->core->get_service('consent_manager');
-		if ($consent_manager) {
+		$consent_manager = $this->core->get_service( 'consent_manager' );
+		if ( $consent_manager ) {
 			$consent_granted           = $consent_manager->is_tracking_allowed();
 			$params['consent_granted'] = $consent_granted ? 'yes' : 'no';
 			$params['consent_mode']    = $consent_manager->get_consent_mode();
 
 			// If consent denied, anonymize IP address (GA4 supports ip_override parameter).
-			if (! $consent_granted && ! empty($event['user_data']['ip_address'])) {
-				$params['ip_override'] = TrackSure_Utilities::anonymize_ip($event['user_data']['ip_address']);
+			if ( ! $consent_granted && ! empty( $event['user_data']['ip_address'] ) ) {
+				$params['ip_override'] = TrackSure_Utilities::anonymize_ip( $event['user_data']['ip_address'] );
 			}
 		}
 
@@ -823,46 +808,45 @@ class TrackSure_GA4_Destination
 	 * @param array $event Event data.
 	 * @return array User properties.
 	 */
-	private function build_user_properties($event)
-	{
+	private function build_user_properties( $event ) {
 		$user_properties = array();
 
-		if (empty($event['user_data'])) {
+		if ( empty( $event['user_data'] ) ) {
 			return $user_properties;
 		}
 
 		$user_data = $event['user_data'];
 
 		// Email (hashed SHA256 for privacy).
-		if (! empty($user_data['email'])) {
+		if ( ! empty( $user_data['email'] ) ) {
 			$user_properties['user_email_sha256'] = array(
-				'value' => hash('sha256', strtolower(trim($user_data['email']))),
+				'value' => hash( 'sha256', strtolower( trim( $user_data['email'] ) ) ),
 			);
 		}
 
 		// Customer type (for audience segmentation).
-		if (! empty($user_data['customer_type'])) {
+		if ( ! empty( $user_data['customer_type'] ) ) {
 			$user_properties['customer_type'] = array(
 				'value' => $user_data['customer_type'],
 			);
 		}
 
 		// Lifetime value (for value-based bidding).
-		if (! empty($user_data['lifetime_value'])) {
+		if ( ! empty( $user_data['lifetime_value'] ) ) {
 			$user_properties['lifetime_value'] = array(
 				'value' => (float) $user_data['lifetime_value'],
 			);
 		}
 
 		// Account age (for user segmentation).
-		if (! empty($user_data['account_age_days'])) {
+		if ( ! empty( $user_data['account_age_days'] ) ) {
 			$user_properties['account_age_days'] = array(
 				'value' => (int) $user_data['account_age_days'],
 			);
 		}
 
 		// Subscription tier (for targeting).
-		if (! empty($user_data['subscription_tier'])) {
+		if ( ! empty( $user_data['subscription_tier'] ) ) {
 			$user_properties['subscription_tier'] = array(
 				'value' => $user_data['subscription_tier'],
 			);
@@ -878,13 +862,12 @@ class TrackSure_GA4_Destination
 	 * @param array          $event Event data.
 	 * @return array Result with success and error.
 	 */
-	private function handle_mp_response($response, $event)
-	{
-		if (is_wp_error($response)) {
+	private function handle_mp_response( $response, $event ) {
+		if ( is_wp_error( $response ) ) {
 			$error_message = $response->get_error_message();
 
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('[TrackSure GA4] API Error: ' . $error_message);
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[TrackSure GA4] API Error: ' . $error_message );
 			}
 
 			return array(
@@ -893,34 +876,34 @@ class TrackSure_GA4_Destination
 			);
 		}
 
-		$code = wp_remote_retrieve_response_code($response);
-		$body = wp_remote_retrieve_body($response);
+		$code = wp_remote_retrieve_response_code( $response );
+		$body = wp_remote_retrieve_body( $response );
 
 		// Debug mode returns validation errors in response body.
-		if (! empty($this->settings['debug_mode']) && ! empty($body)) {
-			$debug_response = json_decode($body, true);
+		if ( ! empty( $this->settings['debug_mode'] ) && ! empty( $body ) ) {
+			$debug_response = json_decode( $body, true );
 
 			// Check for validation errors.
-			if (! empty($debug_response['validationMessages'])) {
+			if ( ! empty( $debug_response['validationMessages'] ) ) {
 				$errors = array();
-				foreach ($debug_response['validationMessages'] as $msg) {
+				foreach ( $debug_response['validationMessages'] as $msg ) {
 					$errors[] = $msg['description'] ?? 'Unknown validation error';
 				}
 
 				return array(
 					'success' => false,
-					'error'   => 'GA4 Debug Validation: ' . implode('; ', $errors),
+					'error'   => 'GA4 Debug Validation: ' . implode( '; ', $errors ),
 				);
 			}
 		}
 
 		// Check HTTP status code.
-		if ($code >= 200 && $code < 300) {
-			return array('success' => true);
+		if ( $code >= 200 && $code < 300 ) {
+			return array( 'success' => true );
 		}
 
-		if (defined('WP_DEBUG') && WP_DEBUG) {
-			error_log('[TrackSure GA4] HTTP Error ' . $code . ': ' . $body);
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( '[TrackSure GA4] HTTP Error ' . $code . ': ' . $body );
 		}
 
 		return array(

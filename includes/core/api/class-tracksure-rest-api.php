@@ -11,15 +11,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * TrackSure REST API class.
  */
-class TrackSure_REST_API
-{
+class TrackSure_REST_API {
+
 
 
 
@@ -50,9 +50,8 @@ class TrackSure_REST_API
 	 *
 	 * @return TrackSure_REST_API
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -61,21 +60,19 @@ class TrackSure_REST_API
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
-		add_action('rest_api_init', array($this, 'register_routes'));
+	private function __construct() {
+		add_action( 'rest_api_init', array( $this, 'register_routes' ) );
 	}
 
 	/**
 	 * Register REST API routes.
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		// Load controllers.
 		$this->load_controllers();
 
 		// Register each controller's routes.
-		foreach ($this->controllers as $controller) {
+		foreach ( $this->controllers as $controller ) {
 			$controller->register_routes();
 		}
 
@@ -88,7 +85,7 @@ class TrackSure_REST_API
 		 *
 		 * @param string $namespace API namespace.
 		 */
-		do_action('tracksure_rest_api_init', self::NAMESPACE);
+		do_action( 'tracksure_rest_api_init', self::NAMESPACE );
 	}
 
 	/**
@@ -114,8 +111,7 @@ class TrackSure_REST_API
 	 * @since 1.0.0
 	 * @since 1.1.0 Added Registry controller for client-side validation.
 	 */
-	private function load_controllers()
-	{
+	private function load_controllers() {
 		require_once __DIR__ . '/class-tracksure-rest-controller.php';
 		require_once __DIR__ . '/class-tracksure-rest-ingest-controller.php';
 		require_once __DIR__ . '/class-tracksure-rest-query-controller.php';
@@ -154,7 +150,7 @@ class TrackSure_REST_API
 		 *
 		 * @param array $controllers Array of controller instances.
 		 */
-		$this->controllers = apply_filters('tracksure_rest_controllers', $this->controllers);
+		$this->controllers = apply_filters( 'tracksure_rest_controllers', $this->controllers );
 	}
 
 	/**
@@ -162,8 +158,7 @@ class TrackSure_REST_API
 	 *
 	 * @return string
 	 */
-	public static function get_namespace()
-	{
+	public static function get_namespace() {
 		return self::NAMESPACE;
 	}
 
@@ -173,13 +168,12 @@ class TrackSure_REST_API
 	 * @param WP_REST_Request $request Request object.
 	 * @return bool|WP_Error
 	 */
-	public static function check_admin_permission($request = null)
-	{
-		if (! current_user_can('manage_options')) {
+	public static function check_admin_permission( $request = null ) {
+		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
 				'rest_forbidden',
 				'You do not have permission to access this resource.',
-				array('status' => 403)
+				array( 'status' => 403 )
 			);
 		}
 		return true;

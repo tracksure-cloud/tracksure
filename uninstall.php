@@ -1,7 +1,7 @@
 <?php
 // phpcs:disable WordPress.DB.DirectDatabaseQuery -- Direct database queries required for uninstall cleanup
 // Exit if accessed directly.
-if (! defined('WP_UNINSTALL_PLUGIN')) {
+if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
 	exit;
 }
 
@@ -19,8 +19,8 @@ if (! defined('WP_UNINSTALL_PLUGIN')) {
 
 // Check if user wants to keep data.
 // Setting is stored as individual WordPress option via REST settings controller.
-$tracksure_keep_data = get_option('tracksure_keep_data_on_uninstall', false);
-if ($tracksure_keep_data) {
+$tracksure_keep_data = get_option( 'tracksure_keep_data_on_uninstall', false );
+if ( $tracksure_keep_data ) {
 	return; // Keep data, don't delete.
 }
 
@@ -45,56 +45,56 @@ $tracksure_tables = array(
 	$wpdb->prefix . 'tracksure_logs', // ADD: Missing logs table
 );
 
-foreach ($tracksure_tables as $tracksure_table) {
-	$wpdb->query("DROP TABLE IF EXISTS {$tracksure_table}"); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+foreach ( $tracksure_tables as $tracksure_table ) {
+	$wpdb->query( "DROP TABLE IF EXISTS {$tracksure_table}" ); // phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 }
 
 // Delete core options.
-delete_option('tracksure_settings');
-delete_option('tracksure_keep_data_on_uninstall');
-delete_option('tracksure_version');
-delete_option('tracksure_db_version');
-delete_option('tracksure_public_token');
-delete_option('tracksure_needs_permalink_flush'); // ADD: Cleanup activation flag
-delete_option('tracksure_permalinks_flushed'); // ADD: Old flag cleanup
-delete_option('tracksure_registered_modules'); // ADD: Module registry cleanup
-delete_option('tracksure_last_hourly_agg'); // ADD: Aggregation timestamps
-delete_option('tracksure_last_daily_agg'); // ADD: Aggregation timestamps
+delete_option( 'tracksure_settings' );
+delete_option( 'tracksure_keep_data_on_uninstall' );
+delete_option( 'tracksure_version' );
+delete_option( 'tracksure_db_version' );
+delete_option( 'tracksure_public_token' );
+delete_option( 'tracksure_needs_permalink_flush' ); // ADD: Cleanup activation flag
+delete_option( 'tracksure_permalinks_flushed' ); // ADD: Old flag cleanup
+delete_option( 'tracksure_registered_modules' ); // ADD: Module registry cleanup
+delete_option( 'tracksure_last_hourly_agg' ); // ADD: Aggregation timestamps
+delete_option( 'tracksure_last_daily_agg' ); // ADD: Aggregation timestamps
 
 // Delete Free plugin destination settings.
-delete_option('tracksure_free_meta_enabled');
-delete_option('tracksure_free_meta_pixel_id');
-delete_option('tracksure_free_meta_access_token');
-delete_option('tracksure_free_meta_test_event_code');
-delete_option('tracksure_free_ga4_enabled');
-delete_option('tracksure_free_ga4_measurement_id');
-delete_option('tracksure_free_ga4_api_secret');
+delete_option( 'tracksure_free_meta_enabled' );
+delete_option( 'tracksure_free_meta_pixel_id' );
+delete_option( 'tracksure_free_meta_access_token' );
+delete_option( 'tracksure_free_meta_test_event_code' );
+delete_option( 'tracksure_free_ga4_enabled' );
+delete_option( 'tracksure_free_ga4_measurement_id' );
+delete_option( 'tracksure_free_ga4_api_secret' );
 
 // Delete Free plugin integration settings.
-delete_option('woo_integration_enabled');
+delete_option( 'woo_integration_enabled' );
 
 // Delete all options with tracksure prefix (Pro/3rd-party extensions).
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$wpdb->esc_like('tracksure_') . '%',
-		$wpdb->esc_like('_tracksure_') . '%'
+		$wpdb->esc_like( 'tracksure_' ) . '%',
+		$wpdb->esc_like( '_tracksure_' ) . '%'
 	)
 );
 
 // Clear scheduled cron jobs.
-wp_clear_scheduled_hook('tracksure_aggregate_hourly');
-wp_clear_scheduled_hook('tracksure_aggregate_daily');
-wp_clear_scheduled_hook('tracksure_delivery_worker');
-wp_clear_scheduled_hook('tracksure_cleanup_data');
-wp_clear_scheduled_hook('tracksure_cleanup_logs');
+wp_clear_scheduled_hook( 'tracksure_aggregate_hourly' );
+wp_clear_scheduled_hook( 'tracksure_aggregate_daily' );
+wp_clear_scheduled_hook( 'tracksure_delivery_worker' );
+wp_clear_scheduled_hook( 'tracksure_cleanup_data' );
+wp_clear_scheduled_hook( 'tracksure_cleanup_logs' );
 
 // Delete transients (cache).
 $wpdb->query(
 	$wpdb->prepare(
 		"DELETE FROM {$wpdb->options} WHERE option_name LIKE %s OR option_name LIKE %s",
-		$wpdb->esc_like('_transient_tracksure_') . '%',
-		$wpdb->esc_like('_transient_timeout_tracksure_') . '%'
+		$wpdb->esc_like( '_transient_tracksure_' ) . '%',
+		$wpdb->esc_like( '_transient_timeout_tracksure_' ) . '%'
 	)
 );
 

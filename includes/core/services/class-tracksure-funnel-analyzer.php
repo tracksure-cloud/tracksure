@@ -19,15 +19,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * TrackSure Funnel Analyzer class.
  */
-class TrackSure_Funnel_Analyzer
-{
+class TrackSure_Funnel_Analyzer {
+
 
 
 
@@ -50,9 +50,8 @@ class TrackSure_Funnel_Analyzer
 	 *
 	 * @return TrackSure_Funnel_Analyzer
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -61,8 +60,7 @@ class TrackSure_Funnel_Analyzer
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		$this->db = TrackSure_DB::get_instance();
 	}
 
@@ -75,28 +73,27 @@ class TrackSure_Funnel_Analyzer
 	 * @param array  $filters Optional filters (utm_source, utm_medium, device_type, etc).
 	 * @return array Funnel analysis results.
 	 */
-	public function analyze_funnel($funnel_id, $start_date, $end_date, $filters = array())
-	{
-		$funnel = $this->get_funnel($funnel_id);
+	public function analyze_funnel( $funnel_id, $start_date, $end_date, $filters = array() ) {
+		$funnel = $this->get_funnel( $funnel_id );
 
-		if (! $funnel) {
-			return array('error' => 'Funnel not found');
+		if ( ! $funnel ) {
+			return array( 'error' => 'Funnel not found' );
 		}
 
-		$steps = $this->get_funnel_steps($funnel_id);
+		$steps = $this->get_funnel_steps( $funnel_id );
 
-		if (empty($steps)) {
-			return array('error' => 'No steps defined for this funnel');
+		if ( empty( $steps ) ) {
+			return array( 'error' => 'No steps defined for this funnel' );
 		}
 
 		// Calculate funnel based on type.
-		if ($funnel['funnel_type'] === 'event_based') {
-			return $this->analyze_event_based_funnel($funnel, $steps, $start_date, $end_date, $filters);
-		} elseif ($funnel['funnel_type'] === 'url_based') {
-			return $this->analyze_url_based_funnel($funnel, $steps, $start_date, $end_date, $filters);
+		if ( $funnel['funnel_type'] === 'event_based' ) {
+			return $this->analyze_event_based_funnel( $funnel, $steps, $start_date, $end_date, $filters );
+		} elseif ( $funnel['funnel_type'] === 'url_based' ) {
+			return $this->analyze_url_based_funnel( $funnel, $steps, $start_date, $end_date, $filters );
 		}
 
-		return array('error' => 'Unsupported funnel type');
+		return array( 'error' => 'Unsupported funnel type' );
 	}
 
 	/**
@@ -109,8 +106,7 @@ class TrackSure_Funnel_Analyzer
 	 * @param array  $filters Filters.
 	 * @return array Analysis results.
 	 */
-	private function analyze_event_based_funnel($funnel, $steps, $start_date, $end_date, $filters)
-	{
+	private function analyze_event_based_funnel( $funnel, $steps, $start_date, $end_date, $filters ) {
 		global $wpdb;
 		$results = array(
 			'funnel_id'        => $funnel['funnel_id'],
@@ -124,7 +120,7 @@ class TrackSure_Funnel_Analyzer
 
 		$previous_count = 0;
 
-		foreach ($steps as $index => $step) {
+		foreach ( $steps as $index => $step ) {
 			$step_number = $index + 1;
 			$step_event  = $step['event_name'];
 
@@ -134,34 +130,34 @@ class TrackSure_Funnel_Analyzer
 				'e.occurred_at <= %s',
 				'e.event_name = %s',
 			);
-			$where_values = array(
+			$where_values  = array(
 				$start_date . ' 00:00:00',
 				$end_date . ' 23:59:59',
 				$step_event,
 			);
 
 			// Apply optional filters with prepare() placeholders.
-			if (! empty($filters['utm_source'])) {
+			if ( ! empty( $filters['utm_source'] ) ) {
 				$where_clauses[] = 's.utm_source = %s';
 				$where_values[]  = $filters['utm_source'];
 			}
-			if (! empty($filters['utm_medium'])) {
+			if ( ! empty( $filters['utm_medium'] ) ) {
 				$where_clauses[] = 's.utm_medium = %s';
 				$where_values[]  = $filters['utm_medium'];
 			}
-			if (! empty($filters['device_type'])) {
+			if ( ! empty( $filters['device_type'] ) ) {
 				$where_clauses[] = 's.device_type = %s';
 				$where_values[]  = $filters['device_type'];
 			}
-			if (! empty($filters['country'])) {
+			if ( ! empty( $filters['country'] ) ) {
 				$where_clauses[] = 's.country = %s';
 				$where_values[]  = $filters['country'];
 			}
 
-			$where_sql = implode(' AND ', $where_clauses);
+			$where_sql = implode( ' AND ', $where_clauses );
 
 			// For first step: count all sessions that started funnel.
-			if ($index === 0) {
+			if ( $index === 0 ) {
 				// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholders are in $where_sql variable (built from %s array above).
 				$sql = $wpdb->prepare(
 					"SELECT COUNT(DISTINCT e.session_id) as count
@@ -172,16 +168,16 @@ class TrackSure_Funnel_Analyzer
 				);
 				// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
-				$count = (int) $wpdb->get_var($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+				$count                    = (int) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
 				$results['total_entered'] = $count;
 			} else {
 				// For subsequent steps: count sessions that completed previous steps AND this step.
-				$previous_events    = array_slice(array_column($steps, 'event_name'), 0, $step_number);
-				$in_placeholders    = implode(', ', array_fill(0, count($previous_events), '%s'));
-				$previous_count_val = count($previous_events);
+				$previous_events    = array_slice( array_column( $steps, 'event_name' ), 0, $step_number );
+				$in_placeholders    = implode( ', ', array_fill( 0, count( $previous_events ), '%s' ) );
+				$previous_count_val = count( $previous_events );
 
 				// Merge: base WHERE values + IN clause event names + HAVING count.
-				$all_values   = array_merge($where_values, $previous_events, array($previous_count_val));
+				$all_values = array_merge( $where_values, $previous_events, array( $previous_count_val ) );
 
 				// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Placeholders are in $where_sql/$in_placeholders variables (built from %s/%d arrays above).
 				$sql = $wpdb->prepare(
@@ -200,41 +196,41 @@ class TrackSure_Funnel_Analyzer
 				);
 				// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare
 
-				$count = (int) $wpdb->get_var($sql); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
+				$count = (int) $wpdb->get_var( $sql ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared above.
 			}
 
 			// Calculate metrics.
-			$percentage     = $results['total_entered'] > 0 ? ($count / $results['total_entered']) * 100 : 0;
+			$percentage     = $results['total_entered'] > 0 ? ( $count / $results['total_entered'] ) * 100 : 0;
 			$drop_off_count = $previous_count > 0 ? $previous_count - $count : 0;
-			$drop_off_rate  = $previous_count > 0 ? ($drop_off_count / $previous_count) * 100 : 0;
+			$drop_off_rate  = $previous_count > 0 ? ( $drop_off_count / $previous_count ) * 100 : 0;
 
 			$step_result = array(
 				'step_number'    => $step_number,
 				'step_name'      => $step['step_name'],
 				'event_name'     => $step_event,
 				'sessions'       => $count,
-				'percentage'     => round($percentage, 2),
+				'percentage'     => round( $percentage, 2 ),
 				'drop_off_count' => $drop_off_count,
-				'drop_off_rate'  => round($drop_off_rate, 2),
+				'drop_off_rate'  => round( $drop_off_rate, 2 ),
 			);
 
 			$results['steps'][] = $step_result;
 
 			// Track biggest drop-off.
-			if ($index > 0 && ($results['biggest_drop_off'] === null || $drop_off_rate > $results['biggest_drop_off']['drop_off_rate'])) {
+			if ( $index > 0 && ( $results['biggest_drop_off'] === null || $drop_off_rate > $results['biggest_drop_off']['drop_off_rate'] ) ) {
 				$results['biggest_drop_off'] = $step_result;
 			}
 
 			$previous_count = $count;
 
 			// Track completion (last step).
-			if ($index === count($steps) - 1) {
+			if ( $index === count( $steps ) - 1 ) {
 				$results['total_completed'] = $count;
 			}
 		}
 
 		$results['completion_rate'] = $results['total_entered'] > 0
-			? round(($results['total_completed'] / $results['total_entered']) * 100, 2)
+			? round( ( $results['total_completed'] / $results['total_entered'] ) * 100, 2 )
 			: 0;
 
 		return $results;
@@ -250,11 +246,10 @@ class TrackSure_Funnel_Analyzer
 	 * @param array  $filters Filters.
 	 * @return array Analysis results.
 	 */
-	private function analyze_url_based_funnel($funnel, $steps, $start_date, $end_date, $filters)
-	{
+	private function analyze_url_based_funnel( $funnel, $steps, $start_date, $end_date, $filters ) {
 		// Similar implementation for URL-based funnels.
 		// Uses page_url matching instead of event_name matching.
-		return array('error' => 'URL-based funnels not yet implemented');
+		return array( 'error' => 'URL-based funnels not yet implemented' );
 	}
 
 	/**
@@ -265,8 +260,7 @@ class TrackSure_Funnel_Analyzer
 	 * @param int    $limit Limit.
 	 * @return array Top conversion paths.
 	 */
-	public function get_conversion_paths($start_date, $end_date, $limit = 20)
-	{
+	public function get_conversion_paths( $start_date, $end_date, $limit = 20 ) {
 		global $wpdb;
 		$sql = "
 		SELECT
@@ -297,7 +291,7 @@ class TrackSure_Funnel_Analyzer
 
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- $sql is safe and uses placeholders.
 		return $wpdb->get_results(
-			$wpdb->prepare($sql, $start_date . ' 00:00:00', $end_date . ' 23:59:59', $limit),
+			$wpdb->prepare( $sql, $start_date . ' 00:00:00', $end_date . ' 23:59:59', $limit ),
 			ARRAY_A
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
@@ -311,8 +305,7 @@ class TrackSure_Funnel_Analyzer
 	 * @param int    $limit Limit.
 	 * @return array Top exit paths.
 	 */
-	public function get_exit_paths($start_date, $end_date, $limit = 20)
-	{
+	public function get_exit_paths( $start_date, $end_date, $limit = 20 ) {
 		global $wpdb;
 		$sql = "
 		SELECT
@@ -339,7 +332,7 @@ class TrackSure_Funnel_Analyzer
 
 		// phpcs:disable WordPress.DB.PreparedSQL.NotPrepared -- $sql is safe and uses placeholders.
 		return $wpdb->get_results(
-			$wpdb->prepare($sql, $start_date . ' 00:00:00', $end_date . ' 23:59:59', $limit),
+			$wpdb->prepare( $sql, $start_date . ' 00:00:00', $end_date . ' 23:59:59', $limit ),
 			ARRAY_A
 		);
 		// phpcs:enable WordPress.DB.PreparedSQL.NotPrepared
@@ -351,8 +344,7 @@ class TrackSure_Funnel_Analyzer
 	 * @param int $funnel_id Funnel ID.
 	 * @return array|null Funnel data.
 	 */
-	private function get_funnel($funnel_id)
-	{
+	private function get_funnel( $funnel_id ) {
 		global $wpdb;
 		return $wpdb->get_row(
 			$wpdb->prepare(
@@ -370,8 +362,7 @@ class TrackSure_Funnel_Analyzer
 	 * @param int $funnel_id Funnel ID.
 	 * @return array Funnel steps.
 	 */
-	private function get_funnel_steps($funnel_id)
-	{
+	private function get_funnel_steps( $funnel_id ) {
 		global $wpdb;
 		return $wpdb->get_results(
 			$wpdb->prepare(
@@ -388,12 +379,11 @@ class TrackSure_Funnel_Analyzer
 	 * Create default funnels.
 	 * Called during installation or when WooCommerce is detected.
 	 */
-	public static function create_default_funnels()
-	{
+	public static function create_default_funnels() {
 		global $wpdb;
-		$db     = TrackSure_DB::get_instance();
+		$db = TrackSure_DB::get_instance();
 		// WooCommerce E-commerce Funnel.
-		if (class_exists('WooCommerce')) {
+		if ( class_exists( 'WooCommerce' ) ) {
 			$wpdb->insert(
 				$wpdb->prefix . 'tracksure_funnels',
 				array(
@@ -401,8 +391,8 @@ class TrackSure_Funnel_Analyzer
 					'funnel_type' => 'event_based',
 					'is_active'   => 1,
 					'time_window' => 1800,
-					'created_at'  => current_time('mysql', true),
-					'updated_at'  => current_time('mysql', true),
+					'created_at'  => current_time( 'mysql', true ),
+					'updated_at'  => current_time( 'mysql', true ),
 				)
 			);
 
@@ -431,7 +421,7 @@ class TrackSure_Funnel_Analyzer
 				),
 			);
 
-			foreach ($steps as $step) {
+			foreach ( $steps as $step ) {
 				$wpdb->insert(
 					$wpdb->prefix . 'tracksure_funnel_steps',
 					array_merge(
@@ -453,8 +443,8 @@ class TrackSure_Funnel_Analyzer
 				'funnel_type' => 'event_based',
 				'is_active'   => 1,
 				'time_window' => 1800,
-				'created_at'  => current_time('mysql', true),
-				'updated_at'  => current_time('mysql', true),
+				'created_at'  => current_time( 'mysql', true ),
+				'updated_at'  => current_time( 'mysql', true ),
 			)
 		);
 
@@ -483,7 +473,7 @@ class TrackSure_Funnel_Analyzer
 			),
 		);
 
-		foreach ($steps as $step) {
+		foreach ( $steps as $step ) {
 			$wpdb->insert(
 				$wpdb->prefix . 'tracksure_funnel_steps',
 				array_merge(

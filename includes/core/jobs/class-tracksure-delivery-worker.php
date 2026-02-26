@@ -13,15 +13,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Delivery worker class.
  */
-class TrackSure_Delivery_Worker
-{
+class TrackSure_Delivery_Worker {
+
 
 
 
@@ -78,9 +78,8 @@ class TrackSure_Delivery_Worker
 	 *
 	 * @return TrackSure_Delivery_Worker
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -89,8 +88,7 @@ class TrackSure_Delivery_Worker
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		$this->db           = TrackSure_DB::get_instance();
 		$this->event_mapper = TrackSure_Event_Mapper::get_instance();
 	}
@@ -114,17 +112,16 @@ class TrackSure_Delivery_Worker
 	 *
 	 * @param int $batch_size Batch size.
 	 */
-	public function process_outbox($batch_size = 50)
-	{
+	public function process_outbox( $batch_size = 50 ) {
 		global $wpdb;
 
 		// TIME-BOXING: Record start time so we stop before PHP's max_execution_time.
 		// On shared hosting max_execution_time can be as low as 30s. We leave a safety
 		// margin so WordPress shutdown hooks and DB writes still complete after we stop.
-		$start_time = microtime(true);
-		$max_ini    = (int) ini_get('max_execution_time');
-		$time_limit = ($max_ini > 0 && $max_ini < self::TIME_BOX_SECONDS + 10)
-			? max(5, $max_ini - 10)  // Leave 10s margin for cleanup
+		$start_time = microtime( true );
+		$max_ini    = (int) ini_get( 'max_execution_time' );
+		$time_limit = ( $max_ini > 0 && $max_ini < self::TIME_BOX_SECONDS + 10 )
+			? max( 5, $max_ini - 10 )  // Leave 10s margin for cleanup
 			: self::TIME_BOX_SECONDS;
 
 		// Get pending/processing items (destinations array schema).
@@ -140,7 +137,7 @@ class TrackSure_Delivery_Worker
 			)
 		);
 
-		if (empty($items)) {
+		if ( empty( $items ) ) {
 			return;
 		}
 
@@ -150,46 +147,46 @@ class TrackSure_Delivery_Worker
 		$destination_batches = array(); // destination_id => array of { item, mapped_event }
 		$item_states         = array(); // outbox_id => { destinations_status, all_completed, has_failures }
 
-		foreach ($items as $item) {
+		foreach ( $items as $item ) {
 			// TIME-BOX CHECK: Stop processing new items if we're running out of time.
 			// Remaining items stay in 'pending' status and are picked up on the next run.
-			if ((microtime(true) - $start_time) > $time_limit) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
-					error_log("[TrackSure] Delivery Worker: Time-boxed after {$time_limit}s — remaining items deferred to next run.");
+			if ( ( microtime( true ) - $start_time ) > $time_limit ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( "[TrackSure] Delivery Worker: Time-boxed after {$time_limit}s — remaining items deferred to next run." );
 				}
 				break;
 			}
 
-			$payload = ! empty($item->payload) ? json_decode($item->payload, true) : array();
-			if (! $payload) {
-				$this->mark_failed_new_schema($item->outbox_id, 'Invalid payload JSON');
+			$payload = ! empty( $item->payload ) ? json_decode( $item->payload, true ) : array();
+			if ( ! $payload ) {
+				$this->mark_failed_new_schema( $item->outbox_id, 'Invalid payload JSON' );
 				continue;
 			}
 
-			$destinations        = ! empty($item->destinations) ? json_decode($item->destinations, true) : array();
-			$destinations_status = ! empty($item->destinations_status) ? json_decode($item->destinations_status, true) : array();
+			$destinations        = ! empty( $item->destinations ) ? json_decode( $item->destinations, true ) : array();
+			$destinations_status = ! empty( $item->destinations_status ) ? json_decode( $item->destinations_status, true ) : array();
 
-			if (! is_array($destinations) || ! is_array($destinations_status)) {
-				$this->mark_failed_new_schema($item->outbox_id, 'Invalid destinations format');
+			if ( ! is_array( $destinations ) || ! is_array( $destinations_status ) ) {
+				$this->mark_failed_new_schema( $item->outbox_id, 'Invalid destinations format' );
 				continue;
 			}
 
 			// Mark as processing.
-			if ($item->status === 'pending') {
+			if ( $item->status === 'pending' ) {
 				$wpdb->update(
 					$wpdb->prefix . 'tracksure_outbox',
 					array(
 						'status'     => 'processing',
-						'updated_at' => current_time('mysql', 1),
+						'updated_at' => current_time( 'mysql', 1 ),
 					),
-					array('outbox_id' => $item->outbox_id),
-					array('%s', '%s'),
-					array('%d')
+					array( 'outbox_id' => $item->outbox_id ),
+					array( '%s', '%s' ),
+					array( '%d' )
 				);
 			}
 
 			// Initialize item state tracking.
-			$item_states[$item->outbox_id] = array(
+			$item_states[ $item->outbox_id ] = array(
 				'item'                => $item,
 				'payload'             => $payload,
 				'destinations_status' => $destinations_status,
@@ -197,37 +194,37 @@ class TrackSure_Delivery_Worker
 				'has_failures'        => false,
 			);
 
-			foreach ($destinations as $destination) {
+			foreach ( $destinations as $destination ) {
 				// Skip already successful destinations.
-				if (isset($destinations_status[$destination]['status']) && $destinations_status[$destination]['status'] === 'success') {
+				if ( isset( $destinations_status[ $destination ]['status'] ) && $destinations_status[ $destination ]['status'] === 'success' ) {
 					continue;
 				}
 
 				// Check retry limit for this destination.
-				$dest_retry_count = isset($destinations_status[$destination]['retry_count']) ? (int) $destinations_status[$destination]['retry_count'] : 0;
+				$dest_retry_count = isset( $destinations_status[ $destination ]['retry_count'] ) ? (int) $destinations_status[ $destination ]['retry_count'] : 0;
 
-				if ($dest_retry_count >= $this->max_retries) {
-					$item_states[$item->outbox_id]['destinations_status'][$destination]['status']                = 'failed';
-					$item_states[$item->outbox_id]['destinations_status'][$destination]['failed_permanently_at'] = current_time('mysql', 1);
-					$item_states[$item->outbox_id]['has_failures'] = true;
+				if ( $dest_retry_count >= $this->max_retries ) {
+					$item_states[ $item->outbox_id ]['destinations_status'][ $destination ]['status']                = 'failed';
+					$item_states[ $item->outbox_id ]['destinations_status'][ $destination ]['failed_permanently_at'] = current_time( 'mysql', 1 );
+					$item_states[ $item->outbox_id ]['has_failures'] = true;
 					continue;
 				}
 
 				// Map event to destination format.
-				$mapped_event = $this->event_mapper->map_to_destination($payload, $destination);
+				$mapped_event = $this->event_mapper->map_to_destination( $payload, $destination );
 
-				if (! $mapped_event) {
-					$item_states[$item->outbox_id]['destinations_status'][$destination]['status']         = 'skipped';
-					$item_states[$item->outbox_id]['destinations_status'][$destination]['skipped_reason'] = 'Event not supported';
+				if ( ! $mapped_event ) {
+					$item_states[ $item->outbox_id ]['destinations_status'][ $destination ]['status']         = 'skipped';
+					$item_states[ $item->outbox_id ]['destinations_status'][ $destination ]['skipped_reason'] = 'Event not supported';
 					continue;
 				}
 
 				// Group by destination for batch delivery.
-				if (! isset($destination_batches[$destination])) {
-					$destination_batches[$destination] = array();
+				if ( ! isset( $destination_batches[ $destination ] ) ) {
+					$destination_batches[ $destination ] = array();
 				}
 
-				$destination_batches[$destination][] = array(
+				$destination_batches[ $destination ][] = array(
 					'outbox_id'    => $item->outbox_id,
 					'mapped_event' => $mapped_event,
 					'retry_count'  => $dest_retry_count,
@@ -236,11 +233,11 @@ class TrackSure_Delivery_Worker
 		}
 
 		// PHASE 2: Send batches to each destination.
-		foreach ($destination_batches as $destination => $batch_entries) {
+		foreach ( $destination_batches as $destination => $batch_entries ) {
 			// TIME-BOX CHECK: HTTP calls are the slowest part. Stop before timeout.
-			if ((microtime(true) - $start_time) > $time_limit) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
-					error_log("[TrackSure] Delivery Worker: Time-boxed during delivery — remaining destinations deferred.");
+			if ( ( microtime( true ) - $start_time ) > $time_limit ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( '[TrackSure] Delivery Worker: Time-boxed during delivery — remaining destinations deferred.' );
 				}
 				break;
 			}
@@ -258,9 +255,12 @@ class TrackSure_Delivery_Worker
 			 * @param array       $mapped_events Array of destination-formatted events from Event Mapper.
 			 * @return array|false Array of results keyed by index, or false if batch not supported.
 			 */
-			$mapped_events = array_map(function ($entry) {
-				return $entry['mapped_event'];
-			}, $batch_entries);
+			$mapped_events = array_map(
+				function ( $entry ) {
+					return $entry['mapped_event'];
+				},
+				$batch_entries
+			);
 
 			$batch_result = apply_filters(
 				'tracksure_deliver_batch',
@@ -269,18 +269,21 @@ class TrackSure_Delivery_Worker
 				$mapped_events
 			);
 
-			if (is_array($batch_result)) {
+			if ( is_array( $batch_result ) ) {
 				// Batch delivery was handled — process per-event results.
-				foreach ($batch_entries as $index => $entry) {
+				foreach ( $batch_entries as $index => $entry ) {
 					$outbox_id    = $entry['outbox_id'];
 					$retry_count  = $entry['retry_count'];
-					$event_result = isset($batch_result[$index]) ? $batch_result[$index] : array('success' => false, 'error' => 'Missing batch result');
+					$event_result = isset( $batch_result[ $index ] ) ? $batch_result[ $index ] : array(
+						'success' => false,
+						'error'   => 'Missing batch result',
+					);
 
-					$this->update_item_state($item_states, $outbox_id, $destination, $event_result, $retry_count);
+					$this->update_item_state( $item_states, $outbox_id, $destination, $event_result, $retry_count );
 				}
 			} else {
 				// No batch handler — fall back to individual delivery.
-				foreach ($batch_entries as $entry) {
+				foreach ( $batch_entries as $entry ) {
 					$result = apply_filters(
 						'tracksure_deliver_mapped_event',
 						array(
@@ -292,26 +295,26 @@ class TrackSure_Delivery_Worker
 						$entry['outbox_id']
 					);
 
-					$this->update_item_state($item_states, $entry['outbox_id'], $destination, $result, $entry['retry_count']);
+					$this->update_item_state( $item_states, $entry['outbox_id'], $destination, $result, $entry['retry_count'] );
 				}
 			}
 		}
 
 		// PHASE 3: Write back all item states to DB.
-		foreach ($item_states as $outbox_id => $state) {
-			$overall_status = $state['all_completed'] ? 'completed' : ($state['has_failures'] ? 'processing' : 'processing');
+		foreach ( $item_states as $outbox_id => $state ) {
+			$overall_status = $state['all_completed'] ? 'completed' : ( $state['has_failures'] ? 'processing' : 'processing' );
 
 			$wpdb->update(
 				$wpdb->prefix . 'tracksure_outbox',
 				array(
-					'destinations_status' => wp_json_encode($state['destinations_status']),
+					'destinations_status' => wp_json_encode( $state['destinations_status'] ),
 					'status'              => $overall_status,
 					'retry_count'         => (int) $state['item']->retry_count + 1,
-					'updated_at'          => current_time('mysql', 1),
+					'updated_at'          => current_time( 'mysql', 1 ),
 				),
-				array('outbox_id' => $outbox_id),
-				array('%s', '%s', '%d', '%s'),
-				array('%d')
+				array( 'outbox_id' => $outbox_id ),
+				array( '%s', '%s', '%d', '%s' ),
+				array( '%d' )
 			);
 		}
 
@@ -322,7 +325,7 @@ class TrackSure_Delivery_Worker
 		 *
 		 * @param int $processed_count Number of items processed.
 		 */
-		do_action('tracksure_outbox_processed', count($items));
+		do_action( 'tracksure_outbox_processed', count( $items ) );
 	}
 
 	/**
@@ -334,36 +337,35 @@ class TrackSure_Delivery_Worker
 	 * @param array  $result Delivery result with 'success' and 'error'.
 	 * @param int    $retry_count Current retry count for this destination.
 	 */
-	private function update_item_state(&$item_states, $outbox_id, $destination, $result, $retry_count)
-	{
-		if (! isset($item_states[$outbox_id])) {
+	private function update_item_state( &$item_states, $outbox_id, $destination, $result, $retry_count ) {
+		if ( ! isset( $item_states[ $outbox_id ] ) ) {
 			return;
 		}
 
-		$payload = $item_states[$outbox_id]['payload'];
+		$payload = $item_states[ $outbox_id ]['payload'];
 
-		if ($result['success']) {
-			$item_states[$outbox_id]['destinations_status'][$destination] = array(
+		if ( $result['success'] ) {
+			$item_states[ $outbox_id ]['destinations_status'][ $destination ] = array(
 				'status'      => 'success',
-				'sent_at'     => current_time('mysql', 1),
+				'sent_at'     => current_time( 'mysql', 1 ),
 				'retry_count' => $retry_count,
 			);
 
 			// Update destinations_sent in events table.
-			$this->update_destinations_sent($payload['event_id'], $destination);
+			$this->update_destinations_sent( $payload['event_id'], $destination );
 		} else {
 			++$retry_count;
-			$item_states[$outbox_id]['destinations_status'][$destination] = array(
+			$item_states[ $outbox_id ]['destinations_status'][ $destination ] = array(
 				'status'       => $retry_count >= $this->max_retries ? 'failed' : 'retry',
 				'error'        => $result['error'],
 				'retry_count'  => $retry_count,
-				'last_attempt' => current_time('mysql', 1),
+				'last_attempt' => current_time( 'mysql', 1 ),
 			);
 
-			$item_states[$outbox_id]['all_completed'] = false;
-			$item_states[$outbox_id]['has_failures']  = true;
+			$item_states[ $outbox_id ]['all_completed'] = false;
+			$item_states[ $outbox_id ]['has_failures']  = true;
 
-			if ($retry_count >= $this->max_retries && defined('WP_DEBUG') && WP_DEBUG) {
+			if ( $retry_count >= $this->max_retries && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
 				error_log(
 					"[TrackSure] Delivery Worker: Max retries reached - event_id={$payload['event_id']}, destination={$destination}, error={$result['error']}"
@@ -378,8 +380,7 @@ class TrackSure_Delivery_Worker
 	 * @param string $event_id Event ID.
 	 * @param string $destination Destination ID.
 	 */
-	private function update_destinations_sent($event_id, $destination)
-	{
+	private function update_destinations_sent( $event_id, $destination ) {
 		global $wpdb;
 		// Get current destinations_sent.
 		$current = $wpdb->get_var(
@@ -392,29 +393,29 @@ class TrackSure_Delivery_Worker
 		// Decode existing destinations (if any).
 		// CRITICAL: Handle empty strings from old events (MySQL 8.0+ rejects empty JSON strings).
 		$destinations = array();
-		if (! empty($current) && $current !== '') {
-			$decoded = json_decode($current, true);
-			if (is_array($decoded)) {
+		if ( ! empty( $current ) && $current !== '' ) {
+			$decoded = json_decode( $current, true );
+			if ( is_array( $decoded ) ) {
 				$destinations = $decoded;
 			}
 		}
 
 		// Add new destination if not already present.
-		if (! in_array($destination, $destinations, true)) {
+		if ( ! in_array( $destination, $destinations, true ) ) {
 			$destinations[] = $destination;
 		}
 
 		// CRITICAL: Convert empty array to NULL for MySQL 8.0+ compatibility.
 		// Only encode if we have destinations, otherwise use NULL.
-		$destinations_value = ! empty($destinations) ? wp_json_encode($destinations) : null;
+		$destinations_value = ! empty( $destinations ) ? wp_json_encode( $destinations ) : null;
 
 		// Update events table.
 		$wpdb->update(
 			$wpdb->prefix . 'tracksure_events',
-			array('destinations_sent' => $destinations_value),
-			array('event_id' => $event_id),
-			array('%s'),
-			array('%s')
+			array( 'destinations_sent' => $destinations_value ),
+			array( 'event_id' => $event_id ),
+			array( '%s' ),
+			array( '%s' )
 		);
 	}
 
@@ -424,19 +425,18 @@ class TrackSure_Delivery_Worker
 	 * @param int    $item_id Item ID.
 	 * @param string $error Error message.
 	 */
-	private function mark_failed_new_schema($item_id, $error)
-	{
+	private function mark_failed_new_schema( $item_id, $error ) {
 		global $wpdb;
 		// Update to failed status (error stored in destinations_status JSON).
 		$wpdb->update(
 			$wpdb->prefix . 'tracksure_outbox',
 			array(
 				'status'     => 'failed',
-				'updated_at' => current_time('mysql', 1),
+				'updated_at' => current_time( 'mysql', 1 ),
 			),
-			array('outbox_id' => $item_id),
-			array('%s', '%s'),
-			array('%d')
+			array( 'outbox_id' => $item_id ),
+			array( '%s', '%s' ),
+			array( '%d' )
 		);
 
 		/**
@@ -447,11 +447,11 @@ class TrackSure_Delivery_Worker
 		 * @param int    $item_id Item ID.
 		 * @param string $error Error message.
 		 */
-		do_action('tracksure_delivery_failed', $item_id, $error);
+		do_action( 'tracksure_delivery_failed', $item_id, $error );
 
-		if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-			error_log("[TrackSure] Delivery Worker: Marked outbox item {$item_id} as failed - {$error}");
+			error_log( "[TrackSure] Delivery Worker: Marked outbox item {$item_id} as failed - {$error}" );
 		}
 	}
 }

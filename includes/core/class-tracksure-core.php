@@ -16,7 +16,7 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -27,8 +27,8 @@ if (! defined('ABSPATH')) {
  *
  * @throws Exception
  */
-final class TrackSure_Core
-{
+final class TrackSure_Core {
+
 
 
 
@@ -84,9 +84,8 @@ final class TrackSure_Core
 	 *
 	 * @return TrackSure_Core
 	 */
-	public static function get_instance()
-	{
-		if (null === self::$instance) {
+	public static function get_instance() {
+		if ( null === self::$instance ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -95,8 +94,7 @@ final class TrackSure_Core
 	/**
 	 * Constructor.
 	 */
-	private function __construct()
-	{
+	private function __construct() {
 		$this->define_constants();
 		$this->load_dependencies();
 		$this->init_hooks();
@@ -108,24 +106,22 @@ final class TrackSure_Core
 	/**
 	 * Define additional constants.
 	 */
-	private function define_constants()
-	{
-		if (! defined('TRACKSURE_ASSETS_URL')) {
-			define('TRACKSURE_ASSETS_URL', TRACKSURE_CORE_URL . 'assets/');
+	private function define_constants() {
+		if ( ! defined( 'TRACKSURE_ASSETS_URL' ) ) {
+			define( 'TRACKSURE_ASSETS_URL', TRACKSURE_CORE_URL . 'assets/' );
 		}
-		if (! defined('TRACKSURE_BUILD_URL')) {
-			define('TRACKSURE_BUILD_URL', TRACKSURE_CORE_URL . 'build/');
+		if ( ! defined( 'TRACKSURE_BUILD_URL' ) ) {
+			define( 'TRACKSURE_BUILD_URL', TRACKSURE_CORE_URL . 'build/' );
 		}
-		if (! defined('TRACKSURE_REGISTRY_DIR')) {
-			define('TRACKSURE_REGISTRY_DIR', TRACKSURE_CORE_DIR . 'registry/');
+		if ( ! defined( 'TRACKSURE_REGISTRY_DIR' ) ) {
+			define( 'TRACKSURE_REGISTRY_DIR', TRACKSURE_CORE_DIR . 'registry/' );
 		}
 	}
 
 	/**
 	 * Load core dependencies.
 	 */
-	private function load_dependencies()
-	{
+	private function load_dependencies() {
 		// Files are directly in TRACKSURE_CORE_DIR (no extra 'includes/' subdirectory).
 		$includes = TRACKSURE_CORE_DIR;
 
@@ -200,13 +196,13 @@ final class TrackSure_Core
 		require_once $includes . 'jobs/class-tracksure-daily-aggregator.php';
 
 		// Admin UI.
-		if (is_admin()) {
+		if ( is_admin() ) {
 			require_once $includes . 'admin/class-tracksure-admin-ui.php';
 			require_once $includes . 'admin/class-tracksure-admin-extensions.php';
 		}
 
 		// Front-end tracking.
-		if (! is_admin()) {
+		if ( ! is_admin() ) {
 			require_once $includes . 'tracking/class-tracksure-tracker-assets.php';
 			require_once $includes . 'tracking/class-tracksure-checkout-tracking.php';
 		}
@@ -215,68 +211,66 @@ final class TrackSure_Core
 	/**
 	 * Initialize hooks.
 	 */
-	private function init_hooks()
-	{
+	private function init_hooks() {
 		// Localization.
-		add_action('init', array($this, 'load_textdomain'));
+		add_action( 'init', array( $this, 'load_textdomain' ) );
 
 		// Database upgrade check.
-		add_action('admin_init', array($this, 'maybe_upgrade_database'));
+		add_action( 'admin_init', array( $this, 'maybe_upgrade_database' ) );
 
 		// Ensure permalinks are flushed (one-time check on admin load).
-		add_action('admin_init', array($this, 'ensure_permalinks_flushed'));
+		add_action( 'admin_init', array( $this, 'ensure_permalinks_flushed' ) );
 
 		// REST API.
-		add_action('rest_api_init', array($this, 'register_rest_routes'));
+		add_action( 'rest_api_init', array( $this, 'register_rest_routes' ) );
 
 		// Cron schedules.
-		add_filter('cron_schedules', array($this, 'add_cron_schedules'));
+		add_filter( 'cron_schedules', array( $this, 'add_cron_schedules' ) );
 
 		// Module registration hook.
-		add_action('tracksure_register_module', array($this, 'register_module'), 10, 3);
+		add_action( 'tracksure_register_module', array( $this, 'register_module' ), 10, 3 );
 
 		// Late init for modules.
-		add_action('init', array($this, 'init_modules'), 20);
+		add_action( 'init', array( $this, 'init_modules' ), 20 );
 	}
 
 	/**
 	 * Boot core services.
 	 * Called on plugins_loaded priority 999 to ensure proper initialization order.
 	 */
-	public function boot_services()
-	{
+	public function boot_services() {
 		// Prevent double initialization.
-		if ($this->loaded) {
+		if ( $this->loaded ) {
 			return;
 		}
 
 		// Initialize service container.
-		$this->services['logger']          = new TrackSure_Logger();
-		$this->services['db']              = TrackSure_DB::get_instance();
-		$this->services['registry']        = TrackSure_Registry::get_instance();
-		$this->services['rate_limiter']    = TrackSure_Rate_Limiter::get_instance();
-		$this->services['url_normalizer']  = new TrackSure_URL_Normalizer(); // URL normalization service
-		$this->services['session_manager'] = TrackSure_Session_Manager::get_instance();
-		$this->services['attribution']     = TrackSure_Attribution_Resolver::get_instance();
-		$this->services['journey']         = TrackSure_Journey_Engine::get_instance();
+		$this->services['logger']                = new TrackSure_Logger();
+		$this->services['db']                    = TrackSure_DB::get_instance();
+		$this->services['registry']              = TrackSure_Registry::get_instance();
+		$this->services['rate_limiter']          = TrackSure_Rate_Limiter::get_instance();
+		$this->services['url_normalizer']        = new TrackSure_URL_Normalizer(); // URL normalization service
+		$this->services['session_manager']       = TrackSure_Session_Manager::get_instance();
+		$this->services['attribution']           = TrackSure_Attribution_Resolver::get_instance();
+		$this->services['journey']               = TrackSure_Journey_Engine::get_instance();
 		$this->services['attribution_analytics'] = TrackSure_Attribution_Analytics::get_instance(); // NEW: Attribution insights & analytics
-		$this->services['event_builder']   = TrackSure_Event_Builder::get_instance(); // NEW: Centralized event building
-		$this->services['event_mapper']    = TrackSure_Event_Mapper::get_instance(); // NEW: Registry-based event mapping
-		$this->services['event_recorder']  = TrackSure_Event_Recorder::get_instance();
-		$this->services['consent_manager'] = TrackSure_Consent_Manager::get_instance();
-		$this->services['geolocation']     = TrackSure_Geolocation::get_instance(); // NEW: Geolocation service
-		$this->services['rest_api']        = TrackSure_REST_API::get_instance();
-		$this->services['module_registry'] = TrackSure_Module_Registry::get_instance();
+		$this->services['event_builder']         = TrackSure_Event_Builder::get_instance(); // NEW: Centralized event building
+		$this->services['event_mapper']          = TrackSure_Event_Mapper::get_instance(); // NEW: Registry-based event mapping
+		$this->services['event_recorder']        = TrackSure_Event_Recorder::get_instance();
+		$this->services['consent_manager']       = TrackSure_Consent_Manager::get_instance();
+		$this->services['geolocation']           = TrackSure_Geolocation::get_instance(); // NEW: Geolocation service
+		$this->services['rest_api']              = TrackSure_REST_API::get_instance();
+		$this->services['module_registry']       = TrackSure_Module_Registry::get_instance();
 
 		// Initialize attribution hooks (CRITICAL - connects session manager to touchpoint recorder).
 		$this->services['attribution_hooks'] = TrackSure_Attribution_Hooks::get_instance();
 
 		// Initialize Event Bridge (coordinates browser + server tracking).
-		$this->services['event_bridge'] = new TrackSure_Event_Bridge($this);
+		$this->services['event_bridge'] = new TrackSure_Event_Bridge( $this );
 
 		// Initialize destinations & integrations managers.
-		$this->services['destinations_manager'] = new TrackSure_Destinations_Manager($this);
-		$this->services['integrations_manager'] = new TrackSure_Integrations_Manager($this);
+		$this->services['destinations_manager'] = new TrackSure_Destinations_Manager( $this );
+		$this->services['integrations_manager'] = new TrackSure_Integrations_Manager( $this );
 
 		// Initialize background jobs.
 		$this->services['delivery_worker'] = TrackSure_Delivery_Worker::get_instance();
@@ -287,13 +281,13 @@ final class TrackSure_Core
 		// $this->services['suggestion_engine'] = TrackSure_Suggestion_Engine::get_instance();
 
 		// Initialize admin UI.
-		if (is_admin()) {
+		if ( is_admin() ) {
 			$this->services['admin_ui']         = TrackSure_Admin_UI::get_instance();
 			$this->services['admin_extensions'] = TrackSure_Admin_Extensions::get_instance();
 		}
 
 		// Initialize front-end tracker.
-		if (! is_admin()) {
+		if ( ! is_admin() ) {
 			$this->services['tracker_assets'] = TrackSure_Tracker_Assets::get_instance();
 		}
 
@@ -310,7 +304,7 @@ final class TrackSure_Core
 		 *
 		 * @param TrackSure_Core $core The core instance.
 		 */
-		do_action('tracksure_core_booted', $this);
+		do_action( 'tracksure_core_booted', $this );
 	}
 
 	/**
@@ -319,9 +313,8 @@ final class TrackSure_Core
 	 * @param string $service Service name.
 	 * @return mixed|null Service instance or null if not found.
 	 */
-	public function get_service($service)
-	{
-		return isset($this->services[$service]) ? $this->services[$service] : null;
+	public function get_service( $service ) {
+		return isset( $this->services[ $service ] ) ? $this->services[ $service ] : null;
 	}
 
 	/**
@@ -329,8 +322,7 @@ final class TrackSure_Core
 	 *
 	 * @return bool
 	 */
-	public function is_loaded()
-	{
+	public function is_loaded() {
 		return $this->loaded;
 	}
 
@@ -341,27 +333,26 @@ final class TrackSure_Core
 	 * @param string $module_path Module directory path.
 	 * @param array  $module_config Module configuration.
 	 */
-	public function register_module($module_id, $module_path, $module_config = array())
-	{
-		if (isset($this->modules[$module_id])) {
+	public function register_module( $module_id, $module_path, $module_config = array() ) {
+		if ( isset( $this->modules[ $module_id ] ) ) {
 			return; // Already registered.
 		}
 
-		$this->modules[$module_id] = array(
+		$this->modules[ $module_id ] = array(
 			'id'      => $module_id,
 			'path'    => $module_path,
 			'config'  => $module_config,
-			'version' => isset($module_config['version']) ? $module_config['version'] : '1.0.0',
+			'version' => isset( $module_config['version'] ) ? $module_config['version'] : '1.0.0',
 			'loaded'  => false,
 		);
 
 		// Store in database for persistence.
-		$registered_modules               = get_option('tracksure_registered_modules', array());
-		$registered_modules[$module_id] = array(
-			'version'       => $this->modules[$module_id]['version'],
+		$registered_modules               = get_option( 'tracksure_registered_modules', array() );
+		$registered_modules[ $module_id ] = array(
+			'version'       => $this->modules[ $module_id ]['version'],
 			'registered_at' => time(),
 		);
-		update_option('tracksure_registered_modules', $registered_modules);
+		update_option( 'tracksure_registered_modules', $registered_modules );
 
 		/**
 		 * Fires when a module is registered.
@@ -373,24 +364,23 @@ final class TrackSure_Core
 		 * @param array  $module_config Module configuration.
 		 * @throws Exception
 		 */
-		do_action('tracksure_module_registered', $module_id, $module_path, $module_config);
+		do_action( 'tracksure_module_registered', $module_id, $module_path, $module_config );
 	}
 
 	/**
 	 * Initialize all registered modules.
 	 */
-	public function init_modules()
-	{
-		foreach ($this->modules as $module_id => $module) {
-			if ($module['loaded']) {
+	public function init_modules() {
+		foreach ( $this->modules as $module_id => $module ) {
+			if ( $module['loaded'] ) {
 				continue;
 			}
 
 			// Load module bootstrap file if exists.
-			$bootstrap_file = trailingslashit($module['path']) . 'bootstrap.php';
-			if (file_exists($bootstrap_file)) {
+			$bootstrap_file = trailingslashit( $module['path'] ) . 'bootstrap.php';
+			if ( file_exists( $bootstrap_file ) ) {
 				require_once $bootstrap_file;
-				$this->modules[$module_id]['loaded'] = true;
+				$this->modules[ $module_id ]['loaded'] = true;
 			}
 		}
 
@@ -399,7 +389,7 @@ final class TrackSure_Core
 		 *
 		 * @since 1.0.0
 		 */
-		do_action('tracksure_modules_initialized');
+		do_action( 'tracksure_modules_initialized' );
 	}
 
 	/**
@@ -407,8 +397,7 @@ final class TrackSure_Core
 	 *
 	 * @return array
 	 */
-	public function get_modules()
-	{
+	public function get_modules() {
 		return $this->modules;
 	}
 
@@ -419,11 +408,10 @@ final class TrackSure_Core
 	 * @param string $id Capability ID.
 	 * @param array  $config Capability configuration.
 	 */
-	public function register_capability($type, $id, $config)
-	{
-		$module_registry = $this->get_service('module_registry');
-		if ($module_registry) {
-			$module_registry->register_capability($type, $id, $config);
+	public function register_capability( $type, $id, $config ) {
+		$module_registry = $this->get_service( 'module_registry' );
+		if ( $module_registry ) {
+			$module_registry->register_capability( $type, $id, $config );
 		}
 	}
 
@@ -433,10 +421,9 @@ final class TrackSure_Core
 	 * @param string $type Capability type.
 	 * @return array
 	 */
-	public function get_capabilities($type)
-	{
-		$module_registry = $this->get_service('module_registry');
-		return $module_registry ? $module_registry->get_capabilities($type) : array();
+	public function get_capabilities( $type ) {
+		$module_registry = $this->get_service( 'module_registry' );
+		return $module_registry ? $module_registry->get_capabilities( $type ) : array();
 	}
 
 	/**
@@ -445,8 +432,7 @@ final class TrackSure_Core
 	 * Note: Core is bundled inside main plugin, so textdomain
 	 * is handled by the main plugin (tracksure.php).
 	 */
-	public function load_textdomain()
-	{
+	public function load_textdomain() {
 		// Textdomain already loaded by main plugin.
 		// Core uses 'tracksure' text domain, not 'tracksure-core'.
 	}
@@ -476,23 +462,21 @@ final class TrackSure_Core
 	 *
 	 * Runs once on admin_init after plugin activation.
 	 */
-	public function ensure_permalinks_flushed()
-	{
+	public function ensure_permalinks_flushed() {
 		// Check if permalink flush is needed (set during activation).
-		if (get_option('tracksure_needs_permalink_flush') === '1') {
+		if ( get_option( 'tracksure_needs_permalink_flush' ) === '1' ) {
 			// Hard flush permalinks.
-			flush_rewrite_rules(true);
+			flush_rewrite_rules( true );
 
 			// Clear the flag.
-			delete_option('tracksure_needs_permalink_flush');
+			delete_option( 'tracksure_needs_permalink_flush' );
 		}
 	}
 
 	/**
 	 * Register REST API routes.
 	 */
-	public function register_rest_routes()
-	{
+	public function register_rest_routes() {
 		$rest_api = TrackSure_REST_API::get_instance();
 		$rest_api->register_routes();
 	}
@@ -503,8 +487,7 @@ final class TrackSure_Core
 	 * @param array $schedules Existing schedules.
 	 * @return array
 	 */
-	public function add_cron_schedules($schedules)
-	{
+	public function add_cron_schedules( $schedules ) {
 		// NOTE: The 'tracksure_every_minute' schedule for delivery is registered
 		// by TrackSure_Action_Scheduler class (its own cron_schedules filter).
 
@@ -538,8 +521,7 @@ final class TrackSure_Core
 	/**
 	 * Schedule background jobs.
 	 */
-	private function schedule_jobs()
-	{
+	private function schedule_jobs() {
 		// NOTE: Delivery worker scheduling is handled entirely by TrackSure_Action_Scheduler
 		// (uses Action Scheduler if available, falls back to WP-Cron).
 		// Do NOT add 'tracksure_delivery_worker' here — it would create duplicate delivery runs.
@@ -550,99 +532,98 @@ final class TrackSure_Core
 			'tracksure_cleanup_logs'     => 'daily',
 		);
 
-		foreach ($jobs as $hook => $recurrence) {
-			if (! wp_next_scheduled($hook)) {
-				wp_schedule_event(time(), $recurrence, $hook);
+		foreach ( $jobs as $hook => $recurrence ) {
+			if ( ! wp_next_scheduled( $hook ) ) {
+				wp_schedule_event( time(), $recurrence, $hook );
 			}
 		}
 
 		// Clean up legacy delivery worker hook (was removed in favor of Action Scheduler integration).
-		if (wp_next_scheduled('tracksure_delivery_worker')) {
-			wp_clear_scheduled_hook('tracksure_delivery_worker');
+		if ( wp_next_scheduled( 'tracksure_delivery_worker' ) ) {
+			wp_clear_scheduled_hook( 'tracksure_delivery_worker' );
 		}
 
 		// Register job handlers.
-		add_action('tracksure_aggregate_hourly', array($this, 'run_hourly_aggregation'));
-		add_action('tracksure_aggregate_daily', array($this, 'run_daily_aggregation'));
-		add_action('tracksure_cleanup_data', array($this, 'run_cleanup'));
-		add_action('tracksure_cleanup_logs', array($this, 'run_log_cleanup'));
+		add_action( 'tracksure_aggregate_hourly', array( $this, 'run_hourly_aggregation' ) );
+		add_action( 'tracksure_aggregate_daily', array( $this, 'run_daily_aggregation' ) );
+		add_action( 'tracksure_cleanup_data', array( $this, 'run_cleanup' ) );
+		add_action( 'tracksure_cleanup_logs', array( $this, 'run_log_cleanup' ) );
 
 		// Force aggregation check on admin load (for low-traffic sites).
-		add_action('admin_init', array($this, 'maybe_force_aggregation'));
+		add_action( 'admin_init', array( $this, 'maybe_force_aggregation' ) );
 
 		// Check database schema upgrades.
-		add_action('admin_init', array($this, 'maybe_upgrade_database'));
+		add_action( 'admin_init', array( $this, 'maybe_upgrade_database' ) );
 	}
 
 	/**
 	 * Force aggregation if it hasn't run recently.
 	 * Prevents empty data on low-traffic sites where WP-Cron doesn't trigger.
 	 */
-	public function maybe_force_aggregation()
-	{
+	public function maybe_force_aggregation() {
 		// Only run on TrackSure admin pages.
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Reading admin menu page slug, not a form submission.
-		$page = isset($_GET['page']) ? sanitize_text_field(wp_unslash($_GET['page'])) : '';
-		if (empty($page) || strpos($page, 'tracksure') === false) {
+		$page = isset( $_GET['page'] ) ? sanitize_text_field( wp_unslash( $_GET['page'] ) ) : '';
+		if ( empty( $page ) || strpos( $page, 'tracksure' ) === false ) {
 			return;
 		}
 
 		// CRITICAL: Prevent recursion - check if we're already running aggregation.
-		if (get_transient('tracksure_aggregation_running')) {
+		if ( get_transient( 'tracksure_aggregation_running' ) ) {
 			return;
 		}
 
 		// CRITICAL: Check available memory before running heavy queries.
-		$memory_limit       = ini_get('memory_limit');
-		$memory_limit_bytes = wp_convert_hr_to_bytes($memory_limit);
-		$memory_used        = memory_get_usage(true);
+		$memory_limit       = ini_get( 'memory_limit' );
+		$memory_limit_bytes = wp_convert_hr_to_bytes( $memory_limit );
+		$memory_used        = memory_get_usage( true );
 		$memory_available   = $memory_limit_bytes - $memory_used;
 
 		// Need at least 64MB free to safely run aggregation.
-		if ($memory_available < (64 * 1024 * 1024)) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( $memory_available < ( 64 * 1024 * 1024 ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log('[TrackSure] Skipping aggregation - insufficient memory. Available: ' . size_format($memory_available) . ', Needed: 64MB');
+				error_log( '[TrackSure] Skipping aggregation - insufficient memory. Available: ' . size_format( $memory_available ) . ', Needed: 64MB' );
 			}
 			return;
 		}
 
-		$last_hourly = get_option('tracksure_last_hourly_agg', 0);
-		$last_daily  = get_option('tracksure_last_daily_agg', 0);
+		$last_hourly = get_option( 'tracksure_last_hourly_agg', 0 );
+		$last_daily  = get_option( 'tracksure_last_daily_agg', 0 );
 
 		// If hourly aggregation hasn't run in 2 hours, force it (but not on every page load).
-		if ($last_hourly && (time() - strtotime($last_hourly) > 7200)) {
+		if ( $last_hourly && ( time() - strtotime( $last_hourly ) > 7200 ) ) {
 			// Set lock to prevent concurrent runs.
-			set_transient('tracksure_aggregation_running', true, 300); // 5 minute lock
+			set_transient( 'tracksure_aggregation_running', true, 300 ); // 5 minute lock
 
 			try {
 				$hourly_aggregator = TrackSure_Hourly_Aggregator::get_instance();
 				$hourly_aggregator->aggregate_last_hour();
-			} catch (Exception $e) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
+			} catch ( Exception $e ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-					error_log('[TrackSure] Hourly aggregation failed: ' . $e->getMessage());
+					error_log( '[TrackSure] Hourly aggregation failed: ' . $e->getMessage() );
 				}
 			} finally {
-				delete_transient('tracksure_aggregation_running');
+				delete_transient( 'tracksure_aggregation_running' );
 			}
 		}
 
 		// If daily aggregation hasn't run in 25 hours, force it (but not on every page load).
-		if ($last_daily && (time() - strtotime($last_daily) > 90000)) {
+		if ( $last_daily && ( time() - strtotime( $last_daily ) > 90000 ) ) {
 			// Set lock to prevent concurrent runs.
-			set_transient('tracksure_aggregation_running', true, 300); // 5 minute lock
+			set_transient( 'tracksure_aggregation_running', true, 300 ); // 5 minute lock
 
 			try {
 				$daily_aggregator = TrackSure_Daily_Aggregator::get_instance();
 				$daily_aggregator->aggregate_yesterday();
-			} catch (Exception $e) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
+			} catch ( Exception $e ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-					error_log('[TrackSure] Daily aggregation failed: ' . $e->getMessage());
+					error_log( '[TrackSure] Daily aggregation failed: ' . $e->getMessage() );
 				}
 			} finally {
-				delete_transient('tracksure_aggregation_running');
+				delete_transient( 'tracksure_aggregation_running' );
 			}
 		}
 	}
@@ -655,8 +636,7 @@ final class TrackSure_Core
 	 *
 	 * @deprecated Not needed for unpublished plugin
 	 */
-	public function maybe_upgrade_database()
-	{
+	public function maybe_upgrade_database() {
 		// No-op - fresh installs only during development.
 		// Migration logic will be added if publishing to WordPress.org.
 	}
@@ -664,8 +644,7 @@ final class TrackSure_Core
 	/**
 	 * Run hourly aggregation job.
 	 */
-	public function run_hourly_aggregation()
-	{
+	public function run_hourly_aggregation() {
 		$hourly_aggregator = TrackSure_Hourly_Aggregator::get_instance();
 		$hourly_aggregator->aggregate_last_hour();
 	}
@@ -673,8 +652,7 @@ final class TrackSure_Core
 	/**
 	 * Run daily aggregation job.
 	 */
-	public function run_daily_aggregation()
-	{
+	public function run_daily_aggregation() {
 		$daily_aggregator = TrackSure_Daily_Aggregator::get_instance();
 		$daily_aggregator->aggregate_yesterday();
 	}
@@ -682,9 +660,8 @@ final class TrackSure_Core
 	/**
 	 * Run cleanup job.
 	 */
-	public function run_cleanup()
-	{
-		if (isset($this->services['cleanup_worker'])) {
+	public function run_cleanup() {
+		if ( isset( $this->services['cleanup_worker'] ) ) {
 			$this->services['cleanup_worker']->cleanup();
 		}
 	}
@@ -692,9 +669,8 @@ final class TrackSure_Core
 	/**
 	 * Run delivery worker job.
 	 */
-	public function run_delivery()
-	{
-		if (isset($this->services['delivery_worker'])) {
+	public function run_delivery() {
+		if ( isset( $this->services['delivery_worker'] ) ) {
 			$this->services['delivery_worker']->process_outbox();
 		}
 	}
@@ -702,9 +678,8 @@ final class TrackSure_Core
 	/**
 	 * Run log cleanup job.
 	 */
-	public function run_log_cleanup()
-	{
-		if (isset($this->services['logger'])) {
+	public function run_log_cleanup() {
+		if ( isset( $this->services['logger'] ) ) {
 			$this->services['logger']->cleanup_old_logs();
 		}
 	}
@@ -713,8 +688,7 @@ final class TrackSure_Core
 	 * Create database tables.
 	 * Called on plugin activation.
 	 */
-	public function create_tables()
-	{
+	public function create_tables() {
 		require_once TRACKSURE_CORE_DIR . 'class-tracksure-installer.php';
 		TrackSure_Installer::install();
 	}
@@ -729,8 +703,7 @@ final class TrackSure_Core
 	 *
 	 * @throws Exception When attempting to unserialize singleton instance.
 	 */
-	public function __wakeup()
-	{
-		throw new Exception('Cannot unserialize singleton');
+	public function __wakeup() {
+		throw new Exception( 'Cannot unserialize singleton' );
 	}
 }

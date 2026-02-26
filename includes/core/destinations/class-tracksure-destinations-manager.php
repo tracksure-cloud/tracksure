@@ -13,15 +13,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Destinations Manager Class
  */
-class TrackSure_Destinations_Manager
-{
+class TrackSure_Destinations_Manager {
+
 
 
 
@@ -52,18 +52,17 @@ class TrackSure_Destinations_Manager
 	 *
 	 * @param TrackSure_Core $core Core instance.
 	 */
-	public function __construct($core)
-	{
+	public function __construct( $core ) {
 		$this->core = $core;
 
 		// CRITICAL: Delay handler loading to 'init' hook for consistency with integrations.
 		// This prevents potential translation loading conflicts with any destination
 		// that might check for plugin classes (WooCommerce, etc).
 		// WordPress 6.7+ requires translations to be loaded at 'init' action or later.
-		add_action('init', array($this, 'load_handlers'), 5);
+		add_action( 'init', array( $this, 'load_handlers' ), 5 );
 
 		// Listen for events and distribute to handlers.
-		add_action('tracksure_event_recorded', array($this, 'distribute_event'), 10, 2);
+		add_action( 'tracksure_event_recorded', array( $this, 'distribute_event' ), 10, 2 );
 	}
 
 	/**
@@ -71,8 +70,7 @@ class TrackSure_Destinations_Manager
 	 *
 	 * Extensions (Free, Pro, 3rd-party) register handlers via action hook.
 	 */
-	public function load_handlers()
-	{
+	public function load_handlers() {
 		/**
 		 * Allow modules to register destination handlers.
 		 *
@@ -80,10 +78,10 @@ class TrackSure_Destinations_Manager
 		 *
 		 * @param TrackSure_Destinations_Manager $manager This manager instance.
 		 */
-		do_action('tracksure_load_destination_handlers', $this);
+		do_action( 'tracksure_load_destination_handlers', $this );
 
 		// Load all registered destinations.
-		foreach ($this->registered_destinations as $destination) {
+		foreach ( $this->registered_destinations as $destination ) {
 			$this->load_destination_handler(
 				$destination['id'],
 				$destination['class_name'],
@@ -106,19 +104,18 @@ class TrackSure_Destinations_Manager
 	 * @param string       $file_path         Optional. Handler file path (old method only).
 	 * @return bool Success.
 	 */
-	public function register_destination($dest_id_or_config, $enabled_key = '', $class_name = '', $file_path = '')
-	{
+	public function register_destination( $dest_id_or_config, $enabled_key = '', $class_name = '', $file_path = '' ) {
 		// NEW METHOD: Array-based registration with full metadata.
-		if (is_array($dest_id_or_config)) {
+		if ( is_array( $dest_id_or_config ) ) {
 			$config = $dest_id_or_config;
 
 			// Validate required fields.
-			$required = array('id', 'name', 'enabled_key', 'class_name', 'file_path');
-			foreach ($required as $field) {
-				if (empty($config[$field])) {
-					if (defined('WP_DEBUG') && WP_DEBUG) {
+			$required = array( 'id', 'name', 'enabled_key', 'class_name', 'file_path' );
+			foreach ( $required as $field ) {
+				if ( empty( $config[ $field ] ) ) {
+					if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-						error_log("[TrackSure] Destinations Manager: Missing required field '{$field}' in registration");
+						error_log( "[TrackSure] Destinations Manager: Missing required field '{$field}' in registration" );
 					}
 					return false;
 				}
@@ -126,18 +123,18 @@ class TrackSure_Destinations_Manager
 
 			// Store FULL metadata for ALL destinations (enabled or disabled).
 			// React UI needs to know about all destinations to show toggles.
-			$this->registered_destinations[$config['id']] = array(
+			$this->registered_destinations[ $config['id'] ] = array(
 				'id'                 => $config['id'],
 				'name'               => $config['name'],
-				'description'        => isset($config['description']) ? $config['description'] : '',
-				'icon'               => isset($config['icon']) ? $config['icon'] : 'Target',
-				'order'              => isset($config['order']) ? (int) $config['order'] : 999,
+				'description'        => isset( $config['description'] ) ? $config['description'] : '',
+				'icon'               => isset( $config['icon'] ) ? $config['icon'] : 'Target',
+				'order'              => isset( $config['order'] ) ? (int) $config['order'] : 999,
 				'enabled_key'        => $config['enabled_key'],
 				'class_name'         => $config['class_name'],
 				'file_path'          => $config['file_path'],
-				'settings_fields'    => isset($config['settings_fields']) ? $config['settings_fields'] : array(),
-				'reconciliation_key' => isset($config['reconciliation_key']) ? $config['reconciliation_key'] : $config['id'],
-				'custom_config'      => isset($config['custom_config']) ? $config['custom_config'] : null, // Custom React component name
+				'settings_fields'    => isset( $config['settings_fields'] ) ? $config['settings_fields'] : array(),
+				'reconciliation_key' => isset( $config['reconciliation_key'] ) ? $config['reconciliation_key'] : $config['id'],
+				'custom_config'      => isset( $config['custom_config'] ) ? $config['custom_config'] : null, // Custom React component name
 			);
 
 			return true;
@@ -147,12 +144,12 @@ class TrackSure_Destinations_Manager
 		$dest_id = $dest_id_or_config;
 
 		// Store with minimal metadata (old format) - always register.
-		$this->registered_destinations[$dest_id] = array(
+		$this->registered_destinations[ $dest_id ] = array(
 			'id'                 => $dest_id,
 			'class_name'         => $class_name,
 			'file_path'          => $file_path,
 			// Add defaults for missing metadata.
-			'name'               => ucfirst(str_replace(array('-', '_'), ' ', $dest_id)),
+			'name'               => ucfirst( str_replace( array( '-', '_' ), ' ', $dest_id ) ),
 			'icon'               => 'Target',
 			'order'              => 999,
 			'enabled_key'        => $enabled_key,
@@ -171,23 +168,22 @@ class TrackSure_Destinations_Manager
 	 * @param string $file_path Path to handler file.
 	 * @return bool Success.
 	 */
-	public function load_destination_handler($dest_id, $class_name, $file_path)
-	{
+	public function load_destination_handler( $dest_id, $class_name, $file_path ) {
 		// Only load handler if destination is actually enabled in settings.
-		if (! $this->is_destination_enabled($dest_id)) {
+		if ( ! $this->is_destination_enabled( $dest_id ) ) {
 			return false; // Registered but not enabled - skip loading class
 		}
 
 		// Check if already loaded.
-		if (isset($this->handlers[$dest_id])) {
+		if ( isset( $this->handlers[ $dest_id ] ) ) {
 			return false;
 		}
 
 		// Check if file exists.
-		if (! file_exists($file_path)) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( ! file_exists( $file_path ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log(sprintf('[TrackSure] Destination handler file not found: %s', $file_path));
+				error_log( sprintf( '[TrackSure] Destination handler file not found: %s', $file_path ) );
 			}
 			return false;
 		}
@@ -196,18 +192,18 @@ class TrackSure_Destinations_Manager
 		require_once $file_path;
 
 		// Check if class exists.
-		if (! class_exists($class_name)) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		if ( ! class_exists( $class_name ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log(sprintf('[TrackSure] Destination handler class not found: %s', $class_name));
+				error_log( sprintf( '[TrackSure] Destination handler class not found: %s', $class_name ) );
 			}
 			return false;
 		}
 
 		// Instantiate the handler.
 		try {
-			$handler                    = new $class_name($this->core);
-			$this->handlers[$dest_id] = $handler;
+			$handler                    = new $class_name( $this->core );
+			$this->handlers[ $dest_id ] = $handler;
 
 			/**
 			 * Fires after a destination handler is loaded.
@@ -215,13 +211,13 @@ class TrackSure_Destinations_Manager
 			 * @param string $dest_id Destination ID.
 			 * @param object $handler Handler instance.
 			 */
-			do_action('tracksure_destination_handler_loaded', $dest_id, $handler);
+			do_action( 'tracksure_destination_handler_loaded', $dest_id, $handler );
 
 			return true;
-		} catch (Exception $e) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+		} catch ( Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log(sprintf('[TrackSure] Failed to load destination handler %s: %s', $class_name, $e->getMessage()));
+				error_log( sprintf( '[TrackSure] Failed to load destination handler %s: %s', $class_name, $e->getMessage() ) );
 			}
 			return false;
 		}
@@ -235,12 +231,11 @@ class TrackSure_Destinations_Manager
 	 *
 	 * @return array Destinations metadata for JS.
 	 */
-	public function get_destinations_for_js_config()
-	{
+	public function get_destinations_for_js_config() {
 		$js_destinations = array();
 
-		foreach ($this->registered_destinations as $dest_id => $dest) {
-			$js_destinations[$dest_id] = array(
+		foreach ( $this->registered_destinations as $dest_id => $dest ) {
+			$js_destinations[ $dest_id ] = array(
 				'id'                => $dest['id'],
 				'name'              => $dest['name'],
 				'icon'              => $dest['icon'],
@@ -260,17 +255,16 @@ class TrackSure_Destinations_Manager
 	 *
 	 * @return array Enabled destination IDs.
 	 */
-	public function get_enabled_destination_ids()
-	{
+	public function get_enabled_destination_ids() {
 		$enabled_ids = array();
 
-		foreach ($this->registered_destinations as $dest_id => $config) {
+		foreach ( $this->registered_destinations as $dest_id => $config ) {
 			// Check if destination is enabled via settings.
-			if (! empty($config['enabled_key'])) {
-				$is_enabled = get_option($config['enabled_key'], false);
+			if ( ! empty( $config['enabled_key'] ) ) {
+				$is_enabled = get_option( $config['enabled_key'], false );
 
 				// Normalize: true/1/'1' -> enabled, anything else -> disabled.
-				if ((bool) $is_enabled && $is_enabled !== '0' && $is_enabled !== 0) {
+				if ( (bool) $is_enabled && $is_enabled !== '0' && $is_enabled !== 0 ) {
 					$enabled_ids[] = $dest_id;
 				}
 			}
@@ -285,24 +279,23 @@ class TrackSure_Destinations_Manager
 	 * @param int   $event_id Event ID from database.
 	 * @param array $event_data Event data.
 	 */
-	public function distribute_event($event_id, $event_data)
-	{
-		if (empty($this->handlers)) {
+	public function distribute_event( $event_id, $event_data ) {
+		if ( empty( $this->handlers ) ) {
 			return; // No handlers loaded.
 		}
 
-		foreach ($this->handlers as $dest_id => $handler) {
+		foreach ( $this->handlers as $dest_id => $handler ) {
 			// Check if handler has the method to receive events.
-			if (! method_exists($handler, 'handle_event')) {
+			if ( ! method_exists( $handler, 'handle_event' ) ) {
 				continue;
 			}
 
 			try {
-				$handler->handle_event($event_id, $event_data);
-			} catch (Exception $e) {
-				if (defined('WP_DEBUG') && WP_DEBUG) {
+				$handler->handle_event( $event_id, $event_data );
+			} catch ( Exception $e ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-					error_log(sprintf('[TrackSure] Error distributing event to %s: %s', $dest_id, $e->getMessage()));
+					error_log( sprintf( '[TrackSure] Error distributing event to %s: %s', $dest_id, $e->getMessage() ) );
 				}
 			}
 		}
@@ -313,8 +306,7 @@ class TrackSure_Destinations_Manager
 	 *
 	 * @return array Loaded handlers.
 	 */
-	public function get_handlers()
-	{
+	public function get_handlers() {
 		return $this->handlers;
 	}
 
@@ -323,8 +315,7 @@ class TrackSure_Destinations_Manager
 	 *
 	 * @return array Registered destinations metadata.
 	 */
-	public function get_registered_destinations()
-	{
+	public function get_registered_destinations() {
 		return $this->registered_destinations;
 	}
 
@@ -340,18 +331,17 @@ class TrackSure_Destinations_Manager
 	 * @param string $dest_id Destination ID.
 	 * @return bool True if enabled.
 	 */
-	public function is_destination_enabled($dest_id)
-	{
+	public function is_destination_enabled( $dest_id ) {
 		// Check if destination is registered.
-		if (! isset($this->registered_destinations[$dest_id])) {
+		if ( ! isset( $this->registered_destinations[ $dest_id ] ) ) {
 			return false;
 		}
 
 		// Get the enabled_key from registration.
-		$enabled_key = $this->registered_destinations[$dest_id]['enabled_key'];
+		$enabled_key = $this->registered_destinations[ $dest_id ]['enabled_key'];
 
 		// Check the option value (WordPress stores booleans as 1/0).
-		$is_enabled = get_option($enabled_key, false);
+		$is_enabled = get_option( $enabled_key, false );
 
 		// Normalize: true/1/'1' -> true, anything else -> false.
 		$result = (bool) $is_enabled && $is_enabled !== '0' && $is_enabled !== 0;

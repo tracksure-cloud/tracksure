@@ -18,24 +18,24 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 // Define plugin constants.
-define('TRACKSURE_VERSION', '1.0.0');
-define('TRACKSURE_DB_VERSION', '1.0.0');
-define('TRACKSURE_PLUGIN_FILE', __FILE__);
-define('TRACKSURE_PLUGIN_DIR', plugin_dir_path(__FILE__));
-define('TRACKSURE_PLUGIN_URL', plugin_dir_url(__FILE__));
-define('TRACKSURE_PLUGIN_BASENAME', plugin_basename(__FILE__));
+define( 'TRACKSURE_VERSION', '1.0.0' );
+define( 'TRACKSURE_DB_VERSION', '1.0.0' );
+define( 'TRACKSURE_PLUGIN_FILE', __FILE__ );
+define( 'TRACKSURE_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
+define( 'TRACKSURE_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+define( 'TRACKSURE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
 
 // Core paths (bundled inside free plugin).
-define('TRACKSURE_CORE_DIR', TRACKSURE_PLUGIN_DIR . 'includes/core/');
-define('TRACKSURE_CORE_URL', TRACKSURE_PLUGIN_URL . 'includes/core/');
-define('TRACKSURE_FREE_DIR', TRACKSURE_PLUGIN_DIR . 'includes/free/');
-define('TRACKSURE_REGISTRY_DIR', TRACKSURE_PLUGIN_DIR . 'registry/');
-define('TRACKSURE_ADMIN_DIR', TRACKSURE_PLUGIN_DIR . 'admin/');
+define( 'TRACKSURE_CORE_DIR', TRACKSURE_PLUGIN_DIR . 'includes/core/' );
+define( 'TRACKSURE_CORE_URL', TRACKSURE_PLUGIN_URL . 'includes/core/' );
+define( 'TRACKSURE_FREE_DIR', TRACKSURE_PLUGIN_DIR . 'includes/free/' );
+define( 'TRACKSURE_REGISTRY_DIR', TRACKSURE_PLUGIN_DIR . 'registry/' );
+define( 'TRACKSURE_ADMIN_DIR', TRACKSURE_PLUGIN_DIR . 'admin/' );
 
 /**
  * Main TrackSure Plugin Class.
@@ -45,8 +45,8 @@ define('TRACKSURE_ADMIN_DIR', TRACKSURE_PLUGIN_DIR . 'admin/');
  *
  * @since 1.0.0
  */
-final class TrackSure
-{
+final class TrackSure {
+
 
 	/**
 	 * Plugin instance.
@@ -78,9 +78,8 @@ final class TrackSure
 	 * @since 1.0.0
 	 * @return TrackSure
 	 */
-	public static function instance()
-	{
-		if (is_null(self::$instance)) {
+	public static function instance() {
+		if ( is_null( self::$instance ) ) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -91,9 +90,8 @@ final class TrackSure
 	 *
 	 * @since 1.0.0
 	 */
-	private function __construct()
-	{
-		add_action('plugins_loaded', array($this, 'init'), 10);
+	private function __construct() {
+		add_action( 'plugins_loaded', array( $this, 'init' ), 10 );
 	}
 
 	/**
@@ -102,16 +100,15 @@ final class TrackSure
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public function init()
-	{
+	public function init() {
 		// 1. Load Core engine (bundled inside).
-		if (! file_exists(TRACKSURE_CORE_DIR . 'class-tracksure-core.php')) {
+		if ( ! file_exists( TRACKSURE_CORE_DIR . 'class-tracksure-core.php' ) ) {
 			add_action(
 				'admin_notices',
 				static function () {
 					printf(
 						'<div class="notice notice-error"><p>%s</p></div>',
-						esc_html__('TrackSure Error: Core engine file not found. Please reinstall the plugin.', 'tracksure')
+						esc_html__( 'TrackSure Error: Core engine file not found. Please reinstall the plugin.', 'tracksure' )
 					);
 				}
 			);
@@ -122,13 +119,13 @@ final class TrackSure
 		$this->core = TrackSure_Core::get_instance();
 
 		// 2. Load Free module pack.
-		if (! file_exists(TRACKSURE_FREE_DIR . 'class-tracksure-free.php')) {
+		if ( ! file_exists( TRACKSURE_FREE_DIR . 'class-tracksure-free.php' ) ) {
 			add_action(
 				'admin_notices',
 				static function () {
 					printf(
 						'<div class="notice notice-error"><p>%s</p></div>',
-						esc_html__('TrackSure Error: Free module file not found. Please reinstall the plugin.', 'tracksure')
+						esc_html__( 'TrackSure Error: Free module file not found. Please reinstall the plugin.', 'tracksure' )
 					);
 				}
 			);
@@ -136,10 +133,10 @@ final class TrackSure
 		}
 
 		require_once TRACKSURE_FREE_DIR . 'class-tracksure-free.php';
-		$this->free = new TrackSure_Free($this->core);
+		$this->free = new TrackSure_Free( $this->core );
 
 		// 3. Fire extension hook (Pro/3rd-party can register features).
-		do_action('tracksure_loaded', $this->core);
+		do_action( 'tracksure_loaded', $this->core );
 	}
 
 	/**
@@ -148,8 +145,7 @@ final class TrackSure
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public static function activate()
-	{
+	public static function activate() {
 		// Load required core files.
 		require_once TRACKSURE_CORE_DIR . 'class-tracksure-db.php';
 		require_once TRACKSURE_CORE_DIR . 'class-tracksure-settings-schema.php';
@@ -160,22 +156,22 @@ final class TrackSure
 
 		// Set flag to flush permalinks on next admin load.
 		// Can't flush here because TrackSure_Core isn't loaded yet.
-		update_option('tracksure_needs_permalink_flush', '1');
+		update_option( 'tracksure_needs_permalink_flush', '1' );
 
 		// Set flag to redirect to settings page on first admin load.
-		set_transient('tracksure_activation_redirect', true, 60);
+		set_transient( 'tracksure_activation_redirect', true, 60 );
 
 		// Clear all scheduled cron jobs to prevent duplicates.
-		wp_clear_scheduled_hook('tracksure_aggregate_hourly');
-		wp_clear_scheduled_hook('tracksure_aggregate_daily');
-		wp_clear_scheduled_hook('tracksure_delivery_worker');
-		wp_clear_scheduled_hook('tracksure_cleanup_data');
-		wp_clear_scheduled_hook('tracksure_cleanup_logs');
+		wp_clear_scheduled_hook( 'tracksure_aggregate_hourly' );
+		wp_clear_scheduled_hook( 'tracksure_aggregate_daily' );
+		wp_clear_scheduled_hook( 'tracksure_delivery_worker' );
+		wp_clear_scheduled_hook( 'tracksure_cleanup_data' );
+		wp_clear_scheduled_hook( 'tracksure_cleanup_logs' );
 
 		// Clear Action Scheduler delivery tasks (prevents duplicates on reactivation).
-		wp_clear_scheduled_hook('tracksure_deliver_events');
-		if (function_exists('as_unschedule_all_actions')) {
-			as_unschedule_all_actions('tracksure_deliver_events', array(), 'tracksure');
+		wp_clear_scheduled_hook( 'tracksure_deliver_events' );
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			as_unschedule_all_actions( 'tracksure_deliver_events', array(), 'tracksure' );
 		}
 
 		// Flush rewrite rules.
@@ -188,14 +184,13 @@ final class TrackSure
 	 * @since 1.0.0
 	 * @return void
 	 */
-	public static function deactivate()
-	{
+	public static function deactivate() {
 		// Clear all WP-Cron scheduled hooks.
-		wp_clear_scheduled_hook('tracksure_aggregate_hourly');
-		wp_clear_scheduled_hook('tracksure_aggregate_daily');
-		wp_clear_scheduled_hook('tracksure_delivery_worker');
-		wp_clear_scheduled_hook('tracksure_cleanup_data');
-		wp_clear_scheduled_hook('tracksure_cleanup_logs');
+		wp_clear_scheduled_hook( 'tracksure_aggregate_hourly' );
+		wp_clear_scheduled_hook( 'tracksure_aggregate_daily' );
+		wp_clear_scheduled_hook( 'tracksure_delivery_worker' );
+		wp_clear_scheduled_hook( 'tracksure_cleanup_data' );
+		wp_clear_scheduled_hook( 'tracksure_cleanup_logs' );
 
 		// Clean up Action Scheduler tasks (if AS is available).
 		// Action Scheduler is NOT part of WordPress core — it comes from
@@ -214,8 +209,7 @@ final class TrackSure
  * @since 1.0.0
  * @return TrackSure
  */
-function tracksure()
-{
+function tracksure() {
 	return TrackSure::instance();
 }
 
@@ -228,43 +222,42 @@ function tracksure()
  * @since 1.0.0
  * @return void
  */
-function tracksure_activation_redirect()
-{
+function tracksure_activation_redirect() {
 	// Check if we need to redirect.
-	if (! get_transient('tracksure_activation_redirect')) {
+	if ( ! get_transient( 'tracksure_activation_redirect' ) ) {
 		return;
 	}
 
 	// Delete the transient so this only runs once.
-	delete_transient('tracksure_activation_redirect');
+	delete_transient( 'tracksure_activation_redirect' );
 
 	// Don't redirect during bulk activation (activating multiple plugins at once).
 	// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only check, no data processed.
-	if (isset($_GET['activate-multi'])) {
+	if ( isset( $_GET['activate-multi'] ) ) {
 		return;
 	}
 
 	// Don't redirect during AJAX, WP-CLI, or REST API requests.
-	if (wp_doing_ajax() || (defined('WP_CLI') && constant('WP_CLI')) || defined('REST_REQUEST')) {
+	if ( wp_doing_ajax() || ( defined( 'WP_CLI' ) && constant( 'WP_CLI' ) ) || defined( 'REST_REQUEST' ) ) {
 		return;
 	}
 
 	// Only redirect if user has permission to access TrackSure.
-	if (! current_user_can('manage_options')) {
+	if ( ! current_user_can( 'manage_options' ) ) {
 		return;
 	}
 
 	// Redirect to TrackSure settings page (React app #/settings route).
-	wp_safe_redirect(admin_url('admin.php?page=tracksure#/settings'));
+	wp_safe_redirect( admin_url( 'admin.php?page=tracksure#/settings' ) );
 	exit;
 }
 
 // Register activation/deactivation hooks BEFORE initializing plugin.
-register_activation_hook(TRACKSURE_PLUGIN_FILE, array('TrackSure', 'activate'));
-register_deactivation_hook(TRACKSURE_PLUGIN_FILE, array('TrackSure', 'deactivate'));
+register_activation_hook( TRACKSURE_PLUGIN_FILE, array( 'TrackSure', 'activate' ) );
+register_deactivation_hook( TRACKSURE_PLUGIN_FILE, array( 'TrackSure', 'deactivate' ) );
 
 // Redirect to settings page after first activation.
-add_action('admin_init', 'tracksure_activation_redirect');
+add_action( 'admin_init', 'tracksure_activation_redirect' );
 
 // Initialize plugin.
 tracksure();

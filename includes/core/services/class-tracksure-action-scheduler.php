@@ -36,10 +36,10 @@
  * @since 2.0.0
  */
 
-defined('ABSPATH') || exit;
+defined( 'ABSPATH' ) || exit;
 
-class TrackSure_Action_Scheduler
-{
+class TrackSure_Action_Scheduler {
+
 
 	/**
 	 * Outbox delivery action name.
@@ -85,16 +85,15 @@ class TrackSure_Action_Scheduler
 	/**
 	 * Initialize Action Scheduler integration.
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		// CRITICAL: Register custom cron interval EARLY (before 'init').
 		// wp_schedule_event() reads 'cron_schedules' filter during init.
 		// If we register the filter too late, the schedule name is unknown
 		// and WP-Cron silently fails to schedule the event.
-		add_filter('cron_schedules', array($this, 'add_cron_intervals'));
+		add_filter( 'cron_schedules', array( $this, 'add_cron_intervals' ) );
 
-		add_action('init', array($this, 'schedule_recurring_tasks'));
-		add_action(self::DELIVERY_ACTION, array($this, 'deliver_events'));
+		add_action( 'init', array( $this, 'schedule_recurring_tasks' ) );
+		add_action( self::DELIVERY_ACTION, array( $this, 'deliver_events' ) );
 	}
 
 	/**
@@ -104,12 +103,11 @@ class TrackSure_Action_Scheduler
 	 * Easy Digital Downloads, or standalone Action Scheduler plugin), uses it for
 	 * precise scheduling. Otherwise falls back to WP-Cron (built into WordPress core).
 	 */
-	public function schedule_recurring_tasks()
-	{
+	public function schedule_recurring_tasks() {
 		// Tier 1: Action Scheduler (auto-detected, not bundled).
 		// Available when WooCommerce 3.0+, EDD 3.0+, or standalone AS plugin is active.
-		if (function_exists('as_has_scheduled_action')) {
-			if (! as_has_scheduled_action(self::DELIVERY_ACTION)) {
+		if ( function_exists( 'as_has_scheduled_action' ) ) {
+			if ( ! as_has_scheduled_action( self::DELIVERY_ACTION ) ) {
 				as_schedule_recurring_action(
 					time(),
 					self::DELIVERY_INTERVAL,
@@ -133,11 +131,10 @@ class TrackSure_Action_Scheduler
 	 * For low-traffic sites, spawn_cron() (called from Event Recorder after
 	 * each outbox write) nudges cron to run immediately after events are queued.
 	 */
-	private function schedule_wp_cron_tasks()
-	{
+	private function schedule_wp_cron_tasks() {
 		// cron_schedules filter already registered in constructor (must be early).
-		if (! wp_next_scheduled(self::DELIVERY_ACTION)) {
-			wp_schedule_event(time(), 'tracksure_every_minute', self::DELIVERY_ACTION);
+		if ( ! wp_next_scheduled( self::DELIVERY_ACTION ) ) {
+			wp_schedule_event( time(), 'tracksure_every_minute', self::DELIVERY_ACTION );
 		}
 	}
 
@@ -147,11 +144,10 @@ class TrackSure_Action_Scheduler
 	 * @param array $schedules Existing schedules.
 	 * @return array Modified schedules.
 	 */
-	public function add_cron_intervals($schedules)
-	{
+	public function add_cron_intervals( $schedules ) {
 		$schedules['tracksure_every_minute'] = array(
 			'interval' => self::DELIVERY_INTERVAL,
-			'display'  => __('Every Minute', 'tracksure'),
+			'display'  => __( 'Every Minute', 'tracksure' ),
 		);
 
 		return $schedules;
@@ -169,30 +165,29 @@ class TrackSure_Action_Scheduler
 	 * - Per-destination retry with exponential backoff
 	 * - Batch HTTP calls (Meta CAPI: up to 100/call, GA4 MP: up to 25/call)
 	 */
-	public function deliver_events()
-	{
+	public function deliver_events() {
 		// Concurrency lock: prevent overlapping delivery runs.
 		// Uses set_transient which is atomic on most hosts (MySQL INSERT or Memcached add).
-		if (get_transient(self::LOCK_KEY)) {
-			if (defined('WP_DEBUG') && WP_DEBUG) {
-				error_log('[TrackSure] Delivery Worker: Skipped — another delivery process is running.');
+		if ( get_transient( self::LOCK_KEY ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( '[TrackSure] Delivery Worker: Skipped — another delivery process is running.' );
 			}
 			return;
 		}
-		set_transient(self::LOCK_KEY, time(), self::LOCK_DURATION);
+		set_transient( self::LOCK_KEY, time(), self::LOCK_DURATION );
 
 		try {
-			if (! class_exists('TrackSure_Delivery_Worker')) {
+			if ( ! class_exists( 'TrackSure_Delivery_Worker' ) ) {
 				return;
 			}
 
 			$worker     = TrackSure_Delivery_Worker::get_instance();
-			$batch_size = apply_filters('tracksure_delivery_batch_size', self::BATCH_SIZE);
+			$batch_size = apply_filters( 'tracksure_delivery_batch_size', self::BATCH_SIZE );
 
-			$worker->process_outbox($batch_size);
+			$worker->process_outbox( $batch_size );
 		} finally {
 			// Always release lock, even on error.
-			delete_transient(self::LOCK_KEY);
+			delete_transient( self::LOCK_KEY );
 		}
 	}
 
@@ -201,18 +196,17 @@ class TrackSure_Action_Scheduler
 	 *
 	 * Cleans up both Action Scheduler and WP-Cron hooks to prevent orphaned tasks.
 	 */
-	public static function unschedule_all()
-	{
+	public static function unschedule_all() {
 		// Clean up Action Scheduler tasks (if AS is available).
-		if (function_exists('as_unschedule_all_actions')) {
-			as_unschedule_all_actions(self::DELIVERY_ACTION, array(), 'tracksure');
+		if ( function_exists( 'as_unschedule_all_actions' ) ) {
+			as_unschedule_all_actions( self::DELIVERY_ACTION, array(), 'tracksure' );
 		}
 
 		// Clean up WP-Cron tasks.
-		wp_clear_scheduled_hook(self::DELIVERY_ACTION);
+		wp_clear_scheduled_hook( self::DELIVERY_ACTION );
 
 		// Release any active delivery lock.
-		delete_transient(self::LOCK_KEY);
+		delete_transient( self::LOCK_KEY );
 	}
 
 	/**
@@ -224,9 +218,8 @@ class TrackSure_Action_Scheduler
 	 *
 	 * @return bool True if Action Scheduler API functions are available.
 	 */
-	public static function is_action_scheduler_available()
-	{
-		return function_exists('as_schedule_recurring_action');
+	public static function is_action_scheduler_available() {
+		return function_exists( 'as_schedule_recurring_action' );
 	}
 
 	/**
@@ -234,8 +227,7 @@ class TrackSure_Action_Scheduler
 	 *
 	 * @return array Queue statistics including scheduler type, pending items, and config.
 	 */
-	public static function get_stats()
-	{
+	public static function get_stats() {
 		global $wpdb;
 
 		$stats = array(
@@ -245,20 +237,20 @@ class TrackSure_Action_Scheduler
 		);
 
 		// Outbox queue depth (cached for 30 seconds to avoid repeated COUNT queries).
-		$cache_key       = 'tracksure_outbox_pending_count';
-		$outbox_pending  = wp_cache_get($cache_key, 'tracksure');
+		$cache_key      = 'tracksure_outbox_pending_count';
+		$outbox_pending = wp_cache_get( $cache_key, 'tracksure' );
 
-		if (false === $outbox_pending) {
+		if ( false === $outbox_pending ) {
 			$outbox_pending = (int) $wpdb->get_var( // phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Custom table, no WP API available
 				"SELECT COUNT(*) FROM {$wpdb->prefix}tracksure_outbox WHERE status IN ('pending', 'processing')"
 			);
-			wp_cache_set($cache_key, $outbox_pending, 'tracksure', 30);
+			wp_cache_set( $cache_key, $outbox_pending, 'tracksure', 30 );
 		}
 
 		$stats['outbox_pending'] = $outbox_pending;
 
 		// Action Scheduler stats if available.
-		if (function_exists('as_get_scheduled_actions')) {
+		if ( function_exists( 'as_get_scheduled_actions' ) ) {
 			$stats['scheduled_delivery_tasks'] = count(
 				as_get_scheduled_actions(
 					array(

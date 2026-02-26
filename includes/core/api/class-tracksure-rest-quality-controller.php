@@ -20,15 +20,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Quality controller class.
  */
-class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
-{
+class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller {
+
 
 
 
@@ -56,24 +56,22 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		$core     = TrackSure_Core::get_instance();
-		$this->db = $core->get_service('db');
+		$this->db = $core->get_service( 'db' );
 	}
 
 	/**
 	 * Register routes.
 	 */
-	public function register_routes()
-	{
+	public function register_routes() {
 		// Get dynamic enum from Destinations Manager (includes all Free/Pro/3rd-party).
 		$core                 = TrackSure_Core::get_instance();
-		$destinations_manager = $core->get_service('destinations_manager');
+		$destinations_manager = $core->get_service( 'destinations_manager' );
 		$destination_ids      = $destinations_manager ? $destinations_manager->get_enabled_destination_ids() : array();
 
 		// Always include 'all' option.
-		$destination_enum = array_merge($destination_ids, array('all'));
+		$destination_enum = array_merge( $destination_ids, array( 'all' ) );
 
 		// GET /quality/signal - Signal quality scores.
 		register_rest_route(
@@ -81,8 +79,8 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 			'/quality/signal',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_signal_quality'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_signal_quality' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 				'args'                => array(
 					'destination' => array(
 						'type'     => 'string',
@@ -100,8 +98,8 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 			'/quality/deduplication',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_deduplication_stats'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_deduplication_stats' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -111,8 +109,8 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 			'/quality/schema',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_schema_validation'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_schema_validation' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 
@@ -122,8 +120,8 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 			'/quality/reconciliation',
 			array(
 				'methods'             => WP_REST_Server::READABLE,
-				'callback'            => array($this, 'get_reconciliation'),
-				'permission_callback' => array($this, 'check_admin_permission'),
+				'callback'            => array( $this, 'get_reconciliation' ),
+				'permission_callback' => array( $this, 'check_admin_permission' ),
 			)
 		);
 	}
@@ -140,36 +138,35 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_signal_quality($request)
-	{
-		$destination = sanitize_text_field($request->get_param('destination'));
+	public function get_signal_quality( $request ) {
+		$destination = sanitize_text_field( $request->get_param( 'destination' ) );
 
 		$cache_key = 'signal_' . $destination;
-		$cached    = wp_cache_get($cache_key, $this->cache_group);
-		if (false !== $cached) {
-			return $this->prepare_success($cached);
+		$cached    = wp_cache_get( $cache_key, $this->cache_group );
+		if ( false !== $cached ) {
+			return $this->prepare_success( $cached );
 		}
 
 		global $wpdb;
 		// Get destinations dynamically from Destinations Manager.
 		$destinations = array();
-		if ('all' === $destination) {
+		if ( 'all' === $destination ) {
 			$core                 = TrackSure_Core::get_instance();
-			$destinations_manager = $core->get_service('destinations_manager');
-			if ($destinations_manager) {
+			$destinations_manager = $core->get_service( 'destinations_manager' );
+			if ( $destinations_manager ) {
 				$destinations = $destinations_manager->get_enabled_destination_ids();
 			}
 			// Fallback if no destinations registered.
-			if (empty($destinations)) {
-				$destinations = array('meta', 'ga4');
+			if ( empty( $destinations ) ) {
+				$destinations = array( 'meta', 'ga4' );
 			}
 		} else {
-			$destinations = array($destination);
+			$destinations = array( $destination );
 		}
 
 		$results = array();
 
-		foreach ($destinations as $dest) {
+		foreach ( $destinations as $dest ) {
 			// Get total events (last 7 days).
 			$total_events = $wpdb->get_var(
 				$wpdb->prepare(
@@ -187,7 +184,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 					7
 				)
 			);
-			$dedup_rate    = $total_events > 0 ? ($unique_events / $total_events) * 100 : 100;
+			$dedup_rate    = $total_events > 0 ? ( $unique_events / $total_events ) * 100 : 100;
 
 			// Get server-side coverage (unique events from last 7 days that were sent to outbox).
 			$server_events   = $wpdb->get_var(
@@ -197,10 +194,10 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
                      INNER JOIN {$wpdb->prefix}tracksure_events e ON o.event_id = e.event_id
                      WHERE JSON_CONTAINS(o.destinations, %s)
                        AND e.created_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 7 DAY)",
-					wp_json_encode($dest)
+					wp_json_encode( $dest )
 				)
 			);
-			$server_coverage = $total_events > 0 ? ($server_events / $total_events) * 100 : 0;
+			$server_coverage = $total_events > 0 ? ( $server_events / $total_events ) * 100 : 0;
 
 			// Get delivery success rate (count distinct events successfully delivered).
 			$delivered_events = $wpdb->get_var(
@@ -211,25 +208,25 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
                      WHERE JSON_CONTAINS(o.destinations, %s)
                        AND JSON_EXTRACT(o.destinations_status, CONCAT('$.', %s, '.status')) = 'success'
                        AND e.created_at >= DATE_SUB(UTC_TIMESTAMP(), INTERVAL 7 DAY)",
-					wp_json_encode($dest),
+					wp_json_encode( $dest ),
 					$dest
 				)
 			);
-			$delivery_rate    = $server_events > 0 ? ($delivered_events / $server_events) * 100 : 0;
+			$delivery_rate    = $server_events > 0 ? ( $delivered_events / $server_events ) * 100 : 0;
 
 			// Get events with missing required params (for this destination).
-			$required_params      = $this->get_required_params($dest);
-			$missing_params_count = $this->count_missing_params($dest, $required_params);
-			$missing_params_rate  = $total_events > 0 ? ($missing_params_count / $total_events) * 100 : 0;
+			$required_params      = $this->get_required_params( $dest );
+			$missing_params_count = $this->count_missing_params( $dest, $required_params );
+			$missing_params_rate  = $total_events > 0 ? ( $missing_params_count / $total_events ) * 100 : 0;
 
 			// Calculate quality score (0-100).
 			$quality_score = min(
 				100,
 				round(
-					($dedup_rate * 0.4) +
-						($server_coverage * 0.4) +
-						((100 - $missing_params_rate) * 0.1) +
-						($delivery_rate * 0.1)
+					( $dedup_rate * 0.4 ) +
+						( $server_coverage * 0.4 ) +
+						( ( 100 - $missing_params_rate ) * 0.1 ) +
+						( $delivery_rate * 0.1 )
 				)
 			);
 
@@ -251,51 +248,51 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
                        AND status = 'failed'
                      ORDER BY created_at DESC
                      LIMIT 1",
-					wp_json_encode($dest)
+					wp_json_encode( $dest )
 				)
 			);
 
 			// Match quality label.
 			$match_quality = 'excellent';
-			if ($quality_score < 70) {
+			if ( $quality_score < 70 ) {
 				$match_quality = 'needs_improvement';
-			} elseif ($quality_score < 85) {
+			} elseif ( $quality_score < 85 ) {
 				$match_quality = 'good';
 			}
 
 			// Extract error from destinations_status JSON.
 			$error_message = null;
-			if ($last_failed && ! empty($last_failed->destinations_status)) {
-				$destinations_status = json_decode($last_failed->destinations_status, true);
-				if (isset($destinations_status[$dest]['error'])) {
-					$error_message = $destinations_status[$dest]['error'];
+			if ( $last_failed && ! empty( $last_failed->destinations_status ) ) {
+				$destinations_status = json_decode( $last_failed->destinations_status, true );
+				if ( isset( $destinations_status[ $dest ]['error'] ) ) {
+					$error_message = $destinations_status[ $dest ]['error'];
 				}
 			}
 
-			$results[$dest] = array(
+			$results[ $dest ] = array(
 				'destination'           => $dest,
 				'quality_score'         => $quality_score,
-				'dedup_rate'            => round($dedup_rate, 2),
-				'server_side_coverage'  => round($server_coverage, 2),
-				'delivery_success_rate' => round($delivery_rate, 2),
-				'missing_params_rate'   => round($missing_params_rate, 2),
+				'dedup_rate'            => round( $dedup_rate, 2 ),
+				'server_side_coverage'  => round( $server_coverage, 2 ),
+				'delivery_success_rate' => round( $delivery_rate, 2 ),
+				'missing_params_rate'   => round( $missing_params_rate, 2 ),
 				'match_quality'         => $match_quality,
-				'last_7_days_events'    => absint($total_events),
-				'server_events'         => absint($server_events),
-				'delivered_events'      => absint($delivered_events),
+				'last_7_days_events'    => absint( $total_events ),
+				'server_events'         => absint( $server_events ),
+				'delivered_events'      => absint( $delivered_events ),
 				'last_failed_event'     => $last_failed ? array(
-					'error'      => sanitize_text_field($error_message ?: 'Unknown error'),
+					'error'      => sanitize_text_field( $error_message ?: 'Unknown error' ),
 					'created_at' => $last_failed->created_at,
 				) : null,
 				'recommendations'       => $recommendations,
 			);
 		}
 
-		$response = 'all' === $destination ? $results : $results[$destination];
+		$response = 'all' === $destination ? $results : $results[ $destination ];
 
-		wp_cache_set($cache_key, $response, $this->cache_group, $this->cache_expiration);
+		wp_cache_set( $cache_key, $response, $this->cache_group, $this->cache_expiration );
 
-		return $this->prepare_success($response);
+		return $this->prepare_success( $response );
 	}
 
 	/**
@@ -304,12 +301,11 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_deduplication_stats($request)
-	{
+	public function get_deduplication_stats( $request ) {
 		$cache_key = 'dedup_stats';
-		$cached    = wp_cache_get($cache_key, $this->cache_group);
-		if (false !== $cached) {
-			return $this->prepare_success($cached);
+		$cached    = wp_cache_get( $cache_key, $this->cache_group );
+		if ( false !== $cached ) {
+			return $this->prepare_success( $cached );
 		}
 
 		global $wpdb;
@@ -351,46 +347,46 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 		);
 
 		$formatted_duplicates = array_map(
-			function ($dup) {
+			function ( $dup ) {
 				return array(
-					'event_id'    => sanitize_text_field($dup->event_id),
-					'event_name'  => sanitize_text_field($dup->event_name),
-					'occurrences' => absint($dup->occurrences),
-					'sources'     => explode(',', sanitize_text_field($dup->sources)),
+					'event_id'    => sanitize_text_field( $dup->event_id ),
+					'event_name'  => sanitize_text_field( $dup->event_name ),
+					'occurrences' => absint( $dup->occurrences ),
+					'sources'     => explode( ',', sanitize_text_field( $dup->sources ) ),
 				);
 			},
 			$duplicates
 		);
 
 		$formatted_by_type = array_map(
-			function ($type) {
+			function ( $type ) {
 				return array(
-					'event_name' => sanitize_text_field($type->event_name),
-					'total'      => absint($type->total_events),
-					'duplicates' => absint($type->duplicates),
-					'dedup_rate' => floatval($type->dedup_rate),
+					'event_name' => sanitize_text_field( $type->event_name ),
+					'total'      => absint( $type->total_events ),
+					'duplicates' => absint( $type->duplicates ),
+					'dedup_rate' => floatval( $type->dedup_rate ),
 				);
 			},
 			$by_event_type
 		);
 
 		// Calculate totals.
-		$total_events       = array_sum(array_column($formatted_by_type, 'total'));
-		$total_duplicates   = array_sum(array_column($formatted_by_type, 'duplicates'));
+		$total_events       = array_sum( array_column( $formatted_by_type, 'total' ) );
+		$total_duplicates   = array_sum( array_column( $formatted_by_type, 'duplicates' ) );
 		$unique_events      = $total_events - $total_duplicates;
-		$overall_dedup_rate = $total_events > 0 ? ($total_duplicates / $total_events) * 100 : 0;
+		$overall_dedup_rate = $total_events > 0 ? ( $total_duplicates / $total_events ) * 100 : 0;
 
 		$response = array(
 			'total_events'     => $total_events,
 			'unique_events'    => $unique_events,
 			'duplicate_events' => $total_duplicates,
-			'dedup_rate'       => round($overall_dedup_rate, 2),
+			'dedup_rate'       => round( $overall_dedup_rate, 2 ),
 			'by_event_type'    => $formatted_by_type,
 		);
 
-		wp_cache_set($cache_key, $response, $this->cache_group, $this->cache_expiration);
+		wp_cache_set( $cache_key, $response, $this->cache_group, $this->cache_expiration );
 
-		return $this->prepare_success($response);
+		return $this->prepare_success( $response );
 	}
 
 	/**
@@ -399,34 +395,33 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_schema_validation($request)
-	{
+	public function get_schema_validation( $request ) {
 		$cache_key = 'schema_validation';
-		$cached    = wp_cache_get($cache_key, $this->cache_group);
-		if (false !== $cached) {
-			return $this->prepare_success($cached);
+		$cached    = wp_cache_get( $cache_key, $this->cache_group );
+		if ( false !== $cached ) {
+			return $this->prepare_success( $cached );
 		}
 
 		global $wpdb;
 		// Define expected schema per event type.
 		$schemas = array(
 			'purchase'    => array(
-				'required' => array('value', 'currency', 'items'),
-				'optional' => array('transaction_id', 'shipping', 'tax'),
+				'required' => array( 'value', 'currency', 'items' ),
+				'optional' => array( 'transaction_id', 'shipping', 'tax' ),
 			),
 			'view_item'   => array(
-				'required' => array('items'),
-				'optional' => array('value', 'currency'),
+				'required' => array( 'items' ),
+				'optional' => array( 'value', 'currency' ),
 			),
 			'add_to_cart' => array(
-				'required' => array('items'),
-				'optional' => array('value', 'currency'),
+				'required' => array( 'items' ),
+				'optional' => array( 'value', 'currency' ),
 			),
 		);
 
 		$validation_results = array();
 
-		foreach ($schemas as $event_name => $schema) {
+		foreach ( $schemas as $event_name => $schema ) {
 			// Count events.
 			$total = $wpdb->get_var(
 				$wpdb->prepare(
@@ -437,13 +432,13 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 				)
 			);
 
-			if ($total === 0) {
+			if ( $total === 0 ) {
 				continue;
 			}
 
 			$missing_params = array();
 
-			foreach ($schema['required'] as $param) {
+			foreach ( $schema['required'] as $param ) {
 				$missing_count = $wpdb->get_var(
 					$wpdb->prepare(
 						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix (safe).
@@ -458,11 +453,11 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 					)
 				);
 
-				if ($missing_count > 0) {
+				if ( $missing_count > 0 ) {
 					$missing_params[] = array(
 						'param'         => $param,
-						'missing_count' => absint($missing_count),
-						'missing_rate'  => round(($missing_count / $total) * 100, 2),
+						'missing_count' => absint( $missing_count ),
+						'missing_rate'  => round( ( $missing_count / $total ) * 100, 2 ),
 						'severity'      => 'error',
 					);
 				}
@@ -470,22 +465,22 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 
 			$validation_results[] = array(
 				'event_name'     => $event_name,
-				'total_events'   => absint($total),
-				'valid_events'   => absint($total - array_sum(array_column($missing_params, 'missing_count'))),
-				'invalid_events' => absint(array_sum(array_column($missing_params, 'missing_count'))),
+				'total_events'   => absint( $total ),
+				'valid_events'   => absint( $total - array_sum( array_column( $missing_params, 'missing_count' ) ) ),
+				'invalid_events' => absint( array_sum( array_column( $missing_params, 'missing_count' ) ) ),
 				'missing_params' => $missing_params,
-				'status'         => empty($missing_params) ? 'valid' : 'needs_attention',
+				'status'         => empty( $missing_params ) ? 'valid' : 'needs_attention',
 			);
 		}
 
 		$response = array(
 			'schemas' => $validation_results,
 			'summary' => array(
-				'total_schemas'   => count($validation_results),
+				'total_schemas'   => count( $validation_results ),
 				'valid_schemas'   => count(
 					array_filter(
 						$validation_results,
-						function ($r) {
+						function ( $r ) {
 							return $r['status'] === 'valid';
 						}
 					)
@@ -493,7 +488,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 				'invalid_schemas' => count(
 					array_filter(
 						$validation_results,
-						function ($r) {
+						function ( $r ) {
 							return $r['status'] === 'needs_attention';
 						}
 					)
@@ -501,9 +496,9 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 			),
 		);
 
-		wp_cache_set($cache_key, $response, $this->cache_group, $this->cache_expiration);
+		wp_cache_set( $cache_key, $response, $this->cache_group, $this->cache_expiration );
 
-		return $this->prepare_success($response);
+		return $this->prepare_success( $response );
 	}
 
 	/**
@@ -512,12 +507,11 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	 * @param WP_REST_Request $request Request object.
 	 * @return WP_REST_Response|WP_Error
 	 */
-	public function get_reconciliation($request)
-	{
+	public function get_reconciliation( $request ) {
 		$cache_key = 'reconciliation';
-		$cached    = wp_cache_get($cache_key, $this->cache_group);
-		if (false !== $cached) {
-			return $this->prepare_success($cached);
+		$cached    = wp_cache_get( $cache_key, $this->cache_group );
+		if ( false !== $cached ) {
+			return $this->prepare_success( $cached );
 		}
 
 		global $wpdb;
@@ -567,15 +561,15 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 
 		// Format comparison table.
 		$comparison  = array();
-		$event_types = array_unique(array_column($tracksure_events, 'event_name'));
+		$event_types = array_unique( array_column( $tracksure_events, 'event_name' ) );
 
-		foreach ($event_types as $event_name) {
+		foreach ( $event_types as $event_name ) {
 			$ts_count = absint(
 				array_sum(
 					array_column(
 						array_filter(
 							$tracksure_events,
-							function ($e) use ($event_name) {
+							function ( $e ) use ( $event_name ) {
 								return $e->event_name === $event_name;
 							}
 						),
@@ -589,7 +583,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 					array_column(
 						array_filter(
 							$meta_delivered,
-							function ($e) use ($event_name) {
+							function ( $e ) use ( $event_name ) {
 								return $e->event_name === $event_name;
 							}
 						),
@@ -603,7 +597,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 					array_column(
 						array_filter(
 							$ga4_delivered,
-							function ($e) use ($event_name) {
+							function ( $e ) use ( $event_name ) {
 								return $e->event_name === $event_name;
 							}
 						),
@@ -613,14 +607,14 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 			);
 
 			$comparison[] = array(
-				'event_name'    => sanitize_text_field($event_name),
+				'event_name'    => sanitize_text_field( $event_name ),
 				'tracksure'     => $ts_count,
 				'meta'          => $meta_count,
 				'ga4'           => $ga4_count,
 				'meta_diff'     => $ts_count - $meta_count,
 				'ga4_diff'      => $ts_count - $ga4_count,
-				'meta_coverage' => $ts_count > 0 ? round(($meta_count / $ts_count) * 100, 2) : 0,
-				'ga4_coverage'  => $ts_count > 0 ? round(($ga4_count / $ts_count) * 100, 2) : 0,
+				'meta_coverage' => $ts_count > 0 ? round( ( $meta_count / $ts_count ) * 100, 2 ) : 0,
+				'ga4_coverage'  => $ts_count > 0 ? round( ( $ga4_count / $ts_count ) * 100, 2 ) : 0,
 			);
 		}
 
@@ -652,9 +646,9 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 			),
 		);
 
-		wp_cache_set($cache_key, $response, $this->cache_group, $this->cache_expiration);
+		wp_cache_set( $cache_key, $response, $this->cache_group, $this->cache_expiration );
 
-		return $this->prepare_success($response);
+		return $this->prepare_success( $response );
 	}
 
 	/**
@@ -663,22 +657,21 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	 * @param string $destination Destination name.
 	 * @return array
 	 */
-	private function get_required_params($destination)
-	{
+	private function get_required_params( $destination ) {
 		$required_params = array(
 			'meta' => array(
-				'purchase'    => array('value', 'currency', 'event_id'),
-				'view_item'   => array('event_id'),
-				'add_to_cart' => array('event_id'),
+				'purchase'    => array( 'value', 'currency', 'event_id' ),
+				'view_item'   => array( 'event_id' ),
+				'add_to_cart' => array( 'event_id' ),
 			),
 			'ga4'  => array(
-				'purchase'    => array('value', 'currency', 'items'),
-				'view_item'   => array('items'),
-				'add_to_cart' => array('items'),
+				'purchase'    => array( 'value', 'currency', 'items' ),
+				'view_item'   => array( 'items' ),
+				'add_to_cart' => array( 'items' ),
 			),
 		);
 
-		return $required_params[$destination] ?? array();
+		return $required_params[ $destination ] ?? array();
 	}
 
 	/**
@@ -688,14 +681,13 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	 * @param array  $required_params Required params map.
 	 * @return int
 	 */
-	private function count_missing_params($destination, $required_params)
-	{
+	private function count_missing_params( $destination, $required_params ) {
 		global $wpdb;
 		$missing_count = 0;
 
-		foreach ($required_params as $event_name => $params) {
-			foreach ($params as $param) {
-				$count          = $wpdb->get_var(
+		foreach ( $required_params as $event_name => $params ) {
+			foreach ( $params as $param ) {
+				$count = $wpdb->get_var(
 					$wpdb->prepare(
 						// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name uses $wpdb->prefix (safe).
 						"SELECT COUNT(*) FROM {$wpdb->prefix}tracksure_events
@@ -708,7 +700,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 						$param
 					)
 				);
-				$missing_count += absint($count);
+				$missing_count += absint( $count );
 			}
 		}
 
@@ -725,39 +717,38 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller
 	 * @param float $missing_params_rate Missing params %.
 	 * @return array
 	 */
-	private function get_recommendations($quality_score, $server_coverage, $dedup_rate, $delivery_rate, $missing_params_rate)
-	{
+	private function get_recommendations( $quality_score, $server_coverage, $dedup_rate, $delivery_rate, $missing_params_rate ) {
 		$recs = array();
 
-		if ($server_coverage < 80) {
+		if ( $server_coverage < 80 ) {
 			$recs[] = sprintf(
 				'⚠️ Enable server-side delivery: Only %.1f%% of events are sent server-side. Enable server delivery to bypass ad blockers.',
 				$server_coverage
 			);
 		}
 
-		if ($dedup_rate < 95) {
+		if ( $dedup_rate < 95 ) {
 			$recs[] = sprintf(
 				'⚠️ Fix event duplication: %.1f%% of events are duplicated. Check for multiple tracking scripts or conflicting plugins.',
 				100 - $dedup_rate
 			);
 		}
 
-		if ($delivery_rate < 90) {
+		if ( $delivery_rate < 90 ) {
 			$recs[] = sprintf(
 				'⚠️ Improve delivery success rate: Only %.1f%% of server events delivered successfully. Check API credentials and error logs.',
 				$delivery_rate
 			);
 		}
 
-		if ($missing_params_rate > 10) {
+		if ( $missing_params_rate > 10 ) {
 			$recs[] = sprintf(
 				'⚠️ Fix missing parameters: %.1f%% of events are missing required parameters. This affects match quality.',
 				$missing_params_rate
 			);
 		}
 
-		if ($quality_score >= 85) {
+		if ( $quality_score >= 85 ) {
 			$recs[] = '✅ Excellent signal quality! Your tracking setup is performing optimally.';
 		}
 

@@ -12,15 +12,15 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
 /**
  * Logger service class.
  */
-class TrackSure_Logger
-{
+class TrackSure_Logger {
+
 
 
 	/**
@@ -40,8 +40,7 @@ class TrackSure_Logger
 	/**
 	 * Constructor.
 	 */
-	public function __construct()
-	{
+	public function __construct() {
 		global $wpdb;
 		$this->table = $wpdb->prefix . 'tracksure_logs';
 	}
@@ -53,9 +52,8 @@ class TrackSure_Logger
 	 * @param array  $context Additional context data.
 	 * @return void
 	 */
-	public function log_error($message, $context = array())
-	{
-		$this->log('error', $message, $context);
+	public function log_error( $message, $context = array() ) {
+		$this->log( 'error', $message, $context );
 	}
 
 	/**
@@ -65,9 +63,8 @@ class TrackSure_Logger
 	 * @param array  $context Additional context data.
 	 * @return void
 	 */
-	public function log_warning($message, $context = array())
-	{
-		$this->log('warning', $message, $context);
+	public function log_warning( $message, $context = array() ) {
+		$this->log( 'warning', $message, $context );
 	}
 
 	/**
@@ -77,9 +74,8 @@ class TrackSure_Logger
 	 * @param array  $context Additional context data.
 	 * @return void
 	 */
-	public function log_info($message, $context = array())
-	{
-		$this->log('info', $message, $context);
+	public function log_info( $message, $context = array() ) {
+		$this->log( 'info', $message, $context );
 	}
 
 	/**
@@ -89,12 +85,11 @@ class TrackSure_Logger
 	 * @param array  $context Additional context data.
 	 * @return void
 	 */
-	public function log_debug($message, $context = array())
-	{
-		if (! WP_DEBUG) {
+	public function log_debug( $message, $context = array() ) {
+		if ( ! WP_DEBUG ) {
 			return; // Skip debug logs if WP_DEBUG is off
 		}
-		$this->log('debug', $message, $context);
+		$this->log( 'debug', $message, $context );
 	}
 
 	/**
@@ -105,28 +100,27 @@ class TrackSure_Logger
 	 * @param array  $context Additional context data.
 	 * @return void
 	 */
-	private function log($level, $message, $context = array())
-	{
+	private function log( $level, $message, $context = array() ) {
 		global $wpdb;
 
 		$wpdb->insert(
 			$this->table,
 			array(
-				'level'        => sanitize_text_field($level),
-				'message'      => sanitize_text_field($message),
-				'context_json' => ! empty($context) ? wp_json_encode($context) : null,
-				'occurred_at'  => current_time('mysql', true),
+				'level'        => sanitize_text_field( $level ),
+				'message'      => sanitize_text_field( $message ),
+				'context_json' => ! empty( $context ) ? wp_json_encode( $context ) : null,
+				'occurred_at'  => current_time( 'mysql', true ),
 				'ip_address'   => TrackSure_Utilities::get_client_ip(),
 			),
-			array('%s', '%s', '%s', '%s', '%s')
+			array( '%s', '%s', '%s', '%s', '%s' )
 		);
 
 		// Also log to PHP error_log for critical errors.
-		if ($level === 'error') {
+		if ( $level === 'error' ) {
 			// phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log.
-			if (defined('WP_DEBUG') && WP_DEBUG) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 
-				error_log(sprintf('[TrackSure] %s: %s', strtoupper($level), $message));
+				error_log( sprintf( '[TrackSure] %s: %s', strtoupper( $level ), $message ) );
 			}
 		}
 	}
@@ -138,21 +132,20 @@ class TrackSure_Logger
 	 * @param string $level   Filter by log level (optional).
 	 * @return array          Array of log entries.
 	 */
-	public function get_recent_logs($limit = 20, $level = null)
-	{
+	public function get_recent_logs( $limit = 20, $level = null ) {
 		global $wpdb;
 
 		$query = "SELECT log_id, level, message, context_json, occurred_at FROM {$wpdb->prefix}tracksure_logs";
 
-		if ($level) {
-			$query .= $wpdb->prepare(' WHERE level = %s', $level);
+		if ( $level ) {
+			$query .= $wpdb->prepare( ' WHERE level = %s', $level );
 		}
 
 		$query .= ' ORDER BY occurred_at DESC';
-		$query .= $wpdb->prepare(' LIMIT %d', $limit);
+		$query .= $wpdb->prepare( ' LIMIT %d', $limit );
 
 		// phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Query dynamically built with safe methods and prepared LIMIT
-		return $wpdb->get_results($query, ARRAY_A);
+		return $wpdb->get_results( $query, ARRAY_A );
 	}
 
 	/**
@@ -160,8 +153,7 @@ class TrackSure_Logger
 	 *
 	 * @return int Number of deleted logs.
 	 */
-	public function cleanup_old_logs()
-	{
+	public function cleanup_old_logs() {
 		global $wpdb;
 
 		$deleted = $wpdb->query(
@@ -174,7 +166,7 @@ class TrackSure_Logger
 		$this->log_info(
 			sprintf(
 				/* translators: %d: number of deleted log entries */
-				__('Cleaned up %d old log entries', 'tracksure'),
+				__( 'Cleaned up %d old log entries', 'tracksure' ),
 				$deleted
 			)
 		);
@@ -189,8 +181,7 @@ class TrackSure_Logger
 	 *
 	 * @return void
 	 */
-	public static function create_table()
-	{
+	public static function create_table() {
 		global $wpdb;
 
 		$charset_collate = $wpdb->get_charset_collate();
@@ -208,6 +199,6 @@ class TrackSure_Logger
         ) $charset_collate;";
 
 		require_once ABSPATH . 'wp-admin/includes/upgrade.php';
-		dbDelta($sql);
+		dbDelta( $sql );
 	}
 }

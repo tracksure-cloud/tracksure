@@ -13,7 +13,7 @@
  */
 
 // Exit if accessed directly.
-if (! defined('ABSPATH')) {
+if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
@@ -26,8 +26,8 @@ if (! defined('ABSPATH')) {
  * - Data sanitization
  * - URL normalization
  */
-class TrackSure_Utilities
-{
+class TrackSure_Utilities {
+
 
 
 
@@ -48,17 +48,16 @@ class TrackSure_Utilities
 	 *
 	 * @return string|null IP address or null if invalid.
 	 */
-	public static function get_client_ip()
-	{
+	public static function get_client_ip() {
 		// Get server's REMOTE_ADDR (always available).
-		$remote_addr = isset($_SERVER['REMOTE_ADDR']) ?
-			sanitize_text_field(wp_unslash($_SERVER['REMOTE_ADDR'])) : null;
+		$remote_addr = isset( $_SERVER['REMOTE_ADDR'] ) ?
+			sanitize_text_field( wp_unslash( $_SERVER['REMOTE_ADDR'] ) ) : null;
 
 		// PRIORITY 1: Cloudflare - Most reliable if present.
 		// Cloudflare always sets CF-Connecting-IP to the true client IP.
-		if (isset($_SERVER['HTTP_CF_CONNECTING_IP'])) {
-			$cf_ip = sanitize_text_field(wp_unslash($_SERVER['HTTP_CF_CONNECTING_IP']));
-			if (filter_var($cf_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+		if ( isset( $_SERVER['HTTP_CF_CONNECTING_IP'] ) ) {
+			$cf_ip = sanitize_text_field( wp_unslash( $_SERVER['HTTP_CF_CONNECTING_IP'] ) );
+			if ( filter_var( $cf_ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
 				return $cf_ip;
 			}
 		}
@@ -76,7 +75,7 @@ class TrackSure_Utilities
 		);
 
 		// PRIORITY 2: Trusted proxy check.
-		$is_trusted_proxy = in_array($remote_addr, $trusted_proxies, true);
+		$is_trusted_proxy = in_array( $remote_addr, $trusted_proxies, true );
 
 		// PRIORITY 3: Check all possible proxy headers.
 		$proxy_headers = array(
@@ -88,9 +87,9 @@ class TrackSure_Utilities
 		);
 
 		// If behind known trusted proxy OR if any proxy header exists, try to extract real IP.
-		foreach ($proxy_headers as $header) {
-			if (isset($_SERVER[$header])) {
-				$header_value = sanitize_text_field(wp_unslash($_SERVER[$header]));
+		foreach ( $proxy_headers as $header ) {
+			if ( isset( $_SERVER[ $header ] ) ) {
+				$header_value = sanitize_text_field( wp_unslash( $_SERVER[ $header ] ) );
 
 				// Trust proxy headers in these scenarios:
 				// 1. REMOTE_ADDR is in trusted proxy list (production load balancers/CDNs)
@@ -98,25 +97,25 @@ class TrackSure_Utilities
 				// 3. REMOTE_ADDR is a private IP (Docker, Local by WP Engine, reverse proxies)
 				// 4. X-Forwarded-For header exists (most production servers use this)
 				$is_private_ip = false;
-				if ($remote_addr) {
+				if ( $remote_addr ) {
 					// Check if REMOTE_ADDR is private IP range
-					$ip_long       = ip2long($remote_addr);
+					$ip_long       = ip2long( $remote_addr );
 					$is_private_ip = (
-						($ip_long >= ip2long('10.0.0.0') && $ip_long <= ip2long('10.255.255.255')) ||
-						($ip_long >= ip2long('172.16.0.0') && $ip_long <= ip2long('172.31.255.255')) ||
-						($ip_long >= ip2long('192.168.0.0') && $ip_long <= ip2long('192.168.255.255')) ||
-						($ip_long >= ip2long('127.0.0.0') && $ip_long <= ip2long('127.255.255.255'))
+						( $ip_long >= ip2long( '10.0.0.0' ) && $ip_long <= ip2long( '10.255.255.255' ) ) ||
+						( $ip_long >= ip2long( '172.16.0.0' ) && $ip_long <= ip2long( '172.31.255.255' ) ) ||
+						( $ip_long >= ip2long( '192.168.0.0' ) && $ip_long <= ip2long( '192.168.255.255' ) ) ||
+						( $ip_long >= ip2long( '127.0.0.0' ) && $ip_long <= ip2long( '127.255.255.255' ) )
 					);
 				}
 
 				$should_trust = $is_trusted_proxy
-					|| self::is_localhost_request($remote_addr)
+					|| self::is_localhost_request( $remote_addr )
 					|| $is_private_ip
-					|| ($header === 'HTTP_X_FORWARDED_FOR'); // Always trust X-Forwarded-For on production
+					|| ( $header === 'HTTP_X_FORWARDED_FOR' ); // Always trust X-Forwarded-For on production
 
-				if ($should_trust) {
-					$extracted_ip = self::extract_first_valid_ip($header_value);
-					if ($extracted_ip) {
+				if ( $should_trust ) {
+					$extracted_ip = self::extract_first_valid_ip( $header_value );
+					if ( $extracted_ip ) {
 						return $extracted_ip;
 					}
 				}
@@ -125,7 +124,7 @@ class TrackSure_Utilities
 
 		// PRIORITY 4: Fallback to REMOTE_ADDR.
 		// Validate it's a real public IP (not private/reserved).
-		if ($remote_addr && filter_var($remote_addr, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+		if ( $remote_addr && filter_var( $remote_addr, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
 			return $remote_addr;
 		}
 
@@ -140,20 +139,19 @@ class TrackSure_Utilities
 	 * @param string|null $ip IP address to check.
 	 * @return bool True if localhost request.
 	 */
-	private static function is_localhost_request($ip)
-	{
-		if (empty($ip)) {
+	private static function is_localhost_request( $ip ) {
+		if ( empty( $ip ) ) {
 			return false;
 		}
 
 		// Check for localhost IPs.
-		$localhost_ips = array('127.0.0.1', '::1', 'localhost');
-		if (in_array($ip, $localhost_ips, true)) {
+		$localhost_ips = array( '127.0.0.1', '::1', 'localhost' );
+		if ( in_array( $ip, $localhost_ips, true ) ) {
 			return true;
 		}
 
 		// Check for private IP ranges (10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16).
-		if (! filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE)) {
+		if ( ! filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE ) ) {
 			return true;
 		}
 
@@ -169,18 +167,17 @@ class TrackSure_Utilities
 	 * @param string $ip_string Comma-separated IP addresses.
 	 * @return string|null First valid IP or null.
 	 */
-	public static function extract_first_valid_ip($ip_string)
-	{
-		if (empty($ip_string)) {
+	public static function extract_first_valid_ip( $ip_string ) {
+		if ( empty( $ip_string ) ) {
 			return null;
 		}
 
 		// Split by comma and trim whitespace.
-		$ips = array_map('trim', explode(',', $ip_string));
+		$ips = array_map( 'trim', explode( ',', $ip_string ) );
 
-		foreach ($ips as $ip) {
+		foreach ( $ips as $ip ) {
 			// Validate IP and reject private/reserved ranges.
-			if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+			if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
 				return $ip;
 			}
 		}
@@ -197,20 +194,19 @@ class TrackSure_Utilities
 	 * @param string $ip IP address.
 	 * @return string Anonymized IP address.
 	 */
-	public static function anonymize_ip($ip)
-	{
-		if (empty($ip)) {
+	public static function anonymize_ip( $ip ) {
+		if ( empty( $ip ) ) {
 			return $ip;
 		}
 
 		// IPv4: mask last octet.
-		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
-			return preg_replace('/\.\d+$/', '.0', $ip);
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4 ) ) {
+			return preg_replace( '/\.\d+$/', '.0', $ip );
 		}
 
 		// IPv6: mask last 80 bits.
-		if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6)) {
-			return preg_replace('/([\da-f]+:[\da-f]+:[\da-f]+):.*/', '$1::', $ip);
+		if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6 ) ) {
+			return preg_replace( '/([\da-f]+:[\da-f]+:[\da-f]+):.*/', '$1::', $ip );
 		}
 
 		return $ip;
@@ -223,18 +219,17 @@ class TrackSure_Utilities
 	 * @param bool   $allow_private Allow private IPs (127.0.0.1, 192.168.x.x, etc).
 	 * @return bool True if valid IP address.
 	 */
-	public static function is_valid_ip($ip, $allow_private = false)
-	{
-		if (empty($ip)) {
+	public static function is_valid_ip( $ip, $allow_private = false ) {
+		if ( empty( $ip ) ) {
 			return false;
 		}
 
 		$flags = FILTER_FLAG_NO_RES_RANGE;
-		if (! $allow_private) {
+		if ( ! $allow_private ) {
 			$flags |= FILTER_FLAG_NO_PRIV_RANGE;
 		}
 
-		return (bool) filter_var($ip, FILTER_VALIDATE_IP, $flags);
+		return (bool) filter_var( $ip, FILTER_VALIDATE_IP, $flags );
 	}
 
 	// ===========================.
@@ -251,9 +246,8 @@ class TrackSure_Utilities
 	 * @param string $uuid UUID string to validate.
 	 * @return bool True if valid UUID v4.
 	 */
-	public static function is_valid_uuid_v4($uuid)
-	{
-		if (empty($uuid) || ! is_string($uuid)) {
+	public static function is_valid_uuid_v4( $uuid ) {
+		if ( empty( $uuid ) || ! is_string( $uuid ) ) {
 			return false;
 		}
 
@@ -271,18 +265,17 @@ class TrackSure_Utilities
 	 *
 	 * @return string UUID v4 string (e.g., "550e8400-e29b-41d4-a716-446655440000").
 	 */
-	public static function generate_uuid_v4()
-	{
+	public static function generate_uuid_v4() {
 		return sprintf(
 			'%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-			wp_rand(0, 0xffff),
-			wp_rand(0, 0xffff),
-			wp_rand(0, 0xffff),
-			wp_rand(0, 0x0fff) | 0x4000, // Version 4
-			wp_rand(0, 0x3fff) | 0x8000, // Variant bits
-			wp_rand(0, 0xffff),
-			wp_rand(0, 0xffff),
-			wp_rand(0, 0xffff)
+			wp_rand( 0, 0xffff ),
+			wp_rand( 0, 0xffff ),
+			wp_rand( 0, 0xffff ),
+			wp_rand( 0, 0x0fff ) | 0x4000, // Version 4
+			wp_rand( 0, 0x3fff ) | 0x8000, // Variant bits
+			wp_rand( 0, 0xffff ),
+			wp_rand( 0, 0xffff ),
+			wp_rand( 0, 0xffff )
 		);
 	}
 
@@ -297,19 +290,18 @@ class TrackSure_Utilities
 	 * @param array $params Raw URL parameters.
 	 * @return array Sanitized parameters.
 	 */
-	public static function sanitize_url_params($params)
-	{
-		if (! is_array($params)) {
+	public static function sanitize_url_params( $params ) {
+		if ( ! is_array( $params ) ) {
 			return array();
 		}
 
 		$sanitized = array();
-		foreach ($params as $key => $value) {
-			$clean_key = sanitize_key($key);
-			if (is_array($value)) {
-				$sanitized[$clean_key] = self::sanitize_url_params($value);
+		foreach ( $params as $key => $value ) {
+			$clean_key = sanitize_key( $key );
+			if ( is_array( $value ) ) {
+				$sanitized[ $clean_key ] = self::sanitize_url_params( $value );
 			} else {
-				$sanitized[$clean_key] = sanitize_text_field($value);
+				$sanitized[ $clean_key ] = sanitize_text_field( $value );
 			}
 		}
 
@@ -325,23 +317,22 @@ class TrackSure_Utilities
 	 * @param string $url Raw URL.
 	 * @return string Normalized URL.
 	 */
-	public static function normalize_url($url)
-	{
-		if (empty($url)) {
+	public static function normalize_url( $url ) {
+		if ( empty( $url ) ) {
 			return '';
 		}
 
 		// Remove query string.
-		$url = strtok($url, '?');
+		$url = strtok( $url, '?' );
 
 		// Remove fragment.
-		$url = strtok($url, '#');
+		$url = strtok( $url, '#' );
 
 		// Remove trailing slash.
-		$url = rtrim($url, '/');
+		$url = rtrim( $url, '/' );
 
 		// Lowercase
-		return strtolower($url);
+		return strtolower( $url );
 	}
 
 	// ===========================.
@@ -355,13 +346,12 @@ class TrackSure_Utilities
 	 * @param string $suffix Suffix to append (default: '...').
 	 * @return string Truncated string.
 	 */
-	public static function truncate($string, $length, $suffix = '...')
-	{
-		if (strlen($string) <= $length) {
+	public static function truncate( $string, $length, $suffix = '...' ) {
+		if ( strlen( $string ) <= $length ) {
 			return $string;
 		}
 
-		return substr($string, 0, $length - strlen($suffix)) . $suffix;
+		return substr( $string, 0, $length - strlen( $suffix ) ) . $suffix;
 	}
 
 	/**
@@ -372,9 +362,8 @@ class TrackSure_Utilities
 	 * @param string $string String to hash.
 	 * @return string SHA-256 hash.
 	 */
-	public static function hash_string($string)
-	{
-		return hash('sha256', strtolower(trim($string)));
+	public static function hash_string( $string ) {
+		return hash( 'sha256', strtolower( trim( $string ) ) );
 	}
 
 	/**
@@ -387,11 +376,10 @@ class TrackSure_Utilities
 	 * @param string $context Optional context prefix (e.g., 'GA4', 'FluentCart').
 	 * @return void
 	 */
-	public static function debug_log($message, $context = '')
-	{
-		if (defined('WP_DEBUG') && WP_DEBUG) {
+	public static function debug_log( $message, $context = '' ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$prefix = $context ? "[TrackSure {$context}] " : '[TrackSure] ';
-			error_log($prefix . $message); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+			error_log( $prefix . $message ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 		}
 	}
 }

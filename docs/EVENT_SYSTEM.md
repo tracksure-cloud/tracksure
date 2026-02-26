@@ -245,7 +245,7 @@ The `enrich_event_data()` method applies these enrichments in order:
 | 4    | **User Agent**          | From `$_SERVER['HTTP_USER_AGENT']` if not present                                                                                                                |
 | 5    | **IP address**          | `TrackSure_Utilities::get_client_ip()`                                                                                                                           |
 | 6    | **IP anonymization**    | If consent denied → full anonymization. If consent granted + `tracksure_anonymize_ip` option → mask last octet.                                                  |
-| 7    | **Geolocation**         | From IP → country, region, city (filterable: `tracksure_geolocation_data`)                                                                                       |
+| 7    | **Geolocation**         | From IP → country, region, city (filterable: `tracksure_geolocation_data`). **HTTP timeout reduced from 10 s → 3 s** to avoid blocking the event pipeline when the geo service is slow. |
 | 8    | **Device detection**    | From UA → `mobile`/`tablet`/`desktop`                                                                                                                            |
 | 9    | **Browser detection**   | Edge, Opera, Brave, Vivaldi, UC Browser, Samsung, Chrome, Safari, Firefox, IE (filterable: `tracksure_detect_browser`)                                           |
 | 10   | **OS detection**        | Windows 10/8.1, macOS, Linux, Android, iOS                                                                                                                       |
@@ -258,6 +258,8 @@ The `enrich_event_data()` method applies these enrichments in order:
 2. **Outbox queueing** — one row with all destination statuses as JSON
 3. **Goal evaluation** — `TrackSure_Goal_Evaluator::evaluate_event()`
 4. **Conversion recording** — if goal matched
+
+> **Performance note (v1.1):** Conversion recording is now **deferred to the `shutdown` hook** via `register_shutdown_function()`. This ensures the HTTP response is sent to the client immediately and conversion persistence (DB writes, outbox insertion) does not block the response. The deferred callback runs after `fastcgi_finish_request()` / `litespeed_finish_request()` when available.
 
 ### Consent Handling
 
@@ -318,6 +320,24 @@ In-memory buffer that batches events into single multi-row `INSERT IGNORE` state
 - **Shutdown flush** via `add_action('shutdown', ['TrackSure_Event_Queue', 'flush'])` — ensures all events are persisted even if the request ends early
 - **INSERT strategy** — single `INSERT IGNORE INTO {prefix}tracksure_events (29 columns) VALUES (...), (...), ...`
 - **NULL handling** — JSON columns use null sentinels with `$wpdb->prepare()`
+
+### Batch Insert Implementation (`TrackSure_DB::insert_events_batch()`)
+
+When the queue flushes, it delegates to `TrackSure_DB::insert_events_batch()` which builds a **single multi-row INSERT** with fingerprint-based deduplication:
+
+```sql
+INSERT INTO {prefix}tracksure_events (col1, col2, …)
+SELECT %s, %s, …
+FROM (SELECT 1) AS dummy
+WHERE %s NOT IN (
+    SELECT fingerprint FROM {prefix}tracksure_events
+    WHERE fingerprint IN (%s, %s, …)
+)
+UNION ALL
+…
+```
+
+The `WHERE NOT IN (SELECT fingerprint …)` subquery prevents re-inserting events whose fingerprint already exists in the table, providing an additional dedup layer on top of `INSERT IGNORE`. All values are passed through `$wpdb->prepare()` for safety.
 
 ---
 
@@ -679,6 +699,13 @@ Ad platforms (Meta CAPI, GA4 Measurement Protocol) require an `event_id` for ser
 - **Meta**: Both `fbq('track', 'Purchase', {event_id: X})` and CAPI `POST {event_id: X}` use the same ID → Meta deduplicates
 - **GA4**: Both `gtag('event', 'purchase')` and MP API `POST` use the same ID → GA4 deduplicates
 - No duplicate conversions in ad reports
+
+### Improved Semantic Dedup (v1.1)
+
+The background deduplication job (`TrackSure_Cron_Dedup`) was improved in two ways:
+
+1. **Duplicate detection** — now uses `GROUP BY event_id HAVING COUNT(*) > 1` to find all duplicate clusters in a single query, replacing the earlier broken single-event lookup that could miss duplicates.
+2. **Batch deletion** — a single batched `DELETE … WHERE id IN (…)` removes all surplus rows at once, replacing the old **N+1 loop** pattern that issued one `DELETE` per duplicate row.
 
 ---
 

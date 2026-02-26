@@ -730,6 +730,56 @@ OPTIMIZE TABLE wp_tracksure_visitors;
 
 ---
 
-**Last Updated**: February 25, 2026  
+## 🔍 **Query Patterns**
+
+Key query patterns used internally by TrackSure for optimal database performance:
+
+### **1. Batch Event Insert**
+
+`insert_events_batch()` uses a single multi-row `INSERT` with a deduplication subquery to avoid inserting events that already exist:
+
+```sql
+INSERT INTO wp_tracksure_events (event_id, event_name, event_data, session_id, ...)
+VALUES
+  ('uuid-1', 'page_view', '{...}', ...),
+  ('uuid-2', 'click', '{...}', ...),
+  ('uuid-3', 'purchase', '{...}', ...)
+WHERE event_id NOT IN (
+  SELECT fingerprint FROM (
+    SELECT event_id AS fingerprint FROM wp_tracksure_events
+    WHERE event_id IN ('uuid-1', 'uuid-2', 'uuid-3')
+  ) AS existing
+);
+```
+
+This avoids individual `INSERT … ON DUPLICATE KEY` round-trips and performs dedup in a single query.
+
+### **2. Aggregator Cache Invalidation**
+
+When aggregation data is refreshed, stale transients are bulk-deleted directly from the options table rather than calling `delete_transient()` individually:
+
+```sql
+DELETE FROM wp_options
+WHERE option_name LIKE '_transient_ts_agg_%'
+   OR option_name LIKE '_transient_timeout_ts_agg_%';
+```
+
+This is significantly faster than looping through individual `delete_transient()` calls when hundreds of cached aggregation keys exist.
+
+### **3. Batched Cleanup**
+
+`DELETE` operations (old events, expired sessions, stale outbox entries) are chunked in groups of 500 via `LIMIT` to avoid long-running queries that could lock tables:
+
+```sql
+DELETE FROM wp_tracksure_events
+WHERE created_at < DATE_SUB(NOW(), INTERVAL 90 DAY)
+LIMIT 500;
+```
+
+The cleanup worker repeats this in a loop until zero rows are affected, yielding between iterations to keep the database responsive.
+
+---
+
+**Last Updated**: February 26, 2026  
 **Schema Version**: 1.0.0  
 **Total Tables**: 15

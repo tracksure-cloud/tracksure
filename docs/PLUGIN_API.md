@@ -340,6 +340,23 @@ $all_modules   = $core->get_modules();
 
 See [MODULE_DEVELOPMENT.md](MODULE_DEVELOPMENT.md) for the full module creation guide.
 
+### JS-Side Extension Component Registry
+
+The PHP `tracksure_register_admin_extensions` hook has a **JavaScript counterpart**: `window.trackSureExtensionComponents`. This is a shared React component registry that the admin UI reads when rendering extension pages/widgets.
+
+Extension modules should register their React components using a **spread-merge pattern** to avoid overwriting other extensions:
+
+```javascript
+import MyComponent from './components/MyComponent';
+
+window.trackSureExtensionComponents = {
+  ...(window.trackSureExtensionComponents || {}),
+  MyComponent,
+};
+```
+
+The admin shell looks up components by the keys registered on this object. Each key must match the `component` name declared in the PHP extension registration (via `tracksure_register_admin_extensions`). Multiple modules can safely contribute to the same registry because the spread merge preserves existing entries.
+
 ---
 
 ## 🌐 **Browser SDK API**
