@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class TrackSure_Hooks {
 
 
+
 	/**
 	 * Initialize hooks.
 	 */

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API diagnostics controller.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Diagnostics controller class.
  */
 class TrackSure_REST_Diagnostics_Controller extends TrackSure_REST_Controller {
+
 
 
 

@@ -21,6 +21,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class TrackSure_Registry_Cache {
 
 
+
 	/**
 	 * Cache prefix.
 	 *

@@ -31,6 +31,7 @@ class TrackSure_Funnel_Analyzer {
 
 
 
+
 	/**
 	 * Instance.
 	 *

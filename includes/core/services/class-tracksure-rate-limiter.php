@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Rate limiting service for API protection.
  *
@@ -36,6 +37,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Rate Limiter class.
  */
 class TrackSure_Rate_Limiter {
+
 
 
 

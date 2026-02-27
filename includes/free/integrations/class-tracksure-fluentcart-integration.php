@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FluentCart integration module.
  *
@@ -54,6 +55,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * FluentCart Integration Class
  */
 class TrackSure_FluentCart_Integration {
+
 
 
 

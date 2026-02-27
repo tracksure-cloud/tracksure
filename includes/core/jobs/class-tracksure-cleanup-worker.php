@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Background cleanup worker for stale data.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Cleanup worker class.
  */
 class TrackSure_Cleanup_Worker {
+
 
 
 	/**

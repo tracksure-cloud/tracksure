@@ -24,6 +24,7 @@ class TrackSure_Trusted_Proxy_Helper {
 
 
 
+
 	/**
 	 * Static fallback list of known Cloudflare IPv4 ranges.
 	 *

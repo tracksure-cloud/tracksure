@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Event recorder service for persisting tracking events.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Event Recorder class.
  */
 class TrackSure_Event_Recorder {
+
 
 
 	/**

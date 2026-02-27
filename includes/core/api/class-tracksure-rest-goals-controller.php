@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API goals controller.
  *
@@ -63,6 +64,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0.0
  */
 class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
+
 
 
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Frontend tracking script asset loader.
  *
@@ -26,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Tracker assets class.
  */
 class TrackSure_Tracker_Assets {
+
 
 
 

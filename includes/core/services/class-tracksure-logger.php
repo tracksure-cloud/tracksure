@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Logging service for TrackSure.
  *
@@ -26,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Logger service class.
  */
 class TrackSure_Logger {
+
 
 
 

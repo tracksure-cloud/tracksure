@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Consent API endpoint functions.
  *

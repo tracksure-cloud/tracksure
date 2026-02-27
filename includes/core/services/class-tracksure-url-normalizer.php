@@ -26,6 +26,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class TrackSure_URL_Normalizer {
 
 
+
 	/**
 	 * Marketing/Attribution parameters to KEEP (case-insensitive).
 	 * These are essential for proper attribution tracking.

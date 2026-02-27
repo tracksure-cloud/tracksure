@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Uninstall TrackSure plugin.
  *

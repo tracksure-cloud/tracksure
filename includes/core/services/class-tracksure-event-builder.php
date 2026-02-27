@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Event builder for constructing normalized events.
  *
@@ -28,6 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Event Builder Class
  */
 class TrackSure_Event_Builder {
+
 
 
 

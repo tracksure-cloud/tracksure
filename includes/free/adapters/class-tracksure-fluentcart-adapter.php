@@ -1,4 +1,5 @@
 <?php
+
 /**
  * FluentCart e-commerce platform adapter.
  *
@@ -44,6 +45,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * FluentCart Adapter Class
  */
 class TrackSure_FluentCart_Adapter implements TrackSure_Ecommerce_Adapter {
+
 
 
 

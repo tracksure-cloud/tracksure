@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API pixel callback controller.
  *
@@ -29,6 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Pixel Callback REST Controller
  */
 class TrackSure_REST_Pixel_Callback_Controller extends WP_REST_Controller {
+
 
 
 

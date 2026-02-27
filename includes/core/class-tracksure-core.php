@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Core plugin class for TrackSure.
  *
@@ -34,6 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @throws Exception
  */
 final class TrackSure_Core {
+
 
 
 

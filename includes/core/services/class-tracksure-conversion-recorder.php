@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Conversion recording service.
  *
@@ -34,6 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Conversion Recorder class.
  */
 class TrackSure_Conversion_Recorder {
+
 
 
 

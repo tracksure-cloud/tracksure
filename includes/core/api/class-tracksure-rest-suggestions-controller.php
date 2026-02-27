@@ -38,6 +38,7 @@ class TrackSure_REST_Suggestions_Controller extends TrackSure_REST_Controller {
 
 
 
+
 	/**
 	 * Suggestion engine instance.
 	 *

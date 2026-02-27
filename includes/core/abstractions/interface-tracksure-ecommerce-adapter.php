@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 interface TrackSure_Ecommerce_Adapter {
 
+
 	/**
 	 * Get platform name.
 	 *

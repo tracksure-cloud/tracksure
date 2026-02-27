@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Event mapper for platform-specific transformations.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Event Mapper Class
  */
 class TrackSure_Event_Mapper {
+
 
 
 

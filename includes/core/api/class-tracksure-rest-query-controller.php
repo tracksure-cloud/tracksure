@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API query controller.
  *
@@ -39,6 +40,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Query controller class.
  */
 class TrackSure_REST_Query_Controller extends TrackSure_REST_Controller {
+
 
 
 

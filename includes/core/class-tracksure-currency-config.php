@@ -27,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class TrackSure_Currency_Config {
 
+
 	/**
 	 * Singleton instance.
 	 *

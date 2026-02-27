@@ -25,6 +25,7 @@ class TrackSure_Settings_Schema {
 
 
 
+
 	/**
 	 * Get all settings definitions.
 	 *

@@ -26,6 +26,7 @@ class TrackSure_Installer {
 
 
 
+
 	/**
 	 * Run installation.
 	 */

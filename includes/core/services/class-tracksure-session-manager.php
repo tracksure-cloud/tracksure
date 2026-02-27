@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Session management service.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Session Manager class.
  */
 class TrackSure_Session_Manager {
+
 
 
 

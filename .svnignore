@@ -26,6 +26,7 @@ vendor
 .stylelintrc.json
 phpcs.xml
 .editorconfig
+.prettierignore
 
 # Documentation (keep README.md and readme.txt)
 docs

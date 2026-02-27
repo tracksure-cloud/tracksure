@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Setup suggestion engine for guided configuration.
  *
@@ -60,6 +61,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Suggestion engine class.
  */
 class TrackSure_Suggestion_Engine {
+
 
 
 

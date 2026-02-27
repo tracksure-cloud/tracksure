@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Destinations manager for analytics platforms.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Destinations Manager Class
  */
 class TrackSure_Destinations_Manager {
+
 
 
 

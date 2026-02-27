@@ -22,6 +22,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 interface TrackSure_Module_Interface {
 
 
+
 	/**
 	 * Get module ID.
 	 *

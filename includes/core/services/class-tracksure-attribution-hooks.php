@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Attribution hook handlers.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Attribution Hooks class.
  */
 class TrackSure_Attribution_Hooks {
+
 
 
 

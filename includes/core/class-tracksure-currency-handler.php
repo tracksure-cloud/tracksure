@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Currency conversion handler.
  *
@@ -42,6 +43,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Currency Handler Class (Singleton)
  */
 class TrackSure_Currency_Handler {
+
 
 
 	/**

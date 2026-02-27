@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Outbox delivery worker for server-side events.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Delivery worker class.
  */
 class TrackSure_Delivery_Worker {
+
 
 
 
@@ -65,7 +67,7 @@ class TrackSure_Delivery_Worker {
 	 *
 	 * @var int
 	 */
-	private $max_retries       = self::MAX_DELIVERY_RETRIES;
+	private $max_retries = self::MAX_DELIVERY_RETRIES;
 
 	/**
 	 * Exponential backoff schedule (in seconds).

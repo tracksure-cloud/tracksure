@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Hourly data aggregation background job.
  *
@@ -34,6 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Hourly Aggregator class.
  */
 class TrackSure_Hourly_Aggregator {
+
 
 
 	/**

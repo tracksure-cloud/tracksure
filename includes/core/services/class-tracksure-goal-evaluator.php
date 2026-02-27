@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Goal evaluation engine for conversion matching.
  *
@@ -55,6 +56,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 1.0.0
  */
 class TrackSure_Goal_Evaluator {
+
 
 
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Action scheduler service for cron-based tasks.
  *
@@ -50,6 +51,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.0.0
  */
 class TrackSure_Action_Scheduler {
+
 
 
 	/**

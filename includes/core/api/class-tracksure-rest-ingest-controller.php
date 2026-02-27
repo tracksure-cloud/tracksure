@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API ingest controller.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Ingest controller class.
  */
 class TrackSure_REST_Ingest_Controller extends TrackSure_REST_Controller {
+
 
 
 

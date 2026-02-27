@@ -1,4 +1,5 @@
 <?php
+
 /**
  * GA4 setup guide configuration helper.
  *
@@ -26,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * GA4 Setup Guide Class
  */
 class TrackSure_GA4_Setup_Guide {
+
 
 
 
@@ -78,7 +80,7 @@ class TrackSure_GA4_Setup_Guide {
 		<div class="notice notice-info is-dismissible tracksure-ga4-setup-guide">
 			<h2 style="margin-top: 10px;">🚀 TrackSure + GA4: 5 Required Setup Steps</h2>
 			<p><strong>Good news:</strong> TrackSure is already tracking <strong>all events automatically</strong>
-			(purchase, begin_checkout, view_item, add_to_cart, page_view, etc.). No code needed! ✅</p>
+				(purchase, begin_checkout, view_item, add_to_cart, page_view, etc.). No code needed! ✅</p>
 			<p><strong>Important:</strong> You must complete these <strong>5 manual steps in Google Analytics Admin UI</strong> to see data in reports:</p>
 
 			<ol style="margin-left: 20px; line-height: 1.8;">
@@ -151,9 +153,9 @@ class TrackSure_GA4_Setup_Guide {
 			</ul>
 
 			<p><strong>Summary:</strong> TrackSure handles <strong>100% of tracking code</strong> automatically.
-			You just need to configure <strong>GA4 Admin UI</strong>
-			(conversions, data retention, custom dimensions) to see data in reports.
-			The 5 steps above take ~15 minutes total.</p>
+				You just need to configure <strong>GA4 Admin UI</strong>
+				(conversions, data retention, custom dimensions) to see data in reports.
+				The 5 steps above take ~15 minutes total.</p>
 
 			<p style="margin-top: 15px;">
 				<a href="<?php echo esc_url( 'https://analytics.google.com/analytics/web/#/p' . str_replace( 'G-', '', $measurement_id ) . '/admin' ); ?>"

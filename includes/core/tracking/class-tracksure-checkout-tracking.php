@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Checkout event tracking handler.
  *
@@ -27,6 +28,7 @@ defined( 'ABSPATH' ) || exit;
  * @since 2.0.0
  */
 class TrackSure_Checkout_Tracking {
+
 
 
 

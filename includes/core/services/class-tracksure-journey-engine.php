@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Customer journey engine.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Journey Engine class.
  */
 class TrackSure_Journey_Engine {
+
 
 
 

@@ -32,6 +32,7 @@ class TrackSure_REST_Quality_Controller extends TrackSure_REST_Controller {
 
 
 
+
 	/**
 	 * Database instance.
 	 *

@@ -70,6 +70,8 @@ const excludePatterns = [
     /GETTING_STARTED\.md$/,
     /CONTRIBUTING\.md$/,
     /\.gitignore$/,
+    /\.prettierignore$/,
+    /^\./, // Catch-all: exclude all hidden/dot files at root level
 ];
 
 /**

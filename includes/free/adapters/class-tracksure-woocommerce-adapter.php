@@ -39,6 +39,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class TrackSure_WooCommerce_Adapter implements TrackSure_Ecommerce_Adapter {
 
 
+
 	/**
 	 * Data normalizer instance.
 	 *

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Attribution analytics service.
  *
@@ -29,6 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Attribution Analytics class.
  */
 class TrackSure_Attribution_Analytics {
+
 
 
 	/**

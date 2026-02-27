@@ -23,6 +23,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class TrackSure_Attribution_Resolver {
 
 
+
 	/**
 	 * Instance.
 	 *

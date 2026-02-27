@@ -1,4 +1,5 @@
 <?php
+
 /**
  * REST API settings controller.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Settings controller class.
  */
 class TrackSure_REST_Settings_Controller extends TrackSure_REST_Controller {
+
 
 
 

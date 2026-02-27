@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Event bridge for cross-system event routing.
  *
@@ -33,6 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Event Bridge Class
  */
 class TrackSure_Event_Bridge {
+
 
 
 

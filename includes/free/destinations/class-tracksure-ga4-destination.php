@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Google Analytics 4 destination handler.
  *
@@ -43,6 +44,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * GA4 Destination Class
  */
 class TrackSure_GA4_Destination {
+
 
 
 

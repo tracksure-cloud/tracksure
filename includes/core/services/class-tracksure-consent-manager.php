@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Cookie consent management service.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Consent Manager class.
  */
 class TrackSure_Consent_Manager {
+
 
 
 

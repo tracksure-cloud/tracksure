@@ -1,0 +1,47 @@
+# EditorConfig for TrackSure WordPress Plugin
+# https://editorconfig.org
+#
+# WordPress Coding Standards use TABS for PHP, and this file ensures
+# all editors (VS Code, PhpStorm, Sublime, etc.) respect that.
+
+root = true
+
+# Default: Unix-style newlines, trim trailing whitespace
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+# PHP: WordPress uses TABS (1 tab = 4 columns)
+[*.php]
+indent_style = tab
+indent_size = 4
+
+# JavaScript / TypeScript: spaces (Prettier default)
+[*.{js,jsx,ts,tsx}]
+indent_style = space
+indent_size = 2
+
+# CSS / SCSS
+[*.{css,scss}]
+indent_style = space
+indent_size = 2
+
+# JSON / YAML
+[*.{json,yml,yaml}]
+indent_style = space
+indent_size = 2
+
+# XML (phpcs.xml, etc.)
+[*.xml]
+indent_style = tab
+indent_size = 4
+
+# Markdown
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefiles require tabs
+[Makefile]
+indent_style = tab

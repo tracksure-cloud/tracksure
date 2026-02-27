@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Admin UI handler for TrackSure.
  *
@@ -26,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Admin UI class.
  */
 class TrackSure_Admin_UI {
+
 
 
 

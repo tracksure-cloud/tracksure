@@ -1,0 +1,9 @@
+# Prettier should NOT format PHP files.
+# WordPress PHP uses tabs + WPCS brace style which conflicts with Prettier.
+# PHP formatting is handled by PHPCBF (PHP Code Beautifier and Fixer).
+
+*.php
+vendor/
+node_modules/
+admin/dist/
+build/

@@ -50,6 +50,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  */
 class TrackSure_Location_Formatter {
 
+
 	/**
 	 * Format location for display (PHP version of TypeScript's formatLocation)
 	 *

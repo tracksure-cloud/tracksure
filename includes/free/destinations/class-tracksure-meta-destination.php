@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Meta (Facebook) Conversions API destination handler.
  *
@@ -29,6 +30,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Meta Destination Class
  */
 class TrackSure_Meta_Destination {
+
 
 
 

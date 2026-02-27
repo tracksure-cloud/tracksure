@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Module registry loader.
  *
@@ -26,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Registry Loader class.
  */
 class TrackSure_Registry_Loader {
+
 
 
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Integrations manager for e-commerce platforms.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Integrations Manager Class
  */
 class TrackSure_Integrations_Manager {
+
 
 
 

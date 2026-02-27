@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Touchpoint recording service for attribution.
  *
@@ -27,6 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * TrackSure Touchpoint Recorder class.
  */
 class TrackSure_Touchpoint_Recorder {
+
 
 
 

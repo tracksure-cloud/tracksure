@@ -48,6 +48,7 @@ define( 'TRACKSURE_ADMIN_DIR', TRACKSURE_PLUGIN_DIR . 'admin/' );
 final class TrackSure {
 
 
+
 	/**
 	 * Plugin instance.
 	 *

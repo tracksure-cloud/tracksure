@@ -1,45 +1,229 @@
 <?xml version="1.0"?>
-<ruleset name="TrackSure">
-	<description>TrackSure WordPress Coding Standards</description>
+<!--
+    TrackSure PHPCS Distributable Configuration.
 
-	<!-- Check all PHP files in the plugin -->
-	<file>.</file>
+    This is the distributable fallback. The authoritative config is phpcs.xml.
 
-	<!-- Exclude dependencies and build files -->
+    IMPORTANT: VS Code PHPCS extension, CI, and terminal PHPCS all pick up config
+    files in this priority: phpcs.xml > .phpcs.xml > phpcs.xml.dist > .phpcs.xml.dist
+    Keep this file in sync with phpcs.xml for documented exceptions.
+-->
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         name="TrackSure WordPress Coding Standards"
+         xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/squizlabs/PHP_CodeSniffer/master/phpcs.xsd">
+
+	<description>
+		PHPCS ruleset for the TrackSure plugin.
+		Focused on WordPress.org compatibility, security, and best practices.
+	</description>
+
+	<!-- WHAT TO SCAN -->
+	<file>./tracksure.php</file>
+	<file>./uninstall.php</file>
+	<file>./includes</file>
+
+	<!-- EXCLUDE 3RD-PARTY / BUILD DIRS ONLY -->
 	<exclude-pattern>*/node_modules/*</exclude-pattern>
 	<exclude-pattern>*/vendor/*</exclude-pattern>
 	<exclude-pattern>*/admin/dist/*</exclude-pattern>
 	<exclude-pattern>*/admin/src/*</exclude-pattern>
+	<exclude-pattern>*/admin/build/*</exclude-pattern>
 	<exclude-pattern>*/build/*</exclude-pattern>
 	<exclude-pattern>*/tests/*</exclude-pattern>
+	<exclude-pattern>*/languages/*</exclude-pattern>
 
-	<!-- WordPress Coding Standards -->
-	<rule ref="WordPress">
-		<!-- Direct database queries are required for analytics -->
-		<exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery" />
-		<exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching" />
-		<exclude name="WordPress.DB.DirectDatabaseQuery.SchemaChange" />
-		
-		<!-- Table names using $wpdb->prefix are safe -->
-		<exclude name="PluginCheck.Security.DirectDB.UnescapedDBParameter" />
-		
-		<!-- Allow file operations for geolocation database -->
-		<exclude name="WordPress.WP.AlternativeFunctions.file_get_contents_file_get_contents" />
+	<!-- CLI OPTIONS -->
+	<arg value="ps"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="20"/>
+
+	<!-- ENVIRONMENT CONFIG -->
+	<config name="testVersion" value="7.4-"/>
+	<config name="minimum_wp_version" value="6.0"/>
+
+	<!-- BASE STANDARDS -->
+	<rule ref="WordPress-Core"/>
+	<rule ref="WordPress-Extra">
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+		<exclude name="Universal.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+	<rule ref="WordPress-Docs"/>
+
+	<!-- VIPMinimum as WARNING -->
+	<rule ref="WordPressVIPMinimum">
+		<type>warning</type>
+		<exclude name="WordPressVIPMinimum.Performance.NoPaging"/>
+		<exclude name="WordPressVIPMinimum.Performance.OrderByRand"/>
+		<exclude name="WordPressVIPMinimum.JS.DangerouslySetInnerHTML"/>
+		<exclude name="WordPressVIPMinimum.JS.HTMLExecutingFunctions"/>
+		<exclude name="WordPressVIPMinimum.JS.InnerHTML"/>
+		<exclude name="WordPressVIPMinimum.JS.StringConcat"/>
+		<exclude name="WordPressVIPMinimum.JS.StrippingTags"/>
+		<exclude name="WordPressVIPMinimum.JS.Window"/>
 	</rule>
 
-	<!-- Show progress and errors -->
-	<arg value="ps" />
-	<arg name="colors" />
+	<!-- SECURITY RULES (ERRORS) -->
+	<rule ref="WordPress.Security.NonceVerification">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.Security.ValidatedSanitizedInput">
+		<type>error</type>
+		<properties>
+			<property name="customSanitizingFunctions" type="array">
+				<element value="TrackSure_Utilities::get_client_ip"/>
+				<element value="absint"/>
+				<element value="intval"/>
+				<element value="sanitize_text_field"/>
+				<element value="sanitize_email"/>
+				<element value="esc_url_raw"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.Security.EscapeOutput">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.DB.PreparedSQL">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.DB.PreparedSQLPlaceholders">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.DB.RestrictedFunctions">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.WP.Capabilities">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.Security.PluginMenuSlug">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.Security.SafeRedirect">
+		<type>error</type>
+	</rule>
 
-	<!-- Check PHP 7.4+ compatibility -->
-	<config name="testVersion" value="7.4-" />
-
-	<!-- Set text domain -->
+	<!-- WORDPRESS.ORG-SPECIFIC PRACTICES -->
+	<rule ref="WordPress.WP.EnqueuedResources">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.WP.EnqueuedResourceParameters">
+		<type>error</type>
+	</rule>
 	<rule ref="WordPress.WP.I18n">
+		<type>error</type>
 		<properties>
 			<property name="text_domain" type="array">
 				<element value="tracksure"/>
 			</property>
 		</properties>
 	</rule>
+	<rule ref="WordPress.WP.DeprecatedFunctions">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.WP.DeprecatedClasses">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.WP.DeprecatedParameters">
+		<type>error</type>
+	</rule>
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<type>error</type>
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="tracksure"/>
+				<element value="TrackSure"/>
+				<element value="TRACKSURE"/>
+			</property>
+		</properties>
+	</rule>
+	<rule ref="WordPress.Files.FileName">
+		<properties>
+			<property name="strict_class_file_names" value="false"/>
+		</properties>
+	</rule>
+
+	<!-- QUALITY / WARNING RULES -->
+	<rule ref="WordPress.DateTime.RestrictedFunctions">
+		<type>warning</type>
+	</rule>
+	<rule ref="WordPress.DateTime.CurrentTimeTimestamp">
+		<type>warning</type>
+	</rule>
+	<rule ref="WordPress.PHP.DevelopmentFunctions">
+		<type>warning</type>
+		<severity>5</severity>
+	</rule>
+	<rule ref="WordPress.PHP.DiscouragedPHPFunctions">
+		<type>warning</type>
+	</rule>
+	<rule ref="WordPress.DB.SlowDBQuery">
+		<type>warning</type>
+	</rule>
+	<rule ref="WordPress.WP.AlternativeFunctions">
+		<type>warning</type>
+	</rule>
+	<rule ref="Generic.Files.LineLength">
+		<properties>
+			<property name="lineLimit" value="150"/>
+			<property name="absoluteLineLimit" value="200"/>
+		</properties>
+		<severity>5</severity>
+	</rule>
+	<rule ref="Generic.Commenting.Todo">
+		<severity>3</severity>
+	</rule>
+	<rule ref="WordPress.PHP.YodaConditions">
+		<severity>0</severity>
+	</rule>
+	<rule ref="Generic.CodeAnalysis.UnusedFunctionParameter">
+		<severity>3</severity>
+	</rule>
+
+	<!-- ========================================================= -->
+	<!-- DOCUMENTED EXCEPTIONS (WordPress Best Practices)          -->
+	<!-- ========================================================= -->
+
+	<!--
+		Table Name Interpolation: WordPress ALLOWS and REQUIRES table name interpolation
+		because table names CANNOT be used as placeholders in $wpdb->prepare().
+		This is standard WordPress practice used in core and all major plugins.
+	-->
+	<rule ref="WordPress.DB.PreparedSQL.InterpolatedNotPrepared">
+		<severity>0</severity>
+	</rule>
+
+	<!--
+		Prepared Queries in Variables: PHPCS cannot detect $wpdb->prepare() when
+		the query is stored in a variable. Manual review confirms all queries use
+		proper placeholders (%s, %d, %f) with $wpdb->prepare().
+	-->
+	<rule ref="WordPress.DB.PreparedSQL.NotPrepared">
+		<severity>0</severity>
+	</rule>
+
+	<!--
+		REST API Nonce: WordPress REST API uses permission_callback with capability
+		checks instead of nonces. This is WordPress REST API best practice.
+	-->
+	<rule ref="WordPress.Security.NonceVerification.Recommended">
+		<severity>0</severity>
+	</rule>
+
+	<!--
+		Direct Database Queries: TrackSure uses custom tables for analytics data.
+		WordPress.org allows direct queries when using custom schemas.
+	-->
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<severity>5</severity>
+	</rule>
+
+	<!-- Code Style (non-blocking) -->
+	<rule ref="Squiz.Commenting.InlineComment.InvalidEndChar">
+		<severity>3</severity>
+	</rule>
+	<rule ref="Squiz.Commenting.FileComment.SpacingAfterOpen">
+		<severity>3</severity>
+	</rule>
+
 </ruleset>

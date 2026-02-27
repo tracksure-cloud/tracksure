@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Goal configuration validator.
  *
@@ -41,6 +42,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * @since 2.0.0
  */
 class TrackSure_Goal_Validator {
+
 
 
 

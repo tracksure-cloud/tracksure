@@ -23,6 +23,7 @@ class TrackSure_REST_Consent_Controller extends TrackSure_REST_Controller {
 
 
 
+
 	/**
 	 * Register routes.
 	 */

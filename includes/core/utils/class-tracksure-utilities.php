@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Utility helper functions.
  *
@@ -33,6 +34,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * - URL normalization
  */
 class TrackSure_Utilities {
+
 
 
 
