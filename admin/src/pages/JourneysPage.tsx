@@ -40,7 +40,7 @@ const JourneysPage: React.FC = () => {
   const [filterType, setFilterType] = useState<'all' | 'converted' | 'returning'>('all');
   const [selectedVisitorId, setSelectedVisitorId] = useState<number | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const itemsPerPage = 20; // Show 20 visitors per page
 
   // Use centralized API query hook with automatic cleanup and optimized caching
   const { data, error, isLoading, refetch: _refetch } = useApiQuery<VisitorsData>(

@@ -45,6 +45,7 @@
 /vendor export-ignore
 /scripts export-ignore
 /build export-ignore
+/demo export-ignore
 /.gitignore export-ignore
 /.gitattributes export-ignore
 /.svnignore export-ignore

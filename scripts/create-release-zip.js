@@ -33,6 +33,8 @@ const excludePatterns = [
     /^vendor$/,            // Dev dependencies (PHPCS, WPCS) - NOT needed in production (root vendor folder only)
     /^vendor\//,           // Match root-level vendor/ directory
     /docs/,                // Documentation - not needed in production
+    /^demo$/,              // Demo seeder — MU-plugin for InstaWP only, not distributed
+    /^demo\//,             // Demo seeder folder contents
     /\.git/,
     /\.github/,
     /\.vscode/,

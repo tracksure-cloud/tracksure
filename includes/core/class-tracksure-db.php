@@ -40,6 +40,7 @@ class TrackSure_DB
 
 
 
+
 	/**
 	 * Instance.
 	 *
@@ -96,7 +97,12 @@ class TrackSure_DB
 		// Without this, MySQL interprets DATETIME as system timezone (UTC+6 in this case)
 		// causing 6-hour offset in timestamp conversions
 		// See: mysql-timezone-check.php diagnostic for details
-		$wpdb->query("SET time_zone = '+00:00'");
+		// OPTIMIZATION: Only execute once per PHP process using static flag.
+		static $timezone_set = false;
+		if (! $timezone_set) {
+			$wpdb->query("SET time_zone = '+00:00'");
+			$timezone_set = true;
+		}
 	}
 	/**
 	 * Get table names.
@@ -1488,35 +1494,31 @@ class TrackSure_DB
 			ARRAY_A
 		);
 
-		// Get event counts separately.
+		// Get event counts separately (JOIN instead of IN subquery for performance).
 		$event_metrics = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT 
-                    COUNT(DISTINCT CASE WHEN event_name = 'page_view' THEN event_id END) as total_pageviews,
-                    COUNT(DISTINCT event_id) as total_events
-                FROM {$wpdb->prefix}tracksure_events
-                WHERE session_id IN (
-                    SELECT session_id FROM {$wpdb->prefix}tracksure_sessions
-                    WHERE started_at BETWEEN %s AND %s
-                )",
+                    COUNT(DISTINCT CASE WHEN e.event_name = 'page_view' THEN e.event_id END) as total_pageviews,
+                    COUNT(DISTINCT e.event_id) as total_events
+                FROM {$wpdb->prefix}tracksure_events e
+                INNER JOIN {$wpdb->prefix}tracksure_sessions s ON e.session_id = s.session_id
+                WHERE s.started_at BETWEEN %s AND %s",
 				$start_datetime,
 				$end_datetime
 			),
 			ARRAY_A
 		);
 
-		// Get conversion metrics separately (only from conversions table).
+		// Get conversion metrics separately (JOIN instead of IN subquery for performance).
 		$conversion_metrics = $wpdb->get_row(
 			$wpdb->prepare(
 				"SELECT 
-                    COUNT(DISTINCT session_id) as converting_sessions,
-                    COUNT(DISTINCT conversion_id) as total_conversions,
-                    COALESCE(SUM(conversion_value), 0) as total_revenue
-                FROM {$wpdb->prefix}tracksure_conversions
-                WHERE session_id IN (
-                    SELECT session_id FROM {$wpdb->prefix}tracksure_sessions
-                    WHERE started_at BETWEEN %s AND %s
-                )",
+                    COUNT(DISTINCT c.session_id) as converting_sessions,
+                    COUNT(DISTINCT c.conversion_id) as total_conversions,
+                    COALESCE(SUM(c.conversion_value), 0) as total_revenue
+                FROM {$wpdb->prefix}tracksure_conversions c
+                INNER JOIN {$wpdb->prefix}tracksure_sessions s ON c.session_id = s.session_id
+                WHERE s.started_at BETWEEN %s AND %s",
 				$start_datetime,
 				$end_datetime
 			),
@@ -1641,35 +1643,21 @@ class TrackSure_DB
 		$start_datetime = $date_start . ' 00:00:00';
 		$end_datetime   = $date_end . ' 23:59:59';
 
+		// OPTIMIZED: Use LEFT JOIN instead of correlated subquery for conversions.
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT
-                    source,
-                    medium,
-                    COUNT(DISTINCT visitor_id) as visitors,
-                    COUNT(DISTINCT session_id) as sessions,
-                    (SELECT COUNT(DISTINCT conversion_id)
-                     FROM {$wpdb->prefix}tracksure_conversions
-                     WHERE session_id IN (
-                         SELECT session_id FROM {$wpdb->prefix}tracksure_sessions s2
-                         WHERE s2.started_at BETWEEN %s AND %s
-                         AND COALESCE(NULLIF(s2.utm_source, ''), '(direct)') = s.source
-                         AND COALESCE(NULLIF(s2.utm_medium, ''), '(none)') = s.medium
-                     )) as conversions
-                FROM (
-                    SELECT
-                        COALESCE(NULLIF(utm_source, ''), '(direct)') as source,
-                        COALESCE(NULLIF(utm_medium, ''), '(none)') as medium,
-                        visitor_id,
-                        session_id
-                    FROM {$wpdb->prefix}tracksure_sessions
-                    WHERE started_at BETWEEN %s AND %s
-                ) s
+                    COALESCE(NULLIF(s.utm_source, ''), '(direct)') as source,
+                    COALESCE(NULLIF(s.utm_medium, ''), '(none)') as medium,
+                    COUNT(DISTINCT s.visitor_id) as visitors,
+                    COUNT(DISTINCT s.session_id) as sessions,
+                    COUNT(DISTINCT c.conversion_id) as conversions
+                FROM {$wpdb->prefix}tracksure_sessions s
+                LEFT JOIN {$wpdb->prefix}tracksure_conversions c ON s.session_id = c.session_id
+                WHERE s.started_at BETWEEN %s AND %s
                 GROUP BY source, medium
                 ORDER BY visitors DESC
                 LIMIT %d",
-				$start_datetime,
-				$end_datetime,
 				$start_datetime,
 				$end_datetime,
 				$limit
@@ -1764,6 +1752,10 @@ class TrackSure_DB
 		$start_datetime = $date_start . ' 00:00:00';
 		$end_datetime   = $date_end . ' 23:59:59';
 
+		// OPTIMIZED: Split into base query + separate aggregate queries instead of
+		// 3 correlated subqueries per page row (was O(P*E), now O(E) total).
+
+		// Step 1: Get top pages by visitors (fast base query).
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
 				"SELECT
@@ -1771,40 +1763,7 @@ class TrackSure_DB
                     e.page_title as title,
                     COUNT(DISTINCT s.visitor_id) as visitors,
                     COUNT(DISTINCT s.session_id) as sessions,
-                    COUNT(DISTINCT e.event_id) as pageviews,
-                    COALESCE(
-                        (SELECT COUNT(DISTINCT c.conversion_id)
-                         FROM {$wpdb->prefix}tracksure_conversions c
-                         INNER JOIN {$wpdb->prefix}tracksure_sessions cs ON c.session_id = cs.session_id
-                         INNER JOIN {$wpdb->prefix}tracksure_events pe ON c.session_id = pe.session_id
-                         WHERE pe.page_url = e.page_url
-                           AND pe.event_name = 'page_view'
-                           AND pe.occurred_at <= c.converted_at
-                           AND cs.started_at BETWEEN %s AND %s
-                        ), 0
-                    ) as conversions,
-                    (SELECT s2.device_type
-                     FROM {$wpdb->prefix}tracksure_sessions s2
-                     INNER JOIN {$wpdb->prefix}tracksure_events e2 ON s2.session_id = e2.session_id
-                     WHERE e2.page_url = e.page_url
-                       AND s2.started_at BETWEEN %s AND %s
-                       AND s2.device_type IS NOT NULL
-                       AND s2.device_type != ''
-                     GROUP BY s2.device_type
-                     ORDER BY COUNT(*) DESC
-                     LIMIT 1
-                    ) as device,
-                    (SELECT s3.country
-                     FROM {$wpdb->prefix}tracksure_sessions s3
-                     INNER JOIN {$wpdb->prefix}tracksure_events e3 ON s3.session_id = e3.session_id
-                     WHERE e3.page_url = e.page_url
-                       AND s3.started_at BETWEEN %s AND %s
-                       AND s3.country IS NOT NULL
-                       AND s3.country != ''
-                     GROUP BY s3.country
-                     ORDER BY COUNT(*) DESC
-                     LIMIT 1
-                    ) as country
+                    COUNT(DISTINCT e.event_id) as pageviews
                 FROM {$wpdb->prefix}tracksure_events e
                 INNER JOIN {$wpdb->prefix}tracksure_sessions s ON e.session_id = s.session_id
                 WHERE e.event_name = 'page_view'
@@ -1815,16 +1774,102 @@ class TrackSure_DB
                 LIMIT %d",
 				$start_datetime,
 				$end_datetime,
-				$start_datetime,
-				$end_datetime,
-				$start_datetime,
-				$end_datetime,
-				$start_datetime,
-				$end_datetime,
 				$limit
 			),
 			ARRAY_A
 		);
+
+		if (empty($results)) {
+			return array();
+		}
+
+		// Collect page URLs for batch lookups.
+		$page_urls    = array_column($results, 'path');
+		$placeholders = implode(', ', array_fill(0, count($page_urls), '%s'));
+
+		// Step 2: Get conversions per page (single query for all pages).
+		$conv_params     = array_merge(array($start_datetime, $end_datetime), $page_urls);
+		$conversions_map = array();
+		$conv_results    = $wpdb->get_results(
+			// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic IN clause.
+			$wpdb->prepare(
+				"SELECT pe.page_url, COUNT(DISTINCT c.conversion_id) as conversions
+                FROM {$wpdb->prefix}tracksure_conversions c
+                INNER JOIN {$wpdb->prefix}tracksure_sessions cs ON c.session_id = cs.session_id
+                INNER JOIN {$wpdb->prefix}tracksure_events pe ON c.session_id = pe.session_id
+                WHERE pe.event_name = 'page_view'
+                  AND pe.occurred_at <= c.converted_at
+                  AND cs.started_at BETWEEN %s AND %s
+                  AND pe.page_url IN ($placeholders)
+                GROUP BY pe.page_url",
+				$conv_params
+			),
+			// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			ARRAY_A
+		);
+		foreach ($conv_results as $row) {
+			$conversions_map[$row['page_url']] = (int) $row['conversions'];
+		}
+
+		// Step 3: Get top device per page (single query for all pages).
+		$dev_params  = array_merge(array($start_datetime, $end_datetime), $page_urls);
+		$device_map  = array();
+		$dev_results = $wpdb->get_results(
+			// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic IN clause.
+			$wpdb->prepare(
+				"SELECT page_url, device_type FROM (
+                    SELECT e2.page_url, s2.device_type, COUNT(*) as cnt,
+                        ROW_NUMBER() OVER (PARTITION BY e2.page_url ORDER BY COUNT(*) DESC) as rn
+                    FROM {$wpdb->prefix}tracksure_sessions s2
+                    INNER JOIN {$wpdb->prefix}tracksure_events e2 ON s2.session_id = e2.session_id
+                    WHERE s2.started_at BETWEEN %s AND %s
+                      AND s2.device_type IS NOT NULL
+                      AND s2.device_type != ''
+                      AND e2.page_url IN ($placeholders)
+                    GROUP BY e2.page_url, s2.device_type
+                ) ranked WHERE rn = 1",
+				$dev_params
+			),
+			// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			ARRAY_A
+		);
+		foreach ($dev_results as $row) {
+			$device_map[$row['page_url']] = $row['device_type'];
+		}
+
+		// Step 4: Get top country per page (single query for all pages).
+		$country_params  = array_merge(array($start_datetime, $end_datetime), $page_urls);
+		$country_map     = array();
+		$country_results = $wpdb->get_results(
+			// phpcs:disable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber -- Dynamic IN clause.
+			$wpdb->prepare(
+				"SELECT page_url, country FROM (
+                    SELECT e3.page_url, s3.country, COUNT(*) as cnt,
+                        ROW_NUMBER() OVER (PARTITION BY e3.page_url ORDER BY COUNT(*) DESC) as rn
+                    FROM {$wpdb->prefix}tracksure_sessions s3
+                    INNER JOIN {$wpdb->prefix}tracksure_events e3 ON s3.session_id = e3.session_id
+                    WHERE s3.started_at BETWEEN %s AND %s
+                      AND s3.country IS NOT NULL
+                      AND s3.country != ''
+                      AND e3.page_url IN ($placeholders)
+                    GROUP BY e3.page_url, s3.country
+                ) ranked WHERE rn = 1",
+				$country_params
+			),
+			// phpcs:enable WordPress.DB.PreparedSQLPlaceholders.ReplacementsWrongNumber
+			ARRAY_A
+		);
+		foreach ($country_results as $row) {
+			$country_map[$row['page_url']] = $row['country'];
+		}
+
+		// Step 5: Merge all data.
+		foreach ($results as &$row) {
+			$url                = $row['path'];
+			$row['conversions'] = isset($conversions_map[$url]) ? $conversions_map[$url] : 0;
+			$row['device']      = isset($device_map[$url]) ? $device_map[$url] : null;
+			$row['country']     = isset($country_map[$url]) ? $country_map[$url] : null;
+		}
 
 		return $results;
 	}

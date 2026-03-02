@@ -13,13 +13,14 @@
     <file>./uninstall.php</file>
     <file>./includes</file>
 
-    <!-- EXCLUDE 3RD-PARTY / BUILD DIRS ONLY -->
+    <!-- EXCLUDE 3RD-PARTY / BUILD / DEMO DIRS -->
     <exclude-pattern>*/node_modules/*</exclude-pattern>
     <exclude-pattern>*/vendor/*</exclude-pattern>
     <exclude-pattern>*/admin/dist/*</exclude-pattern>
     <exclude-pattern>*/admin/build/*</exclude-pattern>
     <exclude-pattern>*/tests/*</exclude-pattern>
     <exclude-pattern>*/languages/*</exclude-pattern>
+    <exclude-pattern>*/demo/*</exclude-pattern>
 
     <!-- CLI OPTIONS -->
     <!-- Show progress and sniff codes, use colors -->

@@ -5,10 +5,11 @@
  * - Automatic request cancellation (AbortController)
  * - Error handling
  * - Loading states
- * - Retry logic
  * - Type safety
  * 
- * Eliminates 200+ lines of duplicate code across pages.
+ * NOTE: Retry logic is handled by TrackSureAPI.request() (MAX_RETRIES=2).
+ * Do NOT add retry here — it previously caused double-retry explosion
+ * (up to 12 total attempts per failed request).
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -53,7 +54,6 @@ export function useApiQuery<T = unknown>(
   const [isLoading, setIsLoading] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const abortControllerRef = useRef<AbortController | null>(null);
-  const retryCountRef = useRef(0);
   const apiRef = useRef<TrackSureAPI | null>(null);
   const lastFetchTimeRef = useRef<number>(0);
 
@@ -61,7 +61,9 @@ export function useApiQuery<T = unknown>(
     enabled = true,
     refetchInterval,
     staleTime = 0,
-    retry = 2,
+    // retry option is kept for interface compatibility but retries are
+    // handled internally by TrackSureAPI.request() (MAX_RETRIES=2).
+    retry: _retry,
     onSuccess,
     onError,
   } = options;
@@ -113,7 +115,6 @@ export function useApiQuery<T = unknown>(
 
       setData(result);
       lastFetchTimeRef.current = Date.now();
-      retryCountRef.current = 0;
 
       if (onSuccess) {
         onSuccess(result);
@@ -123,15 +124,9 @@ export function useApiQuery<T = unknown>(
       const errObj = err instanceof Error ? err : new Error(String(err));
       if (errObj.name === 'AbortError' || signal.aborted) {return;}
 
-      // Retry logic for retryable errors
-      const errStatus = (err as { status?: number }).status;
-      if (retryCountRef.current < retry && errStatus && errStatus >= 500) {
-        retryCountRef.current++;
-        const delay = Math.pow(2, retryCountRef.current) * 1000; // Exponential backoff
-        await new Promise(resolve => setTimeout(resolve, delay));
-        return fetchData(isRefetch);
-      }
-
+      // NOTE: Retry logic is handled by TrackSureAPI.request() (MAX_RETRIES=2)
+      // with exponential backoff. Do NOT add retry here to avoid double-retry
+      // explosion (previously caused up to 12 total attempts).
       const error = new Error(errObj.message || 'Failed to fetch data');
       setError(error);
 
@@ -146,7 +141,7 @@ export function useApiQuery<T = unknown>(
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps -- Intentionally excludes callback refs and serialized params to prevent infinite re-fetching
-  }, [enabled, endpoint, paramsKey, retry, staleTime]);
+  }, [enabled, endpoint, paramsKey, staleTime]);
 
   // Fetch on mount and when dependencies change
   useEffect(() => {

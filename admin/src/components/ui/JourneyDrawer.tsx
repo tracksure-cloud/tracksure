@@ -5,7 +5,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { useJourneyData } from '../../hooks/useApi';
+import { useApiQuery } from '../../hooks/useApiQuery';
 import { useApp } from '../../contexts/AppContext';
 import { Icon } from './Icon';
 import { ICON_REGISTRY } from '../../config/iconRegistry';
@@ -13,6 +13,7 @@ import { Skeleton } from './Skeleton';
 import { EmptyState } from './EmptyState';
 import { __ } from '../../utils/i18n';
 import { formatUserTime, useUserTimezone } from '../../utils/timezoneHelpers';
+import type { EventRecord } from '../../utils/eventDisplayHelpers';
 import {
   getEventDisplayName,
   getEventIcon,
@@ -29,13 +30,74 @@ import {
 } from '../../utils/parameterFormatters';
 import '../../styles/components/ui/JourneyDrawer.css';
 
+/** Journey API response types */
+interface JourneySession {
+  sessionId: string;
+  visitorId: string;
+  startedAt: string;
+  lastSeenAt: string;
+  source: string;
+  medium: string;
+  campaign: string;
+  device: string;
+  browser: string;
+  os: string;
+  country: string;
+  city: string;
+  region?: string;
+  sessionNumber?: number;
+  firstSource?: string;
+  firstMedium?: string;
+  firstCampaign?: string;
+}
+
+interface JourneyEvent {
+  event_id: string;
+  event_name: string;
+  occurred_at: string;
+  page_url: string;
+  page_path?: string;
+  page_title: string;
+  event_params: Record<string, unknown>;
+  is_conversion: boolean;
+  conversion_value?: number;
+  time_delta?: string;
+}
+
+interface JourneyTouchpoint {
+  touchpoint_id: string;
+  touchpoint_seq: number;
+  touched_at: string;
+  utm_source: string;
+  utm_medium: string;
+  utm_campaign: string;
+  utm_term: string;
+  utm_content: string;
+  channel: string;
+  referrer: string;
+  page_url: string;
+  page_title: string;
+  is_conversion: boolean;
+  attribution_weight: number;
+}
+
+interface JourneyData {
+  session: JourneySession;
+  events: JourneyEvent[];
+  touchpoints: JourneyTouchpoint[];
+  attribution: {
+    first_touch: { source: string; medium: string; campaign: string | null; referrer: string | null; landing_page: string | null };
+    last_touch: { source: string; medium: string; campaign: string | null; page_url: string | null };
+  };
+}
+
 export interface JourneyDrawerProps {
   sessionId: string | null;
   onClose: () => void;
 }
 
 export const JourneyDrawer: React.FC<JourneyDrawerProps> = ({ sessionId, onClose }) => {
-  const { data, loading, error } = useJourneyData(sessionId || '');
+  const { data, isLoading: loading, error } = useApiQuery<JourneyData>('getJourney', sessionId || '', { enabled: !!sessionId });
   const { viewMode } = useApp();
   const timezone = useUserTimezone();
 
@@ -322,7 +384,7 @@ export const JourneyDrawer: React.FC<JourneyDrawerProps> = ({ sessionId, onClose
                   </span>
                 </h3>
                 <div className="ts-journey-drawer__timeline">
-                  {(viewMode === 'business' ? filterEventsForJourney(data.events) : data.events).map((event, _index) => {
+                  {(viewMode === 'business' ? filterEventsForJourney(data.events as unknown as EventRecord[]) : data.events).map((event, _index) => {
                     const isConversion = event.is_conversion;
                     const eventIcon = getEventIcon(event.event_name);
                     const eventDisplayName = getEventDisplayName(event.event_name);

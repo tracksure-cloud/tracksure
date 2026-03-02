@@ -255,7 +255,7 @@ export class TrackSureAPI {
     return this.get('/query/attribution', params);
   }
 
-  // Products API endpoints (WooCommerce analytics)
+  // Products API endpoints (platform-agnostic eCommerce analytics)
   async getProductsPerformance(params?: QueryParams) {
     return this.get('/products/performance', params);
   }
@@ -266,6 +266,10 @@ export class TrackSureAPI {
 
   async getProductsFunnel(params?: QueryParams) {
     return this.get('/products/funnel', params);
+  }
+
+  async getProductsPlatforms() {
+    return this.get('/products/platforms');
   }
 
   // Goals API endpoints

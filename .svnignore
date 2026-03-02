@@ -9,6 +9,9 @@ admin/src
 vendor
 tests
 
+# Demo seeder (MU-plugin for InstaWP only)
+demo
+
 # Build files
 *.map
 webpack.config.js

@@ -1,7 +1,7 @@
 /**
  * Products Page - eCommerce Product Analytics
- * Shows product performance, funnel analysis, and revenue metrics
- * Week 3-4 implementation
+ * Platform-agnostic: works with WooCommerce, FluentCart, EDD, SureCart, etc.
+ * Shows product performance, funnel analysis, and revenue metrics.
  */
 
 import React, { useState, useMemo } from 'react';
@@ -44,6 +44,20 @@ interface ProductFunnel {
   conversion_rate: number;
 }
 
+interface Platform {
+  id: string;
+  name: string;
+  installed: boolean;
+  active: boolean;
+  icon: string;
+}
+
+interface PlatformInfo {
+  platforms: Platform[];
+  has_ecommerce_data: boolean;
+  any_platform_active: boolean;
+}
+
 const ProductsPage: React.FC = () => {
   const { dateRange } = useApp();
   const [sortBy, setSortBy] = useState<'revenue' | 'views' | 'conversions' | 'conversion_rate'>('revenue');
@@ -55,6 +69,13 @@ const ProductsPage: React.FC = () => {
     date_start: formatLocalDate(dateRange.start),
     date_end: formatLocalDate(dateRange.end),
   }), [dateRange]);
+
+  // Detect active eCommerce platforms
+  const { data: platformInfo } = useApiQuery<PlatformInfo>(
+    'getProductsPlatforms',
+    {},
+    { staleTime: 300000, retry: 0 }
+  );
 
   // Lazy load data only when tab is active (improves initial page load)
   const { data: productsData, error: productsError, isLoading: productsLoading } = useApiQuery<Product[]>(
@@ -102,8 +123,20 @@ const ProductsPage: React.FC = () => {
     (activeTab === 'funnel' && funnelLoading)
   );
 
-  // Show error only for non-WooCommerce or server errors
-  if (error && (error.message?.includes('WooCommerce') || (error as { status?: number }).status && (error as { status?: number }).status! >= 500)) {
+  // Derive active platform names for display
+  const activePlatforms = useMemo(() => {
+    if (!platformInfo?.platforms) return [];
+    return platformInfo.platforms.filter(p => p.active);
+  }, [platformInfo]);
+
+  const platformLabel = useMemo(() => {
+    if (activePlatforms.length === 0) return __('eCommerce');
+    if (activePlatforms.length === 1) return activePlatforms[0].name;
+    return activePlatforms.map(p => p.name).join(' + ');
+  }, [activePlatforms]);
+
+  // No eCommerce platform and no data
+  if (platformInfo && !platformInfo.any_platform_active && !platformInfo.has_ecommerce_data) {
     return (
       <div className="tracksure-page products-page">
         <div className="page-header">
@@ -116,20 +149,47 @@ const ProductsPage: React.FC = () => {
             <Icon name="Package" size={64} color="muted" />
           </div>
           <h2 style={{ fontSize: '24px', fontWeight: '700', marginBottom: '12px', color: 'var(--ts-text)' }}>
-            {error.message?.includes('WooCommerce') 
-              ? __('WooCommerce Not Detected') 
-              : __('Server Error')}
+            {__('No eCommerce Platform Detected')}
           </h2>
-          <p style={{ fontSize: '15px', color: 'var(--ts-text-muted)', maxWidth: '500px', margin: '0 auto 24px' }}>
-            {error.message?.includes('WooCommerce')
-              ? __('Product analytics requires WooCommerce to be installed and active. Once activated, product views, add-to-cart events, and purchases will be tracked automatically.')
-              : error.message || __('Unable to load product analytics. Please try again later.')}
+          <p style={{ fontSize: '15px', color: 'var(--ts-text-muted)', maxWidth: '560px', margin: '0 auto 24px' }}>
+            {__('Product analytics works with any supported eCommerce plugin. Once activated and configured, product views, add-to-cart events, and purchases will be tracked automatically.')}
           </p>
-          {error.message?.includes('WooCommerce') && (
-            <p style={{ fontSize: '13px', color: 'var(--ts-text-muted)', fontStyle: 'italic' }}>
-              {__('Install WooCommerce to unlock product analytics')}
-            </p>
-          )}
+          <div className="platform-badges" style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', justifyContent: 'center', marginBottom: '24px' }}>
+            {platformInfo.platforms.map(p => (
+              <span key={p.id} className={`platform-badge ${p.installed ? 'installed' : ''} ${p.active ? 'active' : ''}`}
+                style={{
+                  display: 'inline-flex', alignItems: 'center', gap: '6px',
+                  padding: '8px 16px', borderRadius: '8px', fontSize: '13px', fontWeight: '600',
+                  background: p.active ? 'var(--ts-primary-bg)' : p.installed ? '#f0f9ff' : 'var(--ts-surface)',
+                  color: p.active ? 'var(--ts-primary)' : p.installed ? '#0369a1' : 'var(--ts-text-muted)',
+                  border: `1px solid ${p.active ? 'var(--ts-primary)' : p.installed ? '#bae6fd' : 'var(--ts-border)'}`,
+                }}>
+                <Icon name={p.icon} size={16} />
+                {p.name}
+                {p.active && <span style={{ fontSize: '11px', opacity: 0.7 }}>({__('Active')})</span>}
+                {p.installed && !p.active && <span style={{ fontSize: '11px', opacity: 0.7 }}>({__('Installed')})</span>}
+              </span>
+            ))}
+          </div>
+          <p style={{ fontSize: '13px', color: 'var(--ts-text-muted)', fontStyle: 'italic' }}>
+            {__('Supported: WooCommerce, FluentCart, Easy Digital Downloads, SureCart, and more via Pro.')}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Server error handler
+  if (error && (error as { status?: number }).status && (error as { status?: number }).status! >= 500) {
+    return (
+      <div className="tracksure-page products-page">
+        <div className="page-header">
+          <h1><Icon name={ICON_REGISTRY.products} size={28} className="inline-icon" /> {__('Product Analytics')}</h1>
+          <p className="subtitle">{__('eCommerce product performance and funnel analysis')}</p>
+        </div>
+        <div className="error-message">
+          <Icon name="AlertTriangle" size={20} color="danger" />
+          <span>{error?.message || __('Failed to load products data. Please try again later.')}</span>
         </div>
       </div>
     );
@@ -217,26 +277,22 @@ const ProductsPage: React.FC = () => {
     );
   }
 
-  // Show error message for WooCommerce/server issues
-  if (error && (error.message?.includes('WooCommerce') || (error as { status?: number }).status && (error as { status?: number }).status! >= 500)) {
-    return (
-      <div className="tracksure-page products-page">
-        <div className="page-header">
-          <h1><Icon name={ICON_REGISTRY.products} size={28} className="inline-icon" /> {__('Product Analytics')}</h1>
-          <p className="subtitle">{__('eCommerce product performance and funnel analysis')}</p>
-        </div>
-        <div className="error-message">
-          <Icon name="AlertTriangle" size={20} color="danger" />
-          <span>{error?.message || __('Failed to load products data. Please check if WooCommerce is active.')}</span>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="tracksure-page products-page">
       <div className="page-header">
-        <h1><Icon name={ICON_REGISTRY.products} size={28} className="inline-icon" /> {__('Product Analytics')}</h1>
+        <div className="page-header-top">
+          <h1><Icon name={ICON_REGISTRY.products} size={28} className="inline-icon" /> {__('Product Analytics')}</h1>
+          {activePlatforms.length > 0 && (
+            <div className="platform-indicator">
+              {activePlatforms.map(p => (
+                <span key={p.id} className="platform-chip">
+                  <Icon name={p.icon} size={14} />
+                  {p.name}
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
         <p className="subtitle">{__('Which products drive revenue and how customers shop')}</p>
       </div>
 
@@ -291,7 +347,7 @@ const ProductsPage: React.FC = () => {
         <div className="table-container">
           <div className="table-header">
             <h2>{__('Top Products by Performance')}</h2>
-            <p>{__('Products ranked by selected metric')}</p>
+            <p>{__('Products ranked by selected metric')}{platformLabel !== __('eCommerce') ? ` — ${platformLabel}` : ''}</p>
           </div>
 
           <table className="data-table">
@@ -334,7 +390,7 @@ const ProductsPage: React.FC = () => {
                     </span>
                     <p>{__('No product data available for the selected date range.')}</p>
                     <p style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
-                      {__('Make sure you have WooCommerce installed and have some product events tracked.')}
+                      {__('Product events (view_item, add_to_cart, purchase) will appear once your eCommerce plugin tracks them.')}
                     </p>
                   </td>
                 </tr>
@@ -402,6 +458,9 @@ const ProductsPage: React.FC = () => {
                       <Icon name="FolderOpen" size={48} color="muted" />
                     </div>
                     <p>{__('No category data available.')}</p>
+                    <p style={{ fontSize: '14px', color: '#666', marginTop: '8px' }}>
+                      {__('Categories are derived from product event data (item_category field).')}
+                    </p>
                   </td>
                 </tr>
               ) : (
@@ -484,7 +543,7 @@ const ProductsPage: React.FC = () => {
           <div className="funnel-insights">
             <h3><Icon name="Lightbulb" size={20} color="warning" /> {__('Insights & Recommendations')}</h3>
             <ul className="insights-list">
-              {funnel.funnel[1].drop_off > 70 && (
+              {funnel.funnel[1] && funnel.funnel[1].drop_off > 70 && (
                 <li className="insight-item high">
                   <Icon name="AlertCircle" size={20} color="danger" className="insight-icon" />
                   <div>
@@ -493,7 +552,7 @@ const ProductsPage: React.FC = () => {
                   </div>
                 </li>
               )}
-              {funnel.funnel[2].drop_off > 60 && (
+              {funnel.funnel[2] && funnel.funnel[2].drop_off > 60 && (
                 <li className="insight-item high">
                   <span className="insight-icon">
                     <Icon name="AlertTriangle" size={20} color="warning" />
@@ -504,7 +563,7 @@ const ProductsPage: React.FC = () => {
                   </div>
                 </li>
               )}
-              {funnel.funnel[3].drop_off > 50 && (
+              {funnel.funnel[3] && funnel.funnel[3].drop_off > 50 && (
                 <li className="insight-item medium">
                   <span className="insight-icon">
                     <Icon name="CreditCard" size={20} color="warning" />
@@ -527,6 +586,18 @@ const ProductsPage: React.FC = () => {
                 </li>
               )}
             </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Funnel Tab - empty state */}
+      {activeTab === 'funnel' && !funnel && !funnelLoading && (
+        <div className="table-container">
+          <div style={{ padding: '60px 20px', textAlign: 'center' }}>
+            <Icon name={ICON_REGISTRY.goals} size={48} color="muted" />
+            <p style={{ marginTop: '16px', color: 'var(--ts-text-muted)' }}>
+              {__('No funnel data available. Product events need to be tracked first.')}
+            </p>
           </div>
         </div>
       )}

@@ -22,14 +22,15 @@
  */
 
 // Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
 /**
  * TrackSure Attribution Analytics class.
  */
-class TrackSure_Attribution_Analytics {
+class TrackSure_Attribution_Analytics
+{
 
 
 
@@ -52,8 +53,9 @@ class TrackSure_Attribution_Analytics {
 	 *
 	 * @return TrackSure_Attribution_Analytics
 	 */
-	public static function get_instance() {
-		if ( null === self::$instance ) {
+	public static function get_instance()
+	{
+		if (null === self::$instance) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -62,7 +64,8 @@ class TrackSure_Attribution_Analytics {
 	/**
 	 * Constructor.
 	 */
-	private function __construct() {
+	private function __construct()
+	{
 		$this->db = TrackSure_DB::get_instance();
 	}
 
@@ -79,7 +82,8 @@ class TrackSure_Attribution_Analytics {
 	 * @param string $date_end End date (Y-m-d).
 	 * @return array Journey metrics.
 	 */
-	public function get_journey_insights( $date_start, $date_end ) {
+	public function get_journey_insights($date_start, $date_end)
+	{
 		global $wpdb;
 		// Get aggregated conversion metrics.
 		$insights = $wpdb->get_row(
@@ -101,13 +105,13 @@ class TrackSure_Attribution_Analytics {
 			ARRAY_A
 		);
 
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			if ( $wpdb->last_error ) {
-				error_log( 'MySQL Error: ' . $wpdb->last_error ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
+		if (defined('WP_DEBUG') && WP_DEBUG) {
+			if ($wpdb->last_error) {
+				error_log('MySQL Error: ' . $wpdb->last_error); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log
 			}
 		}
 
-		if ( ! $insights || empty( $insights['total_conversions'] ) ) {
+		if (! $insights || empty($insights['total_conversions'])) {
 			return array(
 				'total_conversions'           => 0,
 				'total_revenue'               => 0,
@@ -127,26 +131,26 @@ class TrackSure_Attribution_Analytics {
 		$single_touch_count = (int) $insights['single_touch_count'];
 
 		// Convert time_to_convert from seconds to days.
-		$avg_time_days = ! empty( $insights['avg_time_to_convert_seconds'] )
-			? round( $insights['avg_time_to_convert_seconds'] / 86400, 1 )
+		$avg_time_days = ! empty($insights['avg_time_to_convert_seconds'])
+			? round($insights['avg_time_to_convert_seconds'] / 86400, 1)
 			: 0;
 
 		return array(
 			'total_conversions'           => $total_conversions,
-			'total_revenue'               => round( (float) $insights['total_revenue'], 2 ),
-			'avg_sessions_to_convert'     => round( (float) $insights['avg_sessions_to_convert'], 1 ),
+			'total_revenue'               => round((float) $insights['total_revenue'], 2),
+			'avg_sessions_to_convert'     => round((float) $insights['avg_sessions_to_convert'], 1),
 			'avg_time_to_convert_days'    => $avg_time_days,
 			'multi_touch_percentage'      => $total_conversions > 0
-				? round( ( $multi_touch_count / $total_conversions ) * 100, 1 )
+				? round(($multi_touch_count / $total_conversions) * 100, 1)
 				: 0,
 			'single_touch_percentage'     => $total_conversions > 0
-				? round( ( $single_touch_count / $total_conversions ) * 100, 1 )
+				? round(($single_touch_count / $total_conversions) * 100, 1)
 				: 0,
 			'multi_touch_count'           => $multi_touch_count,
 			'single_touch_count'          => $single_touch_count,
 			'unique_converters'           => (int) $insights['unique_converters'],
 			'conversion_rate_per_visitor' => (int) $insights['unique_converters'] > 0
-				? round( ( $total_conversions / (int) $insights['unique_converters'] ), 2 )
+				? round(($total_conversions / (int) $insights['unique_converters']), 2)
 				: 0,
 		);
 	}
@@ -161,7 +165,8 @@ class TrackSure_Attribution_Analytics {
 	 * @param string $date_end End date (Y-m-d).
 	 * @return array Device patterns.
 	 */
-	public function get_device_patterns( $date_start, $date_end ) {
+	public function get_device_patterns($date_start, $date_end)
+	{
 		global $wpdb;
 		// Get device journey patterns for converted visitors.
 		// Pre-aggregate conversion metrics per visitor FIRST, then join sessions
@@ -198,17 +203,17 @@ class TrackSure_Attribution_Analytics {
 			ARRAY_A
 		);
 
-		if ( empty( $patterns ) ) {
+		if (empty($patterns)) {
 			return array();
 		}
 
 		// Aggregate patterns (combine identical patterns).
 		$aggregated = array();
-		foreach ( $patterns as $pattern ) {
+		foreach ($patterns as $pattern) {
 			$pattern_key = $pattern['device_pattern'];
 
-			if ( ! isset( $aggregated[ $pattern_key ] ) ) {
-				$aggregated[ $pattern_key ] = array(
+			if (! isset($aggregated[$pattern_key])) {
+				$aggregated[$pattern_key] = array(
 					'pattern'      => $pattern_key,
 					'conversions'  => 0,
 					'revenue'      => 0,
@@ -218,34 +223,34 @@ class TrackSure_Attribution_Analytics {
 				);
 			}
 
-			$aggregated[ $pattern_key ]['conversions']  += (int) $pattern['conversions'];
-			$aggregated[ $pattern_key ]['revenue']      += (float) $pattern['revenue'];
-			$aggregated[ $pattern_key ]['visitors']     += (int) $pattern['visitors'];
-			$aggregated[ $pattern_key ]['avg_sessions'] += (float) $pattern['avg_sessions'];
-			++$aggregated[ $pattern_key ]['count'];
+			$aggregated[$pattern_key]['conversions']  += (int) $pattern['conversions'];
+			$aggregated[$pattern_key]['revenue']      += (float) $pattern['revenue'];
+			$aggregated[$pattern_key]['visitors']     += (int) $pattern['visitors'];
+			$aggregated[$pattern_key]['avg_sessions'] += (float) $pattern['avg_sessions'];
+			++$aggregated[$pattern_key]['count'];
 		}
 
 		// Calculate averages and format.
 		$formatted = array();
-		foreach ( $aggregated as $key => $data ) {
+		foreach ($aggregated as $key => $data) {
 			$formatted[] = array(
 				'pattern'      => $data['pattern'],
 				'conversions'  => $data['conversions'],
-				'revenue'      => round( $data['revenue'], 2 ),
+				'revenue'      => round($data['revenue'], 2),
 				'visitors'     => $data['visitors'],
-				'avg_sessions' => round( $data['avg_sessions'] / $data['count'], 1 ),
+				'avg_sessions' => round($data['avg_sessions'] / $data['count'], 1),
 			);
 		}
 
 		// Sort by conversions DESC.
 		usort(
 			$formatted,
-			function ( $a, $b ) {
+			function ($a, $b) {
 				return $b['conversions'] - $a['conversions'];
 			}
 		);
 
-		return array_slice( $formatted, 0, 10 ); // Top 10 patterns.
+		return array_slice($formatted, 0, 10); // Top 10 patterns.
 	}
 
 	/**
@@ -255,7 +260,8 @@ class TrackSure_Attribution_Analytics {
 	 * @param string $date_end End date (Y-m-d).
 	 * @return array Breakdown data.
 	 */
-	public function get_conversion_breakdown( $date_start, $date_end ) {
+	public function get_conversion_breakdown($date_start, $date_end)
+	{
 		global $wpdb;
 		$breakdown = $wpdb->get_row(
 			$wpdb->prepare(
@@ -277,7 +283,7 @@ class TrackSure_Attribution_Analytics {
 			ARRAY_A
 		);
 
-		if ( empty( $breakdown ) || empty( $breakdown['total_conversions'] ) ) {
+		if (empty($breakdown) || empty($breakdown['total_conversions'])) {
 			return array(
 				'single_touch' => array(
 					'count'      => 0,
@@ -310,28 +316,28 @@ class TrackSure_Attribution_Analytics {
 			'single_touch' => array(
 				'count'      => $single_count,
 				'percentage' => $total_conversions > 0
-					? round( ( $single_count / $total_conversions ) * 100, 1 )
+					? round(($single_count / $total_conversions) * 100, 1)
 					: 0,
-				'revenue'    => round( $single_revenue, 2 ),
+				'revenue'    => round($single_revenue, 2),
 				'avg_value'  => $single_count > 0
-					? round( $single_revenue / $single_count, 2 )
+					? round($single_revenue / $single_count, 2)
 					: 0,
 			),
 			'multi_touch'  => array(
 				'count'        => $multi_count,
 				'percentage'   => $total_conversions > 0
-					? round( ( $multi_count / $total_conversions ) * 100, 1 )
+					? round(($multi_count / $total_conversions) * 100, 1)
 					: 0,
-				'revenue'      => round( $multi_revenue, 2 ),
+				'revenue'      => round($multi_revenue, 2),
 				'avg_value'    => $multi_count > 0
-					? round( $multi_revenue / $multi_count, 2 )
+					? round($multi_revenue / $multi_count, 2)
 					: 0,
-				'avg_sessions' => round( (float) $breakdown['multi_touch_avg_sessions'], 1 ),
-				'avg_days'     => round( (float) $breakdown['multi_touch_avg_time'] / 86400, 1 ),
+				'avg_sessions' => round((float) $breakdown['multi_touch_avg_sessions'], 1),
+				'avg_days'     => round((float) $breakdown['multi_touch_avg_time'] / 86400, 1),
 			),
 			'total'        => array(
 				'conversions' => $total_conversions,
-				'revenue'     => round( (float) $breakdown['total_revenue'], 2 ),
+				'revenue'     => round((float) $breakdown['total_revenue'], 2),
 			),
 		);
 	}
@@ -346,7 +352,8 @@ class TrackSure_Attribution_Analytics {
 	 * @param string $date_end End date (Y-m-d).
 	 * @return array Histogram buckets.
 	 */
-	public function get_time_to_convert_histogram( $date_start, $date_end ) {
+	public function get_time_to_convert_histogram($date_start, $date_end)
+	{
 		global $wpdb;
 		$results = $wpdb->get_results(
 			$wpdb->prepare(
@@ -363,7 +370,7 @@ class TrackSure_Attribution_Analytics {
 			ARRAY_A
 		);
 
-		if ( empty( $results ) ) {
+		if (empty($results)) {
 			return array();
 		}
 
@@ -408,12 +415,12 @@ class TrackSure_Attribution_Analytics {
 		);
 
 		// Bucket the data.
-		foreach ( $results as $row ) {
+		foreach ($results as $row) {
 			$time_to_convert = (int) $row['time_to_convert'];
 			$value           = (float) $row['conversion_value'];
 
-			foreach ( $buckets as $label => &$bucket ) {
-				if ( $time_to_convert >= $bucket['min'] && $time_to_convert < $bucket['max'] ) {
+			foreach ($buckets as $label => &$bucket) {
+				if ($time_to_convert >= $bucket['min'] && $time_to_convert < $bucket['max']) {
 					++$bucket['count'];
 					$bucket['revenue'] += $value;
 					break;
@@ -423,13 +430,13 @@ class TrackSure_Attribution_Analytics {
 
 		// Format for chart.
 		$formatted = array();
-		foreach ( $buckets as $label => $bucket ) {
+		foreach ($buckets as $label => $bucket) {
 			$formatted[] = array(
 				'label'     => $label,
 				'count'     => $bucket['count'],
-				'revenue'   => round( $bucket['revenue'], 2 ),
+				'revenue'   => round($bucket['revenue'], 2),
 				'avg_value' => $bucket['count'] > 0
-					? round( $bucket['revenue'] / $bucket['count'], 2 )
+					? round($bucket['revenue'] / $bucket['count'], 2)
 					: 0,
 			);
 		}
@@ -447,10 +454,11 @@ class TrackSure_Attribution_Analytics {
 	 * @param string $date_end End date (Y-m-d).
 	 * @return array Model comparison by source.
 	 */
-	public function get_attribution_models_comparison( $date_start, $date_end ) {
+	public function get_attribution_models_comparison($date_start, $date_end)
+	{
 		global $wpdb;
 		// All attribution models included.
-		$models = array( 'first_touch', 'last_touch', 'linear', 'time_decay', 'position_based' );
+		$models = array('first_touch', 'last_touch', 'linear', 'time_decay', 'position_based');
 
 		/**
 		 * Filter attribution models for comparison.
@@ -459,18 +467,18 @@ class TrackSure_Attribution_Analytics {
 		 *
 		 * @param array $models Attribution models.
 		 */
-		$models = apply_filters( 'tracksure_attribution_models', $models );
+		$models = apply_filters('tracksure_attribution_models', $models);
 
 		$comparison = array();
 
-		foreach ( $models as $model ) {
+		foreach ($models as $model) {
 			// Get attribution data for this model.
 			$sources = $wpdb->get_results(
 				$wpdb->prepare(
 					"SELECT 
-						COALESCE(ca.utm_source, '(direct)') as source,
-						COALESCE(ca.utm_medium, '(none)') as medium,
-						ca.channel,
+						COALESCE(NULLIF(ca.utm_source, ''), '(direct)') as source,
+						COALESCE(NULLIF(ca.utm_medium, ''), '(none)') as medium,
+						COALESCE(NULLIF(ca.channel, ''), 'unknown') as channel,
 						COUNT(DISTINCT ca.conversion_id) as conversions,
 						SUM(ca.credit_value) as revenue,
 						AVG(ca.credit_percent) as avg_credit
@@ -479,7 +487,9 @@ class TrackSure_Attribution_Analytics {
 					WHERE ca.attribution_model = %s
 						AND DATE(c.converted_at) >= %s 
 						AND DATE(c.converted_at) <= %s
-					GROUP BY COALESCE(ca.utm_source, '(direct)'), COALESCE(ca.utm_medium, '(none)'), ca.channel
+					GROUP BY COALESCE(NULLIF(ca.utm_source, ''), '(direct)'),
+						COALESCE(NULLIF(ca.utm_medium, ''), '(none)'),
+						COALESCE(NULLIF(ca.channel, ''), 'unknown')
 					ORDER BY revenue DESC
 					LIMIT 20",
 					$model,
@@ -489,18 +499,18 @@ class TrackSure_Attribution_Analytics {
 				ARRAY_A
 			);
 
-			$comparison[ $model ] = array_map(
-				function ( $row ) {
+			$comparison[$model] = array_map(
+				function ($row) {
 					return array(
-						'source'      => sanitize_text_field( $row['source'] ),
-						'medium'      => sanitize_text_field( $row['medium'] ),
-						'channel'     => sanitize_text_field( $row['channel'] ),
+						'source'      => sanitize_text_field($row['source']),
+						'medium'      => sanitize_text_field($row['medium']),
+						'channel'     => sanitize_text_field($row['channel']),
 						'conversions' => (int) $row['conversions'],
-						'revenue'     => round( (float) $row['revenue'], 2 ),
-						'avg_credit'  => round( (float) $row['avg_credit'], 1 ),
+						'revenue'     => round((float) $row['revenue'], 2),
+						'avg_credit'  => round((float) $row['avg_credit'], 1),
 					);
 				},
-				! empty( $sources ) ? $sources : array()
+				! empty($sources) ? $sources : array()
 			);
 		}
 
@@ -517,23 +527,24 @@ class TrackSure_Attribution_Analytics {
 	 * @param int    $limit Limit results.
 	 * @return array Conversion paths.
 	 */
-	public function get_conversion_paths( $date_start, $date_end, $limit = 20 ) {
+	public function get_conversion_paths($date_start, $date_end, $limit = 20)
+	{
 		$funnel_analyzer = TrackSure_Funnel_Analyzer::get_instance();
-		$paths           = $funnel_analyzer->get_conversion_paths( $date_start, $date_end, $limit );
+		$paths           = $funnel_analyzer->get_conversion_paths($date_start, $date_end, $limit);
 
-		if ( empty( $paths ) ) {
+		if (empty($paths)) {
 			return array();
 		}
 
 		// Format for consistent API response.
 		return array_map(
-			function ( $path ) {
+			function ($path) {
 				return array(
-					'path'                    => sanitize_text_field( $path['conversion_path'] ?? '' ),
-					'conversions'             => (int) ( $path['conversions'] ?? 0 ),
-					'total_value'             => round( (float) ( $path['total_value'] ?? 0 ), 2 ),
-					'avg_time_to_convert'     => round( (float) ( $path['avg_time_to_convert'] ?? 0 ) / 86400, 1 ),
-					'avg_sessions_to_convert' => round( (float) ( $path['avg_sessions_to_convert'] ?? 0 ), 1 ),
+					'path'                    => sanitize_text_field($path['conversion_path'] ?? ''),
+					'conversions'             => (int) ($path['conversions'] ?? 0),
+					'total_value'             => round((float) ($path['total_value'] ?? 0), 2),
+					'avg_time_to_convert'     => round((float) ($path['avg_time_to_convert'] ?? 0) / 86400, 1),
+					'avg_sessions_to_convert' => round((float) ($path['avg_sessions_to_convert'] ?? 0), 1),
 				);
 			},
 			$paths
