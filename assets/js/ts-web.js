@@ -108,25 +108,38 @@
 	setInterval(checkTrackingEnabled, SETTINGS_CHECK_INTERVAL);
 
 	/**
-	 * Load event and parameter registry from backend.
-	 * 
-	 * Enables client-side validation and provides event metadata to browser.
-	 * Loads asynchronously without blocking tracking - events work even if registry fails.
-	 * 
+	 * Load event and parameter registry.
+	 *
+	 * Prefers the inline registry injected via wp_localize_script (zero HTTP
+	 * requests).  Falls back to a REST fetch only when the inline data is
+	 * absent — and handles both the raw WP_REST_Response shape ({events, …})
+	 * and any future envelope shape ({success, data: {events, …}}).
+	 *
 	 * @returns {Promise<void>}
 	 */
 	async function loadRegistry() {
 		if (registryLoadAttempted) return; // Only attempt once
 		registryLoadAttempted = true;
 
+		// 1. Try inline registry first (injected by PHP — no network request).
+		if (config.registry && config.registry.events) {
+			registry = config.registry;
+			if (window.trackSureDebug) {
+				console.log(
+					'[TrackSure] Registry loaded (inline):',
+					Object.keys(registry.events).length + ' events'
+				);
+			}
+			return;
+		}
+
+		// 2. Fallback: fetch from REST endpoint.
 		try {
 			const registryEndpoint = config.registryEndpoint || '/wp-json/ts/v1/registry';
 			const response = await fetch(registryEndpoint, {
 				method: 'GET',
 				credentials: 'same-origin',
-				headers: {
-					'Accept': 'application/json'
-				}
+				headers: { 'Accept': 'application/json' }
 			});
 
 			if (!response.ok) {
@@ -134,19 +147,23 @@
 			}
 
 			const data = await response.json();
-			
-			// Validate registry structure
-			if (!data.success || !data.data || !data.data.events || !data.data.parameters) {
+
+			// Handle both shapes:
+			//   WP_REST_Response  → { events: {…}, parameters: {…} }
+			//   Envelope          → { success: true, data: { events: {…}, … } }
+			const payload = (data && data.events) ? data : (data && data.data && data.data.events) ? data.data : null;
+
+			if (!payload || !payload.events) {
 				throw new Error('Invalid registry structure');
 			}
 
-			registry = data.data;
+			registry = payload;
 
 			if (window.trackSureDebug) {
 				console.log(
-					'[TrackSure] Registry loaded:',
+					'[TrackSure] Registry loaded (fetch):',
 					Object.keys(registry.events).length + ' events,',
-					Object.keys(registry.parameters).length + ' parameters'
+					Object.keys(registry.parameters || {}).length + ' parameters'
 				);
 			}
 		} catch (error) {

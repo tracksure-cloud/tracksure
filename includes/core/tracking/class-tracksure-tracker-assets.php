@@ -72,12 +72,15 @@ class TrackSure_Tracker_Assets
 			return;
 		}
 
+		// Use minified files on production (SCRIPT_DEBUG = false, the default).
+		$suffix = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
+
 		// 1. Enqueue main tracking script (neutral name avoids ad-blocker keyword matching).
 		// Uses 'defer' strategy (WP 6.3+) so the script doesn't block HTML parsing.
 		// Falls back to footer loading on older WP versions.
 		wp_enqueue_script(
 			'ts-web',
-			TRACKSURE_PLUGIN_URL . 'assets/js/ts-web.js',
+			TRACKSURE_PLUGIN_URL . "assets/js/ts-web{$suffix}.js",
 			array(),
 			TRACKSURE_VERSION,
 			array(
@@ -88,6 +91,12 @@ class TrackSure_Tracker_Assets
 
 		// Pass configuration to script using centralized schema.
 		$config = TrackSure_Settings_Schema::get_js_config();
+
+		// Inline lightweight registry to eliminate the extra /registry HTTP request.
+		// Only event names + required_params are needed for client-side validation
+		// (full definitions are ~60 KB and NOT needed in the browser).
+		$config['registry'] = $this->get_inline_registry();
+
 		wp_localize_script(
 			'ts-web',
 			'trackSureConfig',
@@ -99,7 +108,7 @@ class TrackSure_Tracker_Assets
 		if ($this->is_ecommerce_active()) {
 			wp_enqueue_script(
 				'ts-currency',
-				TRACKSURE_PLUGIN_URL . 'assets/js/ts-currency.js',
+				TRACKSURE_PLUGIN_URL . "assets/js/ts-currency{$suffix}.js",
 				array(),
 				TRACKSURE_VERSION,
 				array(
@@ -110,7 +119,7 @@ class TrackSure_Tracker_Assets
 
 			wp_enqueue_script(
 				'ts-minicart',
-				TRACKSURE_PLUGIN_URL . 'assets/js/ts-minicart.js',
+				TRACKSURE_PLUGIN_URL . "assets/js/ts-minicart{$suffix}.js",
 				array('ts-web', 'ts-currency'),
 				TRACKSURE_VERSION,
 				array(
@@ -123,7 +132,7 @@ class TrackSure_Tracker_Assets
 		// 3. Enqueue consent change listeners (depends on ts-web for config).
 		wp_enqueue_script(
 			'ts-consent-listeners',
-			TRACKSURE_PLUGIN_URL . 'assets/js/consent-listeners.js',
+			TRACKSURE_PLUGIN_URL . "assets/js/consent-listeners{$suffix}.js",
 			array('ts-web'),
 			TRACKSURE_VERSION,
 			array(
@@ -137,7 +146,7 @@ class TrackSure_Tracker_Assets
 		if (! empty($active_goals)) {
 			wp_enqueue_script(
 				'ts-goal-constants',
-				TRACKSURE_PLUGIN_URL . 'admin/tracksure-goal-constants.js',
+				TRACKSURE_PLUGIN_URL . "admin/tracksure-goal-constants{$suffix}.js",
 				array(),
 				TRACKSURE_VERSION,
 				array(
@@ -148,7 +157,7 @@ class TrackSure_Tracker_Assets
 
 			wp_enqueue_script(
 				'ts-goals',
-				TRACKSURE_PLUGIN_URL . 'admin/tracking-goals.js',
+				TRACKSURE_PLUGIN_URL . "admin/tracking-goals{$suffix}.js",
 				array('ts-goal-constants', 'ts-web'),
 				TRACKSURE_VERSION,
 				array(
@@ -231,6 +240,50 @@ class TrackSure_Tracker_Assets
 		set_transient($cache_key, $goals, 5 * MINUTE_IN_SECONDS);
 
 		return $goals;
+	}
+
+	/**
+	 * Build a lightweight inline registry for the browser SDK.
+	 *
+	 * Returns only event names and their required_params — enough for
+	 * client-side validation without the full ~60 KB of definitions.
+	 * Cached for 1 hour (registry changes are rare).
+	 *
+	 * @return array { events: { event_name => { required_params: [...] } }, version: string }
+	 */
+	private function get_inline_registry()
+	{
+		$cache_key = 'tracksure_inline_registry';
+		$cached    = get_transient($cache_key);
+
+		if ($cached !== false && is_array($cached)) {
+			return $cached;
+		}
+
+		$registry  = TrackSure_Registry::get_instance();
+		$events    = $registry->get_events();
+		$event_map = array();
+
+		foreach ($events as $event) {
+			$name = $event['name'] ?? '';
+			if (empty($name)) {
+				continue;
+			}
+			$entry = array();
+			if (! empty($event['required_params'])) {
+				$entry['required_params'] = $event['required_params'];
+			}
+			$event_map[ $name ] = $entry;
+		}
+
+		$result = array(
+			'events'  => $event_map,
+			'version' => TRACKSURE_VERSION,
+		);
+
+		set_transient($cache_key, $result, HOUR_IN_SECONDS);
+
+		return $result;
 	}
 
 	/**

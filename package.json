@@ -25,10 +25,11 @@
     "validate": "npm run phpcs && npm run eslint && npm run stylelint",
     "validate:fix": "npm run phpcs:fix && npm run eslint:fix && npm run stylelint:fix",
     "prepare:release": "npm run validate && npm test && npm run build:production && npm run zip:plugin",
-    "build:production": "cd admin && npm install && npm run build && cd ..",
-    "build:ci": "npm ci && cd admin && npm ci && npm run build && cd ..",
+    "build:production": "cd admin && npm install && npm run build && cd .. && npm run minify",
+    "build:ci": "npm ci && cd admin && npm ci && npm run build && cd .. && npm run minify",
     "test": "echo 'Running tests...' && phpunit --configuration phpunit.xml || echo 'No tests configured yet'",
     "version:check": "node scripts/check-versions.js",
+    "minify": "node scripts/minify-frontend.js",
     "i18n:pot": "wp i18n make-pot . languages/tracksure.pot --exclude=node_modules,vendor,tests,admin/node_modules,admin/build",
     "readme:validate": "node scripts/validate-readme.js",
     "zip:plugin": "node scripts/create-release-zip.js",
@@ -44,6 +45,7 @@
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-security": "^1.7.1",
     "stylelint": "^15.0.0",
-    "stylelint-config-standard": "^34.0.0"
+    "stylelint-config-standard": "^34.0.0",
+    "terser": "^5.46.0"
   }
 }
