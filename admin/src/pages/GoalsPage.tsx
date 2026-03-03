@@ -118,12 +118,13 @@ const GoalsPage: React.FC = () => {
     date_end: formatLocalDate(dateRange.end),
   }), [goalIds, dateRange]);
 
-  const { data: perfData } = useApiQuery<{ performance: Record<number, GoalPerformance> }>(
+  const { data: perfData, isLoading: perfLoading } = useApiQuery<{ performance: Record<number, GoalPerformance> }>(
     'getGoalsPerformance',
     params,
     {
       enabled: goals.length > 0 && goalIds.length > 0,
       staleTime: 30000, // 30s — performance data can be slightly stale
+      refetchInterval: 300000, // 5 min — auto-retry if first fetch failed/timed out
       retry: 2,
       onError: (err) => console.warn('[GoalsPage] Performance data unavailable:', err)
     }
@@ -621,7 +622,7 @@ const GoalsPage: React.FC = () => {
                 </div>
               </div>
 
-              {perf && (
+              {perf ? (
                 <div className="ts-goal-performance">
                   <div className="ts-goal-stat">
                     <span className="ts-goal-stat-label">
@@ -660,7 +661,13 @@ const GoalsPage: React.FC = () => {
                     </span>
                   </div>
                 </div>
-              )}
+              ) : perfLoading ? (
+                <div className="ts-goal-performance ts-goal-performance--loading">
+                  <div className="ts-goal-stat"><span className="ts-skeleton ts-skeleton--sm" /></div>
+                  <div className="ts-goal-stat"><span className="ts-skeleton ts-skeleton--sm" /></div>
+                  <div className="ts-goal-stat"><span className="ts-skeleton ts-skeleton--sm" /></div>
+                </div>
+              ) : null}
               
               {/* Show recent conversions with page URLs */}
               {perf && perf.conversions > 0 && (

@@ -374,15 +374,7 @@
   z-index: 9999;
 }
 
-.ts-modal {
-  background: var(--ts-surface);
-  border-radius: var(--ts-radius-xl);
-  box-shadow: var(--ts-shadow-lg);
-  max-width: 600px;
-  width: 90%;
-  max-height: 80vh;
-  overflow-y: auto;
-}
+
 
 .ts-modal-header {
   display: flex;

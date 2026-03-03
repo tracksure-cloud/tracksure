@@ -67,7 +67,7 @@ export const GOAL_TEMPLATES: GoalTemplate[] = [
     recommended: true,
     icon: 'Timer',
     conditions: [
-      { param: 'time_on_page', operator: 'greater_than_or_equal', value: 180 },
+      { param: 'time_seconds', operator: 'greater_than_or_equal', value: 180 },
     ],
     trigger_config: {
       time_seconds: 180,

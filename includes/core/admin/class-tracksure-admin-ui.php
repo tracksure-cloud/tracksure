@@ -313,9 +313,9 @@ class TrackSure_Admin_UI {
 	private function is_ecommerce_active() {
 		return class_exists( 'WooCommerce' ) ||
 			class_exists( 'Easy_Digital_Downloads' ) ||
-			class_exists( 'SureCart' ) ||
+			class_exists( 'SureCart' ) || defined( 'SURECART_PLUGIN_FILE' ) ||
 			class_exists( 'FluentCart\\App\\App' ) ||
-			class_exists( 'Cartflows_Loader' );
+			class_exists( 'Cartflows_Loader' ) || class_exists( 'FunnelKit_Funnel_Builder_Loader' );
 	}
 
 	/**

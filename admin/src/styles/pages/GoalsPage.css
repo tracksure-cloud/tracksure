@@ -1005,3 +1005,15 @@
   );
   background-size: 200% 100%;
 }
+
+/* Performance skeleton loading state */
+.ts-goal-performance--loading {
+  opacity: 0.6;
+}
+
+.ts-goal-performance--loading .ts-skeleton--sm {
+  display: inline-block;
+  width: 48px;
+  height: 14px;
+  border-radius: 4px;
+}

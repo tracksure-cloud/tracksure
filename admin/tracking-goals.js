@@ -320,7 +320,9 @@
 
                 // ── Timing / scroll params ──────────────────────────────
                 case 'time_seconds':
+                case 'time_on_page':
                     // ConditionBuilder stores 'time_seconds'; handlers pass 'time_on_page'.
+                    // Accept both param names for forward/backward compatibility.
                     actualValue = eventData.time_on_page ?? eventData.time_seconds ?? '';
                     break;
                 case 'scroll_depth':
@@ -385,19 +387,26 @@
      * @returns {boolean} True if condition is satisfied.
      */
     function evaluateOperator(actualValue, operator, expectedValue) {
+        // Coerce both values to strings for consistent comparison.
+        // wp_localize_script serialises all values to strings, and runtime
+        // values from DOM/events might be numbers.  Normalising here avoids
+        // subtle type-mismatch bugs (e.g. 180 !== "180").
+        const a = actualValue != null ? String(actualValue) : '';
+        const e = expectedValue != null ? String(expectedValue) : '';
+
         switch (operator) {
             case 'equals':
-                return actualValue === expectedValue;
+                return a === e;
             case 'not_equals':
-                return actualValue !== expectedValue;
+                return a !== e;
             case 'contains':
-                return actualValue && String(actualValue).includes(expectedValue);
+                return a.includes(e);
             case 'not_contains':
-                return !actualValue || !String(actualValue).includes(expectedValue);
+                return !a.includes(e);
             case 'starts_with':
-                return actualValue && String(actualValue).startsWith(expectedValue);
+                return a.startsWith(e);
             case 'ends_with':
-                return actualValue && String(actualValue).endsWith(expectedValue);
+                return a.endsWith(e);
             case 'matches_regex':
             case 'regex':
                 try {

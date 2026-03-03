@@ -43,7 +43,7 @@
  */
 
 // Exit if accessed directly.
-if ( ! defined( 'ABSPATH' ) ) {
+if (! defined('ABSPATH')) {
 	exit;
 }
 
@@ -55,7 +55,8 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @since 1.0.0
  */
-class TrackSure_Goal_Evaluator {
+class TrackSure_Goal_Evaluator
+{
 
 
 
@@ -118,8 +119,9 @@ class TrackSure_Goal_Evaluator {
 	 *
 	 * @return TrackSure_Goal_Evaluator Singleton instance.
 	 */
-	public static function get_instance(): self {
-		if ( null === self::$instance ) {
+	public static function get_instance(): self
+	{
+		if (null === self::$instance) {
 			self::$instance = new self();
 		}
 		return self::$instance;
@@ -132,7 +134,8 @@ class TrackSure_Goal_Evaluator {
 	 *
 	 * @since 1.0.0
 	 */
-	private function __construct() {
+	private function __construct()
+	{
 		$this->db = TrackSure_DB::get_instance();
 	}
 
@@ -154,60 +157,61 @@ class TrackSure_Goal_Evaluator {
 	 * @param array  $session    Session data array with 'session_id' and 'visitor_id'.
 	 * @return bool True if any goal was triggered, false otherwise.
 	 */
-	public function evaluate_event( string $event_id, array $event_data, array $session ): bool {
-		$event_name = isset( $event_data['event_name'] ) ? sanitize_text_field( $event_data['event_name'] ) : '';
+	public function evaluate_event(string $event_id, array $event_data, array $session): bool
+	{
+		$event_name = isset($event_data['event_name']) ? sanitize_text_field($event_data['event_name']) : '';
 
-		if ( empty( $event_name ) ) {
+		if (empty($event_name)) {
 			return false;
 		}
 
 		// O(1) lookup: only get goals that match this event_name.
-		$matching_goals = $this->get_goals_for_event( $event_name );
+		$matching_goals = $this->get_goals_for_event($event_name);
 
-		if ( empty( $matching_goals ) ) {
+		if (empty($matching_goals)) {
 			return false;
 		}
 
-		$event_params = isset( $event_data['event_params'] ) ? $event_data['event_params'] : array();
+		$event_params = isset($event_data['event_params']) ? $event_data['event_params'] : array();
 
 		// Decode JSON string if needed.
-		if ( is_string( $event_params ) ) {
-			$event_params = ! empty( $event_params ) ? json_decode( $event_params, true ) : array();
+		if (is_string($event_params)) {
+			$event_params = ! empty($event_params) ? json_decode($event_params, true) : array();
 		}
 
-		if ( ! is_array( $event_params ) ) {
+		if (! is_array($event_params)) {
 			$event_params = array();
 		}
 
 		// Merge top-level page fields into event_params so condition evaluation
 		// can resolve page_url, page_path, page_title regardless of whether
 		// they were stored inside the event_params JSON or as separate columns.
-		$page_fields = array( 'page_url', 'page_path', 'page_title' );
-		foreach ( $page_fields as $field ) {
-			if ( ! isset( $event_params[ $field ] ) && isset( $event_data[ $field ] ) ) {
-				$event_params[ $field ] = $event_data[ $field ];
+		$page_fields = array('page_url', 'page_path', 'page_title');
+		foreach ($page_fields as $field) {
+			if (! isset($event_params[$field]) && isset($event_data[$field])) {
+				$event_params[$field] = $event_data[$field];
 			}
 		}
 
-		$session_id = isset( $session['session_id'] ) ? $session['session_id'] : '';
+		$session_id = isset($session['session_id']) ? $session['session_id'] : '';
 		$triggered  = false;
 
-		foreach ( $matching_goals as $goal ) {
+		foreach ($matching_goals as $goal) {
 			// Session-level dedup: skip if this goal+session already converted.
 			$dedup_key = $goal->goal_id . '_' . $session_id;
-			if ( isset( $this->session_conversions[ $dedup_key ] ) ) {
+			if (isset($this->session_conversions[$dedup_key])) {
 				continue;
 			}
 
 			// Evaluate trigger type match.
-			if ( ! $this->evaluate_trigger_match( $goal, $event_data, $event_params ) ) {
+			if (! $this->evaluate_trigger_match($goal, $event_data, $event_params)) {
 				continue;
 			}
 
 			// Evaluate conditions.
-			if ( $this->evaluate_conditions( $goal, $event_params ) ) {
-				$this->trigger_conversion( $event_id, $goal, $event_data, $session );
-				$this->session_conversions[ $dedup_key ] = true;
+			if ($this->evaluate_conditions($goal, $event_params)) {
+				$this->trigger_conversion($event_id, $goal, $event_data, $session);
+				$this->session_conversions[$dedup_key] = true;
 				$triggered                               = true;
 			}
 		}
@@ -226,44 +230,45 @@ class TrackSure_Goal_Evaluator {
 	 * @param string $event_name The event name to look up.
 	 * @return array Array of goal objects matching the event_name.
 	 */
-	private function get_goals_for_event( string $event_name ): array {
+	private function get_goals_for_event(string $event_name): array
+	{
 		// Build index if not yet done.
-		if ( null === $this->goals_by_event ) {
+		if (null === $this->goals_by_event) {
 			$all_goals            = $this->get_active_goals();
 			$this->goals_by_event = array();
 
 			// Trigger-type → event-name mapping (mirrors JS TRIGGER_EVENT_MAP).
 			// Ensures goals are findable even if event_name doesn't exactly match.
 			$trigger_event_map = array(
-				'pageview'      => array( 'page_view' ),
-				'click'         => array( 'click' ),
-				'form_submit'   => array( 'form_submit', 'form_submission' ),
-				'scroll_depth'  => array( 'scroll' ),
-				'time_on_page'  => array( 'page_exit', 'time_on_page', 'time_on_page_threshold' ),
-				'engagement'    => array( 'engagement', 'page_exit' ),
-				'video_play'    => array( 'video_play', 'video_start', 'video_complete' ),
-				'download'      => array( 'file_download', 'download' ),
-				'outbound_link' => array( 'outbound_click', 'external_link' ),
+				'pageview'      => array('page_view'),
+				'click'         => array('click'),
+				'form_submit'   => array('form_submit', 'form_submission'),
+				'scroll_depth'  => array('scroll'),
+				'time_on_page'  => array('page_exit', 'time_on_page', 'time_on_page_threshold'),
+				'engagement'    => array('engagement', 'page_exit'),
+				'video_play'    => array('video_play', 'video_start', 'video_complete'),
+				'download'      => array('file_download', 'download'),
+				'outbound_link' => array('outbound_click', 'external_link'),
 			);
 
-			foreach ( $all_goals as $goal ) {
+			foreach ($all_goals as $goal) {
 				// Primary index: goal's own event_name.
 				$key = $goal->event_name;
-				if ( ! isset( $this->goals_by_event[ $key ] ) ) {
-					$this->goals_by_event[ $key ] = array();
+				if (! isset($this->goals_by_event[$key])) {
+					$this->goals_by_event[$key] = array();
 				}
-				$this->goals_by_event[ $key ][] = $goal;
+				$this->goals_by_event[$key][] = $goal;
 
 				// Secondary index: all event names for this trigger_type.
 				// This ensures a 'scroll_depth' trigger goal is found when
 				// a 'scroll' event arrives, even if event_name is mismatched.
-				if ( ! empty( $goal->trigger_type ) && isset( $trigger_event_map[ $goal->trigger_type ] ) ) {
-					foreach ( $trigger_event_map[ $goal->trigger_type ] as $mapped_event ) {
-						if ( $mapped_event !== $key ) { // Avoid duplicate.
-							if ( ! isset( $this->goals_by_event[ $mapped_event ] ) ) {
-								$this->goals_by_event[ $mapped_event ] = array();
+				if (! empty($goal->trigger_type) && isset($trigger_event_map[$goal->trigger_type])) {
+					foreach ($trigger_event_map[$goal->trigger_type] as $mapped_event) {
+						if ($mapped_event !== $key) { // Avoid duplicate.
+							if (! isset($this->goals_by_event[$mapped_event])) {
+								$this->goals_by_event[$mapped_event] = array();
 							}
-							$this->goals_by_event[ $mapped_event ][] = $goal;
+							$this->goals_by_event[$mapped_event][] = $goal;
 						}
 					}
 				}
@@ -272,7 +277,7 @@ class TrackSure_Goal_Evaluator {
 			}
 		}
 
-		return isset( $this->goals_by_event[ $event_name ] ) ? $this->goals_by_event[ $event_name ] : array();
+		return isset($this->goals_by_event[$event_name]) ? $this->goals_by_event[$event_name] : array();
 	}
 
 	/**
@@ -289,17 +294,18 @@ class TrackSure_Goal_Evaluator {
 	 *
 	 * @return array Array of goal objects with decoded JSON fields.
 	 */
-	private function get_active_goals(): array {
+	private function get_active_goals(): array
+	{
 		// Check in-memory cache first (fastest).
-		if ( null !== $this->active_goals ) {
+		if (null !== $this->active_goals) {
 			return $this->active_goals;
 		}
 
 		// Check transient cache (5 minute TTL).
 		$cache_key = 'tracksure_active_goals_server';
-		$cached    = get_transient( $cache_key );
+		$cached    = get_transient($cache_key);
 
-		if ( $cached !== false && is_array( $cached ) ) {
+		if ($cached !== false && is_array($cached)) {
 			$this->active_goals = $cached;
 			return $this->active_goals;
 		}
@@ -336,31 +342,31 @@ class TrackSure_Goal_Evaluator {
 		 *
 		 * @param string $query SQL query string (no user input).
 		 */
-		$query = apply_filters( 'tracksure_active_goals_query', $base_query );
+		$query = apply_filters('tracksure_active_goals_query', $base_query);
 
 		// Query active goals (explicit columns for performance).
-		$this->active_goals = $wpdb->get_results( $query ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query; filter may modify.
+		$this->active_goals = $wpdb->get_results($query); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static query; filter may modify.
 
-		if ( ! is_array( $this->active_goals ) ) {
+		if (! is_array($this->active_goals)) {
 			$this->active_goals = array();
 		}
 
 		// Parse JSON columns.
-		foreach ( $this->active_goals as $goal ) {
-			if ( ! empty( $goal->conditions ) ) {
-				$goal->conditions = json_decode( $goal->conditions, true );
+		foreach ($this->active_goals as $goal) {
+			if (! empty($goal->conditions)) {
+				$goal->conditions = json_decode($goal->conditions, true);
 			} else {
 				$goal->conditions = array();
 			}
 
 			// match_logic is a plain string ('all' or 'any'), NOT JSON.
-			if ( empty( $goal->match_logic ) || ! in_array( $goal->match_logic, array( 'all', 'any' ), true ) ) {
+			if (empty($goal->match_logic) || ! in_array($goal->match_logic, array('all', 'any'), true)) {
 				$goal->match_logic = 'all';
 			}
 
 			// Decode trigger_config JSON.
-			if ( ! empty( $goal->trigger_config ) ) {
-				$goal->trigger_config = json_decode( $goal->trigger_config );
+			if (! empty($goal->trigger_config)) {
+				$goal->trigger_config = json_decode($goal->trigger_config);
 			} else {
 				$goal->trigger_config = null;
 			}
@@ -376,10 +382,10 @@ class TrackSure_Goal_Evaluator {
 		 *
 		 * @param array $goals Array of goal objects.
 		 */
-		$this->active_goals = apply_filters( 'tracksure_active_goals', $this->active_goals );
+		$this->active_goals = apply_filters('tracksure_active_goals', $this->active_goals);
 
 		// Cache for 5 minutes.
-		set_transient( $cache_key, $this->active_goals, 5 * MINUTE_IN_SECONDS );
+		set_transient($cache_key, $this->active_goals, 5 * MINUTE_IN_SECONDS);
 
 		return $this->active_goals;
 	}
@@ -409,7 +415,8 @@ class TrackSure_Goal_Evaluator {
 	 * @param array  $event_params Event parameters array.
 	 * @return bool True if trigger conditions are met, false otherwise.
 	 */
-	private function evaluate_trigger_match( object $goal, array $event_data, array $event_params ): bool {
+	private function evaluate_trigger_match(object $goal, array $event_data, array $event_params): bool
+	{
 		/**
 		 * Filter for custom trigger type evaluation.
 		 *
@@ -431,84 +438,84 @@ class TrackSure_Goal_Evaluator {
 			$event_params
 		);
 
-		if ( $custom_match !== null ) {
+		if ($custom_match !== null) {
 			return (bool) $custom_match;
 		}
 
 		// If no trigger_type set, default behavior (always match).
-		if ( empty( $goal->trigger_type ) || $goal->trigger_type === 'pageview' ) {
+		if (empty($goal->trigger_type) || $goal->trigger_type === 'pageview') {
 			return true;
 		}
 
 		// trigger_config is already decoded in get_active_goals().
 		$trigger_config = $goal->trigger_config;
 
-		$page_url  = isset( $event_params['page_url'] ) ? sanitize_url( $event_params['page_url'] ) : '';
-		$page_path = isset( $event_params['page_path'] ) ? sanitize_text_field( $event_params['page_path'] ) : '';
+		$page_url  = isset($event_params['page_url']) ? sanitize_url($event_params['page_url']) : '';
+		$page_path = isset($event_params['page_path']) ? sanitize_text_field($event_params['page_path']) : '';
 
 		// Evaluate based on trigger type.
-		switch ( $goal->trigger_type ) {
+		switch ($goal->trigger_type) {
 			case 'click':
-				$css_selector = isset( $trigger_config->css_selector )
+				$css_selector = isset($trigger_config->css_selector)
 					? $trigger_config->css_selector
 					: null;
 
-				if ( $css_selector && ! empty( $event_params['element_selector'] ) ) {
-					return $this->match_css_selector( $event_params['element_selector'], $css_selector );
+				if ($css_selector && ! empty($event_params['element_selector'])) {
+					return $this->match_css_selector($event_params['element_selector'], $css_selector);
 				}
 
-				$element_id = isset( $trigger_config->element_id )
+				$element_id = isset($trigger_config->element_id)
 					? $trigger_config->element_id
 					: null;
 
-				if ( $element_id && ! empty( $event_params['element_id'] ) ) {
+				if ($element_id && ! empty($event_params['element_id'])) {
 					return $event_params['element_id'] === $element_id;
 				}
 				return true; // No selector specified, match all clicks
 
 			case 'form_submit':
-				$form_id = isset( $trigger_config->form_id )
+				$form_id = isset($trigger_config->form_id)
 					? $trigger_config->form_id
 					: null;
 
-				if ( $form_id && ! empty( $event_params['form_id'] ) ) {
+				if ($form_id && ! empty($event_params['form_id'])) {
 					return $event_params['form_id'] === $form_id;
 				}
 				return true; // No form ID specified, match all form submits
 
 			case 'scroll_depth':
 			case 'scroll': // Backward compatibility
-				$depth_threshold = isset( $trigger_config->scroll_depth )
+				$depth_threshold = isset($trigger_config->scroll_depth)
 					? (int) $trigger_config->scroll_depth
 					: 75;
 
-				if ( ! empty( $event_params['scroll_depth'] ) ) {
+				if (! empty($event_params['scroll_depth'])) {
 					return (int) $event_params['scroll_depth'] >= $depth_threshold;
 				}
 				return false; // No scroll data, can't evaluate
 
 			case 'time_on_page':
-				$time_threshold = isset( $trigger_config->time_seconds )
+				$time_threshold = isset($trigger_config->time_seconds)
 					? (int) $trigger_config->time_seconds
 					: 30;
 
-				if ( ! empty( $event_params['time_on_page'] ) ) {
+				if (! empty($event_params['time_on_page'])) {
 					return (int) $event_params['time_on_page'] >= $time_threshold;
 				}
 				return false; // No time data, can't evaluate
 
 			case 'engagement':
 				// Requires both scroll and time thresholds to be met.
-				$scroll_threshold = isset( $trigger_config->scroll_depth )
+				$scroll_threshold = isset($trigger_config->scroll_depth)
 					? (int) $trigger_config->scroll_depth
 					: 50; // Default 50% scroll
-				$time_threshold   = isset( $trigger_config->time_seconds )
+				$time_threshold   = isset($trigger_config->time_seconds)
 					? (int) $trigger_config->time_seconds
 					: 30; // Default 30 seconds
 
-				$scroll_met = ! empty( $event_params['scroll_depth'] ) &&
+				$scroll_met = ! empty($event_params['scroll_depth']) &&
 					(int) $event_params['scroll_depth'] >= $scroll_threshold;
-				$time_met   = ! empty( $event_params['time_on_page'] ) &&
+				$time_met   = ! empty($event_params['time_on_page']) &&
 					(int) $event_params['time_on_page'] >= $time_threshold;
 
 				return $scroll_met && $time_met;
@@ -519,18 +526,18 @@ class TrackSure_Goal_Evaluator {
 
 			case 'video_play':
 				// Match video URL or title from trigger_config against event params.
-				if ( ! empty( $trigger_config->video_url ) && ! empty( $event_params['video_url'] ) ) {
-					if ( stripos( $event_params['video_url'], $trigger_config->video_url ) === false ) {
+				if (! empty($trigger_config->video_url) && ! empty($event_params['video_url'])) {
+					if (stripos($event_params['video_url'], $trigger_config->video_url) === false) {
 						return false;
 					}
 				}
-				if ( ! empty( $trigger_config->video_title ) && ! empty( $event_params['video_title'] ) ) {
-					if ( stripos( $event_params['video_title'], $trigger_config->video_title ) === false ) {
+				if (! empty($trigger_config->video_title) && ! empty($event_params['video_title'])) {
+					if (stripos($event_params['video_title'], $trigger_config->video_title) === false) {
 						return false;
 					}
 				}
-				if ( ! empty( $trigger_config->video_type ) && ! empty( $event_params['video_type'] ) ) {
-					if ( strtolower( $event_params['video_type'] ) !== strtolower( $trigger_config->video_type ) ) {
+				if (! empty($trigger_config->video_type) && ! empty($event_params['video_type'])) {
+					if (strtolower($event_params['video_type']) !== strtolower($trigger_config->video_type)) {
 						return false;
 					}
 				}
@@ -538,18 +545,18 @@ class TrackSure_Goal_Evaluator {
 
 			case 'download':
 				// Match file type or file name from trigger_config against event params.
-				if ( ! empty( $trigger_config->file_type ) && ! empty( $event_params['file_type'] ) ) {
-					if ( strtolower( $event_params['file_type'] ) !== strtolower( $trigger_config->file_type ) ) {
+				if (! empty($trigger_config->file_type) && ! empty($event_params['file_type'])) {
+					if (strtolower($event_params['file_type']) !== strtolower($trigger_config->file_type)) {
 						return false;
 					}
 				}
-				if ( ! empty( $trigger_config->file_name ) && ! empty( $event_params['file_name'] ) ) {
-					if ( stripos( $event_params['file_name'], $trigger_config->file_name ) === false ) {
+				if (! empty($trigger_config->file_name) && ! empty($event_params['file_name'])) {
+					if (stripos($event_params['file_name'], $trigger_config->file_name) === false) {
 						return false;
 					}
 				}
-				if ( ! empty( $trigger_config->link_url ) && ! empty( $event_params['link_url'] ) ) {
-					if ( stripos( $event_params['link_url'], $trigger_config->link_url ) === false ) {
+				if (! empty($trigger_config->link_url) && ! empty($event_params['link_url'])) {
+					if (stripos($event_params['link_url'], $trigger_config->link_url) === false) {
 						return false;
 					}
 				}
@@ -557,13 +564,13 @@ class TrackSure_Goal_Evaluator {
 
 			case 'outbound_link':
 				// Match link domain or URL from trigger_config against event params.
-				if ( ! empty( $trigger_config->link_domain ) && ! empty( $event_params['link_domain'] ) ) {
-					if ( stripos( $event_params['link_domain'], $trigger_config->link_domain ) === false ) {
+				if (! empty($trigger_config->link_domain) && ! empty($event_params['link_domain'])) {
+					if (stripos($event_params['link_domain'], $trigger_config->link_domain) === false) {
 						return false;
 					}
 				}
-				if ( ! empty( $trigger_config->link_url ) && ! empty( $event_params['link_url'] ) ) {
-					if ( stripos( $event_params['link_url'], $trigger_config->link_url ) === false ) {
+				if (! empty($trigger_config->link_url) && ! empty($event_params['link_url'])) {
+					if (stripos($event_params['link_url'], $trigger_config->link_url) === false) {
 						return false;
 					}
 				}
@@ -580,8 +587,8 @@ class TrackSure_Goal_Evaluator {
 				 * @param array     $event_data     Full event data.
 				 * @param array     $event_params   Event parameters.
 				 */
-				$custom_result = apply_filters( 'tracksure_goal_custom_trigger_eval', null, $goal, $event_data, $event_params );
-				if ( $custom_result !== null ) {
+				$custom_result = apply_filters('tracksure_goal_custom_trigger_eval', null, $goal, $event_data, $event_params);
+				if ($custom_result !== null) {
 					return (bool) $custom_result;
 				}
 				return true; // Unknown trigger, match by event_name only
@@ -595,29 +602,30 @@ class TrackSure_Goal_Evaluator {
 	 * @param string $pattern Expected pattern from goal.
 	 * @return bool True if matches.
 	 */
-	private function match_css_selector( $actual_selector, $pattern ) {
-		if ( empty( $actual_selector ) || empty( $pattern ) ) {
+	private function match_css_selector($actual_selector, $pattern)
+	{
+		if (empty($actual_selector) || empty($pattern)) {
 			return false;
 		}
 
 		// Exact match.
-		if ( $actual_selector === $pattern ) {
+		if ($actual_selector === $pattern) {
 			return true;
 		}
 
 		// ID selector: #contact-form.
-		if ( strpos( $pattern, '#' ) === 0 ) {
-			$pattern_id = substr( $pattern, 1 );
+		if (strpos($pattern, '#') === 0) {
+			$pattern_id = substr($pattern, 1);
 			// Check if actual selector contains this ID.
-			return strpos( $actual_selector, '#' . $pattern_id ) !== false;
+			return strpos($actual_selector, '#' . $pattern_id) !== false;
 		}
 
 		// Class selector: .btn or .btn.primary.
-		if ( strpos( $pattern, '.' ) === 0 ) {
+		if (strpos($pattern, '.') === 0) {
 			// Extract all classes from pattern.
-			$pattern_classes = array_filter( explode( '.', $pattern ) );
-			foreach ( $pattern_classes as $class ) {
-				if ( ! empty( $class ) && strpos( $actual_selector, '.' . $class ) === false ) {
+			$pattern_classes = array_filter(explode('.', $pattern));
+			foreach ($pattern_classes as $class) {
+				if (! empty($class) && strpos($actual_selector, '.' . $class) === false) {
 					return false; // All classes must match
 				}
 			}
@@ -625,17 +633,17 @@ class TrackSure_Goal_Evaluator {
 		}
 
 		// Attribute selector: a[href^="tel:"], button[type="submit"].
-		if ( preg_match( '/^([a-z]+)\[([^\]]+)\]$/i', $pattern, $matches ) ) {
+		if (preg_match('/^([a-z]+)\[([^\]]+)\]$/i', $pattern, $matches)) {
 			$tag  = $matches[1]; // e.g., 'a'
 			$attr = $matches[2]; // e.g., 'href^="tel:"'
 
 			// Check if actual selector starts with this tag.
-			if ( strpos( $actual_selector, $tag ) !== 0 ) {
+			if (strpos($actual_selector, $tag) !== 0) {
 				return false;
 			}
 
 			// Parse attribute condition.
-			if ( preg_match( '/^([a-z-]+)([\^\$\*]?)="([^"]+)"$/i', $attr, $attr_matches ) ) {
+			if (preg_match('/^([a-z-]+)([\^\$\*]?)="([^"]+)"$/i', $attr, $attr_matches)) {
 				// We can't check actual attributes from CSS selector alone,.
 				// but we can match against event params if provided separately.
 				// For now, if tag matches, consider it a match.
@@ -644,19 +652,19 @@ class TrackSure_Goal_Evaluator {
 		}
 
 		// Tag selector with classes: a.phone-link, button.cta.
-		if ( preg_match( '/^([a-z]+)(\.[\w.-]+)?$/i', $pattern ) ) {
-			$pattern_parts = explode( '.', $pattern );
+		if (preg_match('/^([a-z]+)(\.[\w.-]+)?$/i', $pattern)) {
+			$pattern_parts = explode('.', $pattern);
 			$pattern_tag   = $pattern_parts[0];
 
 			// Check tag
-			if ( strpos( $actual_selector, $pattern_tag ) !== 0 ) {
+			if (strpos($actual_selector, $pattern_tag) !== 0) {
 				return false;
 			}
 
 			// Check classes if present.
-			$pattern_parts_count = count( $pattern_parts );
-			for ( $i = 1; $i < $pattern_parts_count; $i++ ) {
-				if ( strpos( $actual_selector, '.' . $pattern_parts[ $i ] ) === false ) {
+			$pattern_parts_count = count($pattern_parts);
+			for ($i = 1; $i < $pattern_parts_count; $i++) {
+				if (strpos($actual_selector, '.' . $pattern_parts[$i]) === false) {
 					return false;
 				}
 			}
@@ -664,7 +672,7 @@ class TrackSure_Goal_Evaluator {
 		}
 
 		// Fallback: simple contains matching (backwards compatibility).
-		return strpos( $actual_selector, $pattern ) !== false;
+		return strpos($actual_selector, $pattern) !== false;
 	}
 
 	/**
@@ -674,30 +682,31 @@ class TrackSure_Goal_Evaluator {
 	 * @param array  $event_params Event parameters.
 	 * @return bool True if all conditions met.
 	 */
-	private function evaluate_conditions( $goal, $event_params ) {
+	private function evaluate_conditions($goal, $event_params)
+	{
 		// No conditions = always match.
-		if ( empty( $goal->conditions ) || ! is_array( $goal->conditions ) ) {
+		if (empty($goal->conditions) || ! is_array($goal->conditions)) {
 			return true;
 		}
 
-		$match_logic = isset( $goal->match_logic ) && $goal->match_logic === 'any' ? 'any' : 'all';
+		$match_logic = isset($goal->match_logic) && $goal->match_logic === 'any' ? 'any' : 'all';
 
-		foreach ( $goal->conditions as $condition ) {
-			$param_key = isset( $condition['param'] ) ? $condition['param'] : '';
-			$operator  = isset( $condition['operator'] ) ? $condition['operator'] : 'equals';
-			$value     = isset( $condition['value'] ) ? $condition['value'] : '';
+		foreach ($goal->conditions as $condition) {
+			$param_key = isset($condition['param']) ? $condition['param'] : '';
+			$operator  = isset($condition['operator']) ? $condition['operator'] : 'equals';
+			$value     = isset($condition['value']) ? $condition['value'] : '';
 
 			// Get actual value from event params.
-			$actual_value = isset( $event_params[ $param_key ] ) ? $event_params[ $param_key ] : null;
+			$actual_value = isset($event_params[$param_key]) ? $event_params[$param_key] : null;
 
 			// Evaluate condition.
-			$result = $this->evaluate_condition_operator( $actual_value, $operator, $value );
+			$result = $this->evaluate_condition_operator($actual_value, $operator, $value);
 
-			if ( $match_logic === 'any' && $result ) {
+			if ($match_logic === 'any' && $result) {
 				return true; // At least one condition passed.
 			}
 
-			if ( $match_logic === 'all' && ! $result ) {
+			if ($match_logic === 'all' && ! $result) {
 				return false; // All conditions must pass.
 			}
 		}
@@ -725,8 +734,9 @@ class TrackSure_Goal_Evaluator {
 	 * @param mixed  $expected_value Expected value from goal condition.
 	 * @return bool True if condition is satisfied.
 	 */
-	private function evaluate_condition_operator( $actual_value, $operator, $expected_value ) {
-		switch ( $operator ) {
+	private function evaluate_condition_operator($actual_value, $operator, $expected_value)
+	{
+		switch ($operator) {
 			case 'equals':
 				// Use string comparison for consistency with JS strict ===.
 				// Numeric values are cast to strings for comparison.
@@ -750,27 +760,27 @@ class TrackSure_Goal_Evaluator {
 				return (float) $actual_value <= (float) $expected_value;
 
 			case 'contains':
-				return strpos( (string) $actual_value, (string) $expected_value ) !== false;
+				return strpos((string) $actual_value, (string) $expected_value) !== false;
 
 			case 'not_contains':
-				return strpos( (string) $actual_value, (string) $expected_value ) === false;
+				return strpos((string) $actual_value, (string) $expected_value) === false;
 
 			case 'starts_with':
-				return strpos( (string) $actual_value, (string) $expected_value ) === 0;
+				return strpos((string) $actual_value, (string) $expected_value) === 0;
 
 			case 'ends_with':
-				$expected_len = strlen( (string) $expected_value );
-				return $expected_len > 0 && substr( (string) $actual_value, -$expected_len ) === (string) $expected_value;
+				$expected_len = strlen((string) $expected_value);
+				return $expected_len > 0 && substr((string) $actual_value, -$expected_len) === (string) $expected_value;
 
 			case 'matches_regex':
 			case 'regex': // Alias.
 				$pattern = (string) $expected_value;
 				// Auto-add delimiters if missing (JS sends bare patterns like "^foo.*$").
-				if ( ! empty( $pattern ) && $pattern[0] !== '/' && $pattern[0] !== '#' && $pattern[0] !== '~' ) {
-					$pattern = '/' . str_replace( '/', '\\/', $pattern ) . '/';
+				if (! empty($pattern) && $pattern[0] !== '/' && $pattern[0] !== '#' && $pattern[0] !== '~') {
+					$pattern = '/' . str_replace('/', '\\/', $pattern) . '/';
 				}
 				// Suppress warnings for invalid regex.
-				return @preg_match( $pattern, (string) $actual_value ) === 1;
+				return @preg_match($pattern, (string) $actual_value) === 1;
 
 			default:
 				/**
@@ -785,8 +795,8 @@ class TrackSure_Goal_Evaluator {
 				 * @param mixed     $actual_value   Actual value from event.
 				 * @param mixed     $expected_value Expected value from condition.
 				 */
-				$result = apply_filters( 'tracksure_goal_custom_operator', null, $operator, $actual_value, $expected_value );
-				if ( $result !== null ) {
+				$result = apply_filters('tracksure_goal_custom_operator', null, $operator, $actual_value, $expected_value);
+				if ($result !== null) {
 					return $result;
 				}
 				return false;
@@ -809,7 +819,8 @@ class TrackSure_Goal_Evaluator {
 	 * @param array  $session    Session data with 'visitor_id' and 'session_id'.
 	 * @return void
 	 */
-	private function trigger_conversion( $event_id, $goal, $event_data, $session ) {
+	private function trigger_conversion($event_id, $goal, $event_data, $session)
+	{
 		global $wpdb;
 
 		// ========================================.
@@ -818,10 +829,10 @@ class TrackSure_Goal_Evaluator {
 		// Check if conversion already exists for this event_id + goal_id.
 		// Prevents duplicate conversions from browser + server tracking!
 
-		$existing_conversion = $this->db->get_conversion_by_event_and_goal( $event_id, $goal->goal_id );
+		$existing_conversion = $this->db->get_conversion_by_event_and_goal($event_id, $goal->goal_id);
 
-		if ( $existing_conversion ) {
-			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+		if ($existing_conversion) {
+			if (defined('WP_DEBUG') && WP_DEBUG) {
 				error_log(
 					'[TrackSure] Goal Evaluator: Duplicate conversion prevented - event_id=' .
 						$event_id . ', goal_id=' . $goal->goal_id . ', existing_conversion_id=' . $existing_conversion
@@ -832,21 +843,21 @@ class TrackSure_Goal_Evaluator {
 
 		// Extract conversion value based on value_type.
 		$conversion_value = 0;
-		$value_type       = isset( $goal->value_type ) ? $goal->value_type : 'none';
+		$value_type       = isset($goal->value_type) ? $goal->value_type : 'none';
 
-		switch ( $value_type ) {
+		switch ($value_type) {
 			case 'fixed':
 				// Use fixed_value from goal definition.
-				$conversion_value = isset( $goal->fixed_value ) ? (float) $goal->fixed_value : 0;
+				$conversion_value = isset($goal->fixed_value) ? (float) $goal->fixed_value : 0;
 				break;
 
 			case 'dynamic':
 				// Extract from event data (ecommerce, form, etc.).
-				if ( isset( $event_data['value'] ) ) {
+				if (isset($event_data['value'])) {
 					$conversion_value = (float) $event_data['value'];
-				} elseif ( isset( $event_data['order_total'] ) ) {
+				} elseif (isset($event_data['order_total'])) {
 					$conversion_value = (float) $event_data['order_total'];
-				} elseif ( isset( $event_data['conversion_value'] ) ) {
+				} elseif (isset($event_data['conversion_value'])) {
 					$conversion_value = (float) $event_data['conversion_value'];
 				}
 				break;
@@ -875,8 +886,8 @@ class TrackSure_Goal_Evaluator {
 			'conversion_type'  => 'goal',
 			'goal_id'          => $goal->goal_id,
 			'conversion_value' => $conversion_value,
-			'currency'         => isset( $event_data['currency'] ) ? $event_data['currency'] : 'USD',
-			'converted_at'     => current_time( 'mysql', 1 ),
+			'currency'         => isset($event_data['currency']) ? $event_data['currency'] : 'USD',
+			'converted_at'     => current_time('mysql', 1),
 		);
 
 		/**
@@ -891,18 +902,18 @@ class TrackSure_Goal_Evaluator {
 		 * @param array  $event_data      Full event data.
 		 * @param array  $session         Session data.
 		 */
-		$conversion_data = apply_filters( 'tracksure_goal_conversion_data', $conversion_data, $goal, $event_data, $session );
+		$conversion_data = apply_filters('tracksure_goal_conversion_data', $conversion_data, $goal, $event_data, $session);
 
 		// Use Conversion Recorder for the single source of truth.
 		// It handles: insert, touchpoint linking, attribution model calculation, dedup.
 		$conversion_id = 0;
 
-		if ( class_exists( 'TrackSure_Conversion_Recorder' ) ) {
+		if (class_exists('TrackSure_Conversion_Recorder')) {
 			$conversion_recorder = TrackSure_Conversion_Recorder::get_instance();
-			$conversion_id       = $conversion_recorder->record_conversion( $conversion_data );
+			$conversion_id       = $conversion_recorder->record_conversion($conversion_data);
 
-			if ( $conversion_id && defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-				error_log( '[TrackSure] Goal Evaluator: Conversion + attribution recorded for goal conversion ' . $conversion_id );
+			if ($conversion_id && defined('WP_DEBUG') && WP_DEBUG) {
+				error_log('[TrackSure] Goal Evaluator: Conversion + attribution recorded for goal conversion ' . $conversion_id);
 			}
 		}
 
@@ -916,7 +927,7 @@ class TrackSure_Goal_Evaluator {
 		 * @param string $event_id Event ID (UUID).
 		 * @param array  $session Session data.
 		 */
-		do_action( 'tracksure_goal_conversion', $conversion_id, $goal, $event_id, $session );
+		do_action('tracksure_goal_conversion', $conversion_id, $goal, $event_id, $session);
 	}
 
 	/**
@@ -933,9 +944,10 @@ class TrackSure_Goal_Evaluator {
 	 *
 	 * @return void
 	 */
-	public function clear_cache(): void {
+	public function clear_cache(): void
+	{
 		$this->active_goals   = null;
 		$this->goals_by_event = null;
-		delete_transient( 'tracksure_active_goals_server' );
+		delete_transient('tracksure_active_goals_server');
 	}
 }
