@@ -38,13 +38,14 @@ import './GoalsOverview.css';
 export const GoalsOverview: React.FC = () => {
   const { dateRange } = useApp();
 
-  // Fetch overview data
+  // Fetch overview data (30s staleTime prevents refetch on every tab switch)
   const { data, isLoading, error, refetch } = useApiQuery<GoalsOverviewType>(
     'getGoalsOverview',
     {
       start_date: formatLocalDate(dateRange.start),
       end_date: formatLocalDate(dateRange.end),
-    }
+    },
+    { staleTime: 30000 }
   );
 
   // Calculate trend badges

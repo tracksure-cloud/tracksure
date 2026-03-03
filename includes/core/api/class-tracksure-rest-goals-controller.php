@@ -719,7 +719,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 			? sanitize_text_field( $request->get_param( 'date_end' ) )
 			: sanitize_text_field( $request->get_param( 'end_date' ) );
 
-		// Check cache first (5 minute TTL).
+		// Check cache first (1 minute TTL).
 		$cache_key = 'tracksure_goal_perf_' . $goal_id . '_' . md5( $date_start . $date_end );
 		$cached    = get_transient( $cache_key );
 
@@ -769,8 +769,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 			'conversion_rate' => $conversion_rate,
 		);
 
-		// Cache for 5 minutes.
-		set_transient( $cache_key, $result, 5 * MINUTE_IN_SECONDS );
+		// Cache for 1 minute.
+		set_transient( $cache_key, $result, MINUTE_IN_SECONDS );
 
 		return $this->prepare_success( $result );
 	}
@@ -801,7 +801,7 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 			);
 		}
 
-		// Check cache first (5 minute TTL).
+		// Check cache first (1 minute TTL).
 		$cache_key = 'tracksure_goals_perf_' . md5( $goal_ids_param . $date_start . $date_end );
 		$cached    = get_transient( $cache_key );
 
@@ -924,8 +924,8 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller {
 			}
 		}
 
-		// Cache for 5 minutes.
-		set_transient( $cache_key, $performance, 5 * MINUTE_IN_SECONDS );
+		// Cache for 1 minute (shorter TTL so dashboard data stays fresh).
+		set_transient( $cache_key, $performance, MINUTE_IN_SECONDS );
 
 		return $this->prepare_success( array( 'performance' => $performance ) );
 	}

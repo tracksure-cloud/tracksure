@@ -101,8 +101,8 @@ const GoalsPage: React.FC = () => {
     'getGoals',
     {},
     { 
-      refetchInterval: undefined,
-      retry: 2, // Enable retries for better reliability
+      staleTime: 30000, // 30s — avoid refetch on every tab switch
+      retry: 2,
       onError: (err) => console.error('[GoalsPage] Failed to fetch goals:', err)
     }
   );
@@ -122,8 +122,8 @@ const GoalsPage: React.FC = () => {
     'getGoalsPerformance',
     params,
     {
-      enabled: goals.length > 0 && goalIds.length > 0, //  Prevent empty goal_ids API call
-      refetchInterval: undefined,
+      enabled: goals.length > 0 && goalIds.length > 0,
+      staleTime: 30000, // 30s — performance data can be slightly stale
       retry: 2,
       onError: (err) => console.warn('[GoalsPage] Performance data unavailable:', err)
     }

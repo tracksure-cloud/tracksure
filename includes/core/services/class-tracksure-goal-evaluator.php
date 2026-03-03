@@ -232,12 +232,43 @@ class TrackSure_Goal_Evaluator {
 			$all_goals            = $this->get_active_goals();
 			$this->goals_by_event = array();
 
+			// Trigger-type → event-name mapping (mirrors JS TRIGGER_EVENT_MAP).
+			// Ensures goals are findable even if event_name doesn't exactly match.
+			$trigger_event_map = array(
+				'pageview'      => array( 'page_view' ),
+				'click'         => array( 'click' ),
+				'form_submit'   => array( 'form_submit', 'form_submission' ),
+				'scroll_depth'  => array( 'scroll' ),
+				'time_on_page'  => array( 'page_exit', 'time_on_page', 'time_on_page_threshold' ),
+				'engagement'    => array( 'engagement', 'page_exit' ),
+				'video_play'    => array( 'video_play', 'video_start', 'video_complete' ),
+				'download'      => array( 'file_download', 'download' ),
+				'outbound_link' => array( 'outbound_click', 'external_link' ),
+			);
+
 			foreach ( $all_goals as $goal ) {
+				// Primary index: goal's own event_name.
 				$key = $goal->event_name;
 				if ( ! isset( $this->goals_by_event[ $key ] ) ) {
 					$this->goals_by_event[ $key ] = array();
 				}
 				$this->goals_by_event[ $key ][] = $goal;
+
+				// Secondary index: all event names for this trigger_type.
+				// This ensures a 'scroll_depth' trigger goal is found when
+				// a 'scroll' event arrives, even if event_name is mismatched.
+				if ( ! empty( $goal->trigger_type ) && isset( $trigger_event_map[ $goal->trigger_type ] ) ) {
+					foreach ( $trigger_event_map[ $goal->trigger_type ] as $mapped_event ) {
+						if ( $mapped_event !== $key ) { // Avoid duplicate.
+							if ( ! isset( $this->goals_by_event[ $mapped_event ] ) ) {
+								$this->goals_by_event[ $mapped_event ] = array();
+							}
+							$this->goals_by_event[ $mapped_event ][] = $goal;
+						}
+					}
+				}
+
+				// Custom events: also index by event_name directly (already done above).
 			}
 		}
 

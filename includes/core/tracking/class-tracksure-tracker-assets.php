@@ -68,25 +68,7 @@ class TrackSure_Tracker_Assets {
 			return;
 		}
 
-		// 1. Enqueue currency handler (no dependencies - pure utility).
-		wp_enqueue_script(
-			'ts-currency',
-			TRACKSURE_PLUGIN_URL . 'assets/js/ts-currency.js',
-			array(),
-			TRACKSURE_VERSION,
-			true
-		);
-
-		// 2. Enqueue goal constants (shared constants for JS/React/PHP).
-		wp_enqueue_script(
-			'ts-goal-constants',
-			TRACKSURE_PLUGIN_URL . 'admin/tracksure-goal-constants.js',
-			array(),
-			TRACKSURE_VERSION,
-			true
-		);
-
-		// 3. Enqueue main tracking script (neutral name avoids ad-blocker keyword matching).
+		// 1. Enqueue main tracking script (neutral name avoids ad-blocker keyword matching).
 		// Uses 'defer' strategy (WP 6.3+) so the script doesn't block HTML parsing.
 		// Falls back to footer loading on older WP versions.
 		wp_enqueue_script(
@@ -108,39 +90,75 @@ class TrackSure_Tracker_Assets {
 			$config
 		);
 
-		// 4. Enqueue Universal MiniCart tracking (depends on ts-web + ts-currency).
-		wp_enqueue_script(
-			'ts-minicart',
-			TRACKSURE_PLUGIN_URL . 'assets/js/ts-minicart.js',
-			array( 'ts-web', 'ts-currency' ),
-			TRACKSURE_VERSION,
-			true
-		);
+		// 2. Enqueue currency handler + minicart only when ecommerce is active.
+		// No need to load 33 KB of JS on non-ecommerce sites.
+		if ( $this->is_ecommerce_active() ) {
+			wp_enqueue_script(
+				'ts-currency',
+				TRACKSURE_PLUGIN_URL . 'assets/js/ts-currency.js',
+				array(),
+				TRACKSURE_VERSION,
+				array(
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				)
+			);
 
-		// 5. Enqueue consent change listeners (depends on ts-web for config).
+			wp_enqueue_script(
+				'ts-minicart',
+				TRACKSURE_PLUGIN_URL . 'assets/js/ts-minicart.js',
+				array( 'ts-web', 'ts-currency' ),
+				TRACKSURE_VERSION,
+				array(
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				)
+			);
+		}
+
+		// 3. Enqueue consent change listeners (depends on ts-web for config).
 		wp_enqueue_script(
 			'ts-consent-listeners',
 			TRACKSURE_PLUGIN_URL . 'assets/js/consent-listeners.js',
 			array( 'ts-web' ),
 			TRACKSURE_VERSION,
-			true
+			array(
+				'strategy'  => 'defer',
+				'in_footer' => true,
+			)
 		);
 
-		// 6. Enqueue goals tracking script (depends on constants + main tracker).
-		wp_enqueue_script(
-			'ts-goals',
-			TRACKSURE_PLUGIN_URL . 'admin/tracking-goals.js',
-			array( 'ts-goal-constants', 'ts-web' ), // Depends on both
-			TRACKSURE_VERSION,
-			true
-		);
+		// 4. Enqueue goals tracking only when active goals exist.
+		$active_goals = $this->get_active_goals();
+		if ( ! empty( $active_goals ) ) {
+			wp_enqueue_script(
+				'ts-goal-constants',
+				TRACKSURE_PLUGIN_URL . 'admin/tracksure-goal-constants.js',
+				array(),
+				TRACKSURE_VERSION,
+				array(
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				)
+			);
 
-		// Pass active goals to script.
-		wp_localize_script(
-			'ts-goals',
-			'tracksure_goals',
-			$this->get_active_goals()
-		);
+			wp_enqueue_script(
+				'ts-goals',
+				TRACKSURE_PLUGIN_URL . 'admin/tracking-goals.js',
+				array( 'ts-goal-constants', 'ts-web' ),
+				TRACKSURE_VERSION,
+				array(
+					'strategy'  => 'defer',
+					'in_footer' => true,
+				)
+			);
+
+			wp_localize_script(
+				'ts-goals',
+				'tracksure_goals',
+				$active_goals
+			);
+		}
 	}
 
 	/**
@@ -208,6 +226,21 @@ class TrackSure_Tracker_Assets {
 		set_transient( $cache_key, $goals, 5 * MINUTE_IN_SECONDS );
 
 		return $goals;
+	}
+
+	/**
+	 * Check if any supported ecommerce plugin is active.
+	 *
+	 * Prevents loading ~33 KB of minicart + currency JS on non-ecommerce sites.
+	 *
+	 * @return bool
+	 */
+	private function is_ecommerce_active() {
+		return class_exists( 'WooCommerce' ) ||
+			class_exists( 'Easy_Digital_Downloads' ) ||
+			class_exists( 'SureCart' ) ||
+			class_exists( 'FluentCart\\App\\App' ) ||
+			class_exists( 'Cartflows_Loader' );
 	}
 
 	/**

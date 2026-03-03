@@ -23,9 +23,9 @@
         click: ['click'],
         form_submit: ['form_submit', 'form_submission'],
         scroll_depth: ['scroll'], // Maps scroll_depth trigger → scroll event
-        time_on_page: ['page_exit', 'time_on_page'],
-        engagement: ['engagement'], //  Added: engagement trigger
-        video_play: ['video_play', 'video_start'],
+        time_on_page: ['page_exit', 'time_on_page', 'time_on_page_threshold'],
+        engagement: ['engagement', 'page_exit'], // engagement evaluates scroll+time from page_exit data
+        video_play: ['video_play', 'video_start', 'video_complete'],
         download: ['file_download', 'download'],
         outbound_link: ['outbound_click', 'external_link'],
         custom_event: [] // Custom events match by exact event_name
