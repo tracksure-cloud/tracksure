@@ -4,7 +4,7 @@ Tags: analytics, tracking, server-side-tracking, facebook-pixel, conversion-api
 Requires at least: 6.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -821,6 +821,18 @@ All with **browser-side** and **server-side (Conversion API)** tracking where su
 
 == Changelog ==
 
+= 1.0.1 - 2026-03-03 =
+* Fix: Goal cards now correctly display performance data (conversions, revenue, conversion rate) — batch performance cache was returning data without the expected wrapper key
+* Fix: 3 broken goal templates (scroll_depth, time_on_page, video_complete) now fire correctly
+* Fix: Goal condition evaluator type coercion — wp_localize_script sends numbers as strings, causing operator comparisons to fail
+* Fix: Ecommerce platform detection now recognizes SureCart and FunnelKit
+* Improvement: All 6 frontend scripts now use defer loading strategy for better page speed
+* Improvement: Conditional script loading — minicart/currency scripts only load when ecommerce is active, goal scripts only when goals exist
+* Improvement: Added loading skeleton placeholders on goal cards while performance data loads
+* Improvement: PHP goal evaluator uses secondary trigger_type index for faster lookups
+* Improvement: Reduced goal cache TTL from 5 minutes to 1 minute for fresher dashboard data
+* Improvement: Added auto-refresh (5 min) for performance queries
+
 = 1.0.0 - 2026-02-05 =
 - Initial release
 - Browser tracking SDK with comprehensive event capture
@@ -833,6 +845,9 @@ All with **browser-side** and **server-side (Conversion API)** tracking where su
 - Performance optimizations (caching, CDN compatibility)
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Bug fix release: Fixes goal performance data not displaying on cards, broken goal templates, and type coercion issues. Adds deferred script loading for better page speed.
 
 = 1.0.0 =
 Initial release of TrackSure - Complete first-party analytics and attribution platform for WordPress.
