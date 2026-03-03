@@ -1,6 +1,6 @@
 {
   "name": "tracksure-validation",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Code validation scripts for TrackSure WordPress plugin",
   "scripts": {
     "phpcs": "phpcs --standard=phpcs.xml",
