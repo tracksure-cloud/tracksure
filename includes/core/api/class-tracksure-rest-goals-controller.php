@@ -815,6 +815,11 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		$cached    = get_transient($cache_key);
 
 		if ($cached !== false) {
+			// Normalize: legacy caches stored just the performance map
+			// without the 'performance' wrapper key.
+			if (! isset($cached['performance'])) {
+				$cached = array('performance' => $cached);
+			}
 			return $this->prepare_success($cached);
 		}
 
@@ -934,9 +939,10 @@ class TrackSure_REST_Goals_Controller extends TrackSure_REST_Controller
 		}
 
 		// Cache for 1 minute (shorter TTL so dashboard data stays fresh).
-		set_transient($cache_key, $performance, MINUTE_IN_SECONDS);
+		$response_data = array('performance' => $performance);
+		set_transient($cache_key, $response_data, MINUTE_IN_SECONDS);
 
-		return $this->prepare_success(array('performance' => $performance));
+		return $this->prepare_success($response_data);
 	}
 
 	/**
